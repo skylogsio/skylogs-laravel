@@ -1,0 +1,24 @@
+POST {{domain}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password" : "123456"
+}
+
+> {% client.global.set("authToken", response.body.access_token); %}
+
+###
+POST {{domain}}/auth/me
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+POST {{domain}}/auth/logout
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+

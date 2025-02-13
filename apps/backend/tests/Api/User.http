@@ -1,0 +1,57 @@
+GET {{domain}}/user/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET {{domain}}/user/67ae64ca98509c886504e9e2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+// role can be owner , manager , member
+POST {{domain}}/user/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "user1",
+    "username" : "user1",
+    "password" : "123456",
+    "role" : "member"
+}
+
+###
+POST {{domain}}/user/pass/67ae64ca98509c886504e9e2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "password": "123456",
+    "newPassword" : "123456"
+}
+
+###
+POST {{domain}}/user/67ae64ca98509c886504e9e2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "user11",
+    "username" : "user11",
+    "role" : "manager"
+}
+
+
+###
+DELETE {{domain}}/user/67ae64ca98509c886504e9e2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
