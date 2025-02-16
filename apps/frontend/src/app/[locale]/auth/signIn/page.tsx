@@ -46,13 +46,13 @@ export default function AuthenticationPage() {
 
   async function handleSubmitSignIn(body: SignInBody) {
     setLoading(true);
-    const response = await signIn("credentials", {
-      redirect: false,
-      username: body.username,
-      password: body.password
-    });
-    setLoading(false);
     try {
+      const response = await signIn("credentials", {
+        redirect: false,
+        username: body.username,
+        password: body.password
+      });
+      setLoading(false);
       if (response?.error === null) {
         window.location.reload();
         return;
