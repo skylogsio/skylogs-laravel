@@ -4,14 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotifyJob;
-use App\Models\AlertRule;
 use App\Models\Endpoint;
-use App\Models\MetabaseWebhookAlert;
-use App\Models\SentryWebhookAlert;
-use App\Models\ZabbixWebhookAlert;
-use App\Services\GrafanaService;
-use App\Services\SendNotifyService;
 use Illuminate\Http\Request;
 
 
@@ -65,8 +58,7 @@ class EndpointController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
-            ], [
-            ]
+            ],
         );
         if ($va->passes()) {
             $value = trim($request->value);
@@ -113,8 +105,7 @@ class EndpointController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
-            ], [
-            ]
+            ],
         );
         if ($va->passes()) {
             $value = trim($request->value);

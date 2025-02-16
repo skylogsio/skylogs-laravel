@@ -26,7 +26,7 @@ Authorization: Bearer {{authToken}}
 }
 
 ###
-POST {{domain}}/user/pass/67ae64ca98509c886504e9e2
+PUT {{domain}}/user/pass/67ae64ca98509c886504e9e2
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -37,7 +37,7 @@ Authorization: Bearer {{authToken}}
 }
 
 ###
-POST {{domain}}/user/67ae64ca98509c886504e9e2
+PUT {{domain}}/user/67ae64ca98509c886504e9e2
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
