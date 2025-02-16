@@ -13,7 +13,7 @@ services:
             - redis
         environment:
             - APP_ENV=local
-            - APP_DEBUG=false
+            - APP_DEBUG=true
             - DB_CONNECTION=mongodb
             - DB_HOST=mongo
             - DB_PORT=27017

@@ -18,10 +18,15 @@ const handler = NextAuth({
           username: credentials?.username,
           password: credentials?.password
         };
+        try{
+
         const user = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, body, {
           headers: { "Content-Type": "application/json", "Accept-Language": acceptLanguage }
         });
         return user.data;
+        }catch (e) {
+          console.log(e);
+        }
         // const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, {
         //   method: "POST",
         //   headers: { "Content-Type": "application/json", "Accept-Language": acceptLanguage },
