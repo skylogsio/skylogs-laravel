@@ -30,8 +30,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
-                Route::post('/pass/{id}', 'ChangePassword');
-                Route::post('/{id}', 'Update');
+                Route::put('/pass/{id}', 'ChangePassword');
+                Route::put('/{id}', 'Update');
                 Route::delete('/{id}', 'Delete');
             });
 
@@ -41,7 +41,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
-                Route::post('/{id}', 'Update');
+                Route::put('/{id}', 'Update');
                 Route::delete('/{id}', 'Delete');
             });
 

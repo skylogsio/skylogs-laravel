@@ -34,12 +34,12 @@ Authorization: Bearer {{authToken}}
 {
     "name": "test2",
     "type" : "telegram",
-    "chatId" : "-100",
+    "value" : "-100",
     "threadId" : "1"
 }
 
 ###
-POST {{domain}}/endpoint/67ab9d887ad723b5b807db12
+PUT {{domain}}/endpoint/67ab9d887ad723b5b807db12
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

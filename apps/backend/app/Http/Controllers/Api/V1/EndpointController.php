@@ -4,14 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotifyJob;
-use App\Models\AlertRule;
 use App\Models\Endpoint;
-use App\Models\MetabaseWebhookAlert;
-use App\Models\SentryWebhookAlert;
-use App\Models\ZabbixWebhookAlert;
-use App\Services\GrafanaService;
-use App\Services\SendNotifyService;
 use Illuminate\Http\Request;
 
 
@@ -65,21 +58,20 @@ class EndpointController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
-            ], [
-            ]
+            ],
         );
         if ($va->passes()) {
+            $value = trim($request->value);
 
             if ($request->type == "telegram") {
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
-                    'chatId' => $request->chatId,
+                    'chatId' => $value,
                     'threadId' => $request->threadId,
                 ]);
             } else {
-                $value = trim($request->value);
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
                     'name' => $request->name,
@@ -113,20 +105,19 @@ class EndpointController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
-            ], [
-            ]
+            ],
         );
         if ($va->passes()) {
+            $value = trim($request->value);
 
             if ($request->type == "telegram") {
                 $model->update([
                     'name' => $request->name,
                     'type' => $request->type,
-                    'chatId' => $request->chatId,
+                    'chatId' => $value,
                     'threadId' => $request->threadId,
                 ]);
             } else {
-                $value = trim($request->value);
                 $model->update([
                     'name' => $request->name,
                     'type' => $request->type,
