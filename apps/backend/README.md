@@ -1,6 +1,6 @@
 ### Steps
 
 
-- rename .env.example to .env 
+- `cp .env.example .env`
 - `docker-compose up -d`
-- `docker exec -it skylogs_app php artisan migrate`
+- Wait until the relevant files are prepared and downloaded.

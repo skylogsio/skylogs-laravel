@@ -24,7 +24,7 @@ class AuthController extends Controller
         $credentials = $request->only('username', 'password');
 
         if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         // Generate refresh token with a custom claim
@@ -44,7 +44,7 @@ class AuthController extends Controller
             $payload = auth()->setToken($refreshToken)->getPayload();
 
             if (!$payload->get('refresh')) {
-                return response()->json(['error' => 'Invalid refresh token'], 401);
+                return response()->json(['message' => 'Invalid refresh token'], 401);
             }
 
             // Generate new access and refresh tokens
@@ -53,7 +53,7 @@ class AuthController extends Controller
 
             return $this->respondWithTokens($newAccessToken, $newRefreshToken);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Invalid or expired refresh token'], 401);
+            return response()->json(['message' => 'Invalid or expired refresh token'], 401);
         }
     }
 
