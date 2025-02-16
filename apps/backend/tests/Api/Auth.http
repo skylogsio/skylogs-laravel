@@ -1,5 +1,6 @@
 POST {{domain}}/auth/login
 Content-Type: application/json
+Accept: application/json
 
 {
     "username": "admin",
