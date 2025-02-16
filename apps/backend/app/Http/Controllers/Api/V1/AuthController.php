@@ -11,7 +11,6 @@ use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
 use Illuminate\Http\Request;
 
 
@@ -27,13 +26,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Generate refresh token with a custom claim
-        $refreshToken = auth()->claims(['refresh' => true])->tokenById(auth()->id()); // 30 days TTL
+        $refreshToken = auth()->claims(['refresh' => true])->tokenById(auth()->id());
 
         return $this->respondWithTokens($token, $refreshToken);
     }
 
-    // Refresh the access token using the refresh token
     public function refresh(Request $request)
     {
         try {
@@ -47,7 +44,6 @@ class AuthController extends Controller
                 return response()->json(['message' => 'Invalid refresh token'], 401);
             }
 
-            // Generate new access and refresh tokens
             $newAccessToken = auth()->tokenById($payload->get('sub'));
             $newRefreshToken = auth()->claims(['refresh' => true])->setTTL(43200)->tokenById($payload->get('sub'));
 
@@ -63,8 +59,8 @@ class AuthController extends Controller
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60, // TTL for access token
-            'refresh_expires_in' => 43200 * 60, // TTL for refresh token
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'refresh_expires_in' => 43200 * 60,
         ]);
     }
 
@@ -74,7 +70,7 @@ class AuthController extends Controller
         return response()->json(auth()->user());
     }
 
-    // Logout
+
     public function logout()
     {
         auth()->logout();
