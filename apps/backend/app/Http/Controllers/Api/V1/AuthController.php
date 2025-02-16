@@ -4,13 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotifyJob;
-use App\Models\AlertRule;
-use App\Models\MetabaseWebhookAlert;
-use App\Models\SentryWebhookAlert;
-use App\Models\ZabbixWebhookAlert;
-use App\Services\GrafanaService;
-use App\Services\SendNotifyService;
 use Illuminate\Http\Request;
 
 
@@ -34,7 +27,6 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         try {
-            // Verify that the token has a "refresh" claim
             $refreshToken = $request->header('Authorization');
             $refreshToken = str_replace('Bearer ', '', $refreshToken);
 

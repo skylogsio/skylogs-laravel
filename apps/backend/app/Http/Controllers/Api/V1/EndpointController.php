@@ -69,17 +69,17 @@ class EndpointController extends Controller
             ]
         );
         if ($va->passes()) {
+            $value = trim($request->value);
 
             if ($request->type == "telegram") {
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
-                    'chatId' => $request->chatId,
+                    'chatId' => $value,
                     'threadId' => $request->threadId,
                 ]);
             } else {
-                $value = trim($request->value);
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
                     'name' => $request->name,
@@ -117,16 +117,16 @@ class EndpointController extends Controller
             ]
         );
         if ($va->passes()) {
+            $value = trim($request->value);
 
             if ($request->type == "telegram") {
                 $model->update([
                     'name' => $request->name,
                     'type' => $request->type,
-                    'chatId' => $request->chatId,
+                    'chatId' => $value,
                     'threadId' => $request->threadId,
                 ]);
             } else {
-                $value = trim($request->value);
                 $model->update([
                     'name' => $request->name,
                     'type' => $request->type,
