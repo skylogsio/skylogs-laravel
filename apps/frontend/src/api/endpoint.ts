@@ -3,5 +3,9 @@ import axios from "@/utils/axios";
 const ENDPOINT_URL = "endpoint";
 
 export function createEndpoint(body: unknown) {
-  return axios.post(process.env.NEXT_PUBLIC_BASE_URL + ENDPOINT_URL, body);
+  return axios.post(ENDPOINT_URL, body);
+}
+
+export function updateEndpoint(endpointId:unknown,body: unknown) {
+  return axios.put(`${ENDPOINT_URL}/${endpointId}`, body);
 }
