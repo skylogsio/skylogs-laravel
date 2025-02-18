@@ -22,6 +22,7 @@ export default function ActionColumn({ onEdit, onDelete }: ActionColumnProps) {
       )}
       {onDelete && (
         <IconButton
+          onClick={onDelete}
           sx={({ palette }) => ({
             color: palette.error.light,
             backgroundColor: alpha(palette.error.light, 0.05),
