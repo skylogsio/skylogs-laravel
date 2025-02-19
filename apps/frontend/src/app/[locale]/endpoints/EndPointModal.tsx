@@ -56,7 +56,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
   const { mutate: createEndpointMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: EndpointFormType) => createEndpoint(body),
     onSuccess: () => {
-      toast.success("Successfully created Endpoint!");
+      toast.success("EndPoint Created Successfully.");
       onSubmit();
       onClose?.();
     }
@@ -64,7 +64,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
   const { mutate: updateEndpointMutation, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, body }: { id: string; body: EndpointFormType }) => updateEndpoint(id, body),
     onSuccess: () => {
-      toast.success("Successfully updated Endpoint!");
+      toast.success("EndPoint Updated Successfully.");
       onSubmit();
       onClose?.();
     }
@@ -72,11 +72,6 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
 
   function handleSubmitForm(body: EndpointFormType) {
     if (data === "NEW") {
-      if (body.type === "telegram") {
-        const chatId = body.value;
-        delete (body as Partial<EndpointFormType>).value;
-        body.chatId = chatId;
-      }
       createEndpointMutation(body);
     } else if (data) {
       updateEndpointMutation({ id: data.id, body });
