@@ -26,6 +26,11 @@ export default function EndPoints() {
     }
   }
 
+  function handleDelete() {
+    setDeleteModalData(null);
+    handleRefreshData();
+  }
+
   return (
     <>
       <Table<IEndpoint>
@@ -71,7 +76,7 @@ export default function EndPoints() {
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
-          onDelete={handleRefreshData}
+          onDelete={handleDelete}
         />
       )}
     </>

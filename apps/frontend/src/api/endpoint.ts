@@ -9,3 +9,7 @@ export function createEndpoint(body: unknown) {
 export function updateEndpoint(endpointId:unknown,body: unknown) {
   return axios.put(`${ENDPOINT_URL}/${endpointId}`, body);
 }
+
+export function deleteEndpoint(endpointId:unknown) {
+  return axios.delete(`${ENDPOINT_URL}/${endpointId}`);
+}
