@@ -5,12 +5,12 @@ import { HiX } from "react-icons/hi";
 import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes";
 import ModalContainer from "@/components/Modal";
 
-
 export default function DeleteModalContainer({
   open,
   onClose,
   children,
-  onDelete
+  onDelete,
+  isLoading
 }: DeleteModalProps) {
   const { palette } = useTheme();
   return (
@@ -21,7 +21,9 @@ export default function DeleteModalContainer({
           Are you sure?
         </Typography>
         <Typography variant="body2" component="p" align="center">
-          Do you really want to delete this record? This process can not be undone.
+          Do you really want to delete this record?
+          <br />
+          This process can not be undone.
         </Typography>
         <Grid
           container
@@ -34,10 +36,23 @@ export default function DeleteModalContainer({
           {children}
         </Grid>
         <Stack width="100%" direction="row-reverse" justifyContent="flex-start" spacing={2}>
-          <Button variant="contained" color="error" onClick={onDelete}>
+          <Button
+            fullWidth
+            disabled={isLoading}
+            variant="contained"
+            color="error"
+            onClick={onDelete}
+          >
             Yes, I&#39;m Sure.
           </Button>
-          <Button variant="outlined" onClick={onClose} color="secondary" startIcon={<HiX />}>
+          <Button
+            fullWidth
+            disabled={isLoading}
+            variant="outlined"
+            onClick={onClose}
+            color="secondary"
+            startIcon={<HiX />}
+          >
             Cancel
           </Button>
         </Stack>
