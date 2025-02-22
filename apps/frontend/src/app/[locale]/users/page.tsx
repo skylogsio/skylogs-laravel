@@ -10,16 +10,7 @@ import CreateUserModal from "./CreateUserModal";
 
 export default function Users() {
   const tableRef = useRef<TableComponentRef>(null);
-
-  const [open, setOpen] = useState(false);
-
-  function handleOpen() {
-    setOpen(true);
-  }
-
-  function handleClose() {
-    setOpen(false);
-  }
+  const [openCreateModal, setOpenCreateModal] = useState(false);
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -47,9 +38,15 @@ export default function Users() {
             cell: () => <ActionColumn onEdit={() => {}} onDelete={() => {}} />
           }
         ]}
-        onCreate={handleOpen}
+        onCreate={() => setOpenCreateModal(true)}
       />
-      {open && <CreateUserModal open={open} onClose={handleClose} onSubmit={handleRefreshData} />}
+      {openCreateModal && (
+        <CreateUserModal
+          open={openCreateModal}
+          onClose={() => setOpenCreateModal(false)}
+          onSubmit={handleRefreshData}
+        />
+      )}
     </>
   );
 }
