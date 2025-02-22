@@ -1,14 +1,15 @@
-import { alpha, Box, IconButton } from "@mui/material";
-import { HiPencil, HiTrash } from "react-icons/hi";
+import { alpha, IconButton, Stack } from "@mui/material";
+import { HiKey, HiPencil, HiTrash } from "react-icons/hi";
 
 interface ActionColumnProps {
   onEdit?: () => void;
   onDelete?: () => void;
+  onChangePassword?: () => void;
 }
 
-export default function ActionColumn({ onEdit, onDelete }: ActionColumnProps) {
+export default function ActionColumn({ onEdit, onDelete, onChangePassword }: ActionColumnProps) {
   return (
-    <Box>
+    <Stack direction="row" spacing={1}>
       {onEdit && (
         <IconButton
           onClick={onEdit}
@@ -20,18 +21,28 @@ export default function ActionColumn({ onEdit, onDelete }: ActionColumnProps) {
           <HiPencil size="1.4rem" />
         </IconButton>
       )}
+      {onChangePassword && (
+        <IconButton
+          onClick={onChangePassword}
+          sx={({ palette }) => ({
+            color: palette.secondary.main,
+            backgroundColor: alpha(palette.secondary.dark, 0.05)
+          })}
+        >
+          <HiKey size="1.3rem" />
+        </IconButton>
+      )}
       {onDelete && (
         <IconButton
           onClick={onDelete}
           sx={({ palette }) => ({
             color: palette.error.light,
-            backgroundColor: alpha(palette.error.light, 0.05),
-            marginLeft: "0.5rem"
+            backgroundColor: alpha(palette.error.light, 0.05)
           })}
         >
           <HiTrash size="1.4rem" />
         </IconButton>
       )}
-    </Box>
+    </Stack>
   );
 }
