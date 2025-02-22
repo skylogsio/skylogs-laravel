@@ -1,11 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import type { IUser } from "@/@types/user";
+import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table";
+import type { TableComponentRef } from "@/components/Table/types";
 
-import CreateUserModal from "./CreateModal";
+import CreateUserModal from "./CreateUserModal";
 
 export default function Users() {
+  const tableRef = useRef<TableComponentRef>(null);
+
   const [open, setOpen] = useState(false);
 
   function handleOpen() {
@@ -16,24 +21,35 @@ export default function Users() {
     setOpen(false);
   }
 
+  function handleRefreshData() {
+    if (tableRef.current) {
+      tableRef.current.refreshData();
+    }
+  }
+
   return (
     <>
-      <Table
+      <Table<IUser>
+        ref={tableRef}
         title="Users"
-        url={`${process.env.NEXT_PUBLIC_BASE_URL}users`}
+        url="user"
         defaultPage={1}
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => index },
-          { header: "Username", accessorKey: "name" },
-          { header: "Full Name", accessorKey: "price" },
+          { header: "Username", accessorKey: "username" },
+          { header: "Full Name", accessorKey: "name" },
           { header: "Role", accessorKey: "price" },
-          { header: "Created At", accessorKey: "price" },
-          { header: "Updated At", accessorKey: "price" }
+          { header: "Created At", accessorKey: "created_at" },
+          { header: "Updated At", accessorKey: "updated_at" },
+          {
+            header: "Action",
+            cell: () => <ActionColumn onEdit={() => {}} onDelete={() => {}} />
+          }
         ]}
         onCreate={handleOpen}
       />
-      <CreateUserModal open={open} onClose={handleClose} />
+      {open && <CreateUserModal open={open} onClose={handleClose} onSubmit={handleRefreshData} />}
     </>
   );
 }
