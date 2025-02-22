@@ -16,16 +16,20 @@ import type { ModalContainerProps } from "@/components/Modal/types";
 const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call"] as const;
 
 const createEndpointSchema = z.object({
-  name: z.string({ required_error: "Name is Required." }).refine((data) => data.trim() !== "", {
-    message: "Name is Required."
-  }),
+  name: z
+    .string({ required_error: "This field is Required." })
+    .refine((data) => data.trim() !== "", {
+      message: "This field is Required."
+    }),
   type: z.enum(ENDPOINTS_TYPE, {
-    required_error: "Type is Required.",
-    message: "Type is Required."
+    required_error: "This field is Required.",
+    message: "This field is Required."
   }),
-  value: z.string({ required_error: "Value is Required." }).refine((data) => data.trim() !== "", {
-    message: "Value is Required."
-  }),
+  value: z
+    .string({ required_error: "This field is Required." })
+    .refine((data) => data.trim() !== "", {
+      message: "This field is Required."
+    }),
   threadId: z.optional(z.string())
 });
 
