@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 
 import type { IUser } from "@/@types/user";
+import EditUserModal from "@/app/[locale]/users/EditUserModal";
 import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table";
 import type { TableComponentRef } from "@/components/Table/types";
@@ -11,6 +12,7 @@ import CreateUserModal from "./CreateUserModal";
 export default function Users() {
   const tableRef = useRef<TableComponentRef>(null);
   const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [editModalUserData, setEditModalUserData] = useState<IUser | null>(null);
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -35,7 +37,9 @@ export default function Users() {
           { header: "Updated At", accessorKey: "updated_at" },
           {
             header: "Action",
-            cell: () => <ActionColumn onEdit={() => {}} onDelete={() => {}} />
+            cell: ({ row }) => (
+              <ActionColumn onEdit={() => setEditModalUserData(row.original)} onDelete={() => {}} />
+            )
           }
         ]}
         onCreate={() => setOpenCreateModal(true)}
@@ -45,6 +49,14 @@ export default function Users() {
           open={openCreateModal}
           onClose={() => setOpenCreateModal(false)}
           onSubmit={handleRefreshData}
+        />
+      )}
+      {editModalUserData && (
+        <EditUserModal
+          open={!!editModalUserData}
+          onClose={() => setEditModalUserData(null)}
+          onSubmit={handleRefreshData}
+          userData={editModalUserData}
         />
       )}
     </>

@@ -19,9 +19,7 @@ import type { BasicCreateOrUpdateModalProps } from "@/@types/global";
 import { createUser } from "@/api/user";
 import ModalContainer from "@/components/Modal";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
-
-//TODO: Should check with exist roles in server
-const ROLE_TYPES = ["member", "manager", "owner"] as const;
+import { ROLE_TYPES } from "@/utils/userUtils";
 
 const createUserSchema = z
   .object({
