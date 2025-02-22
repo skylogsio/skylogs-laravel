@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 
 import type { IUser } from "@/@types/user";
+import ChangePasswordModal from "@/app/[locale]/users/ChangePasswordModal";
 import EditUserModal from "@/app/[locale]/users/EditUserModal";
 import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table";
@@ -9,10 +10,13 @@ import type { TableComponentRef } from "@/components/Table/types";
 
 import CreateUserModal from "./CreateUserModal";
 
+
 export default function Users() {
   const tableRef = useRef<TableComponentRef>(null);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [editModalUserData, setEditModalUserData] = useState<IUser | null>(null);
+  const [selectedUserToChangePassword, setSelectedUserToChangePassword] =
+    useState<string | null>(null);
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -38,7 +42,13 @@ export default function Users() {
           {
             header: "Action",
             cell: ({ row }) => (
-              <ActionColumn onEdit={() => setEditModalUserData(row.original)} onDelete={() => {}} />
+              <ActionColumn
+                onEdit={() => setEditModalUserData(row.original)}
+                onChangePassword={() =>
+                  setSelectedUserToChangePassword(row.original.id)
+                }
+                onDelete={() => {}}
+              />
             )
           }
         ]}
@@ -57,6 +67,13 @@ export default function Users() {
           onClose={() => setEditModalUserData(null)}
           onSubmit={handleRefreshData}
           userData={editModalUserData}
+        />
+      )}
+      {selectedUserToChangePassword && (
+        <ChangePasswordModal
+          open={!!selectedUserToChangePassword}
+          onClose={() => setSelectedUserToChangePassword(null)}
+          userId={selectedUserToChangePassword}
         />
       )}
     </>
