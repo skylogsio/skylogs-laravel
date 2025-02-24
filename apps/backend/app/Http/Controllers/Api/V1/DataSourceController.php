@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 
+use App\Enums\DataSourceType;
 use App\Http\Controllers\Controller;
-use App\Models\Endpoint;
+use App\Models\DataSource\DataSource;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 
@@ -16,11 +18,7 @@ class DataSourceController extends Controller
     {
         $perPage = $request->per_page ?? 25;
 
-        $data = Endpoint::query();
-        $isAdmin = auth()->user()->isAdmin();
-        if ($isAdmin) {
-            $data = $data->where("user_id", auth()->id());
-        }
+        $data = DataSource::query();
 
         $data = $data->paginate($perPage);
 
@@ -29,23 +27,14 @@ class DataSourceController extends Controller
 
     public function Show(Request $request, $id)
     {
-        $model = Endpoint::where('_id', $id);
-        $isAdmin = auth()->user()->isAdmin();
-        if ($isAdmin) {
-            $model = $model->where("user_id", auth()->id());
-        }
+        $model = DataSource::where('_id', $id);
         $model = $model->firstOrFail();
         return response()->json($model);
     }
 
     public function Delete(Request $request, $id)
     {
-        $model = Endpoint::where('_id', $id);
-        $isAdmin = auth()->user()->isAdmin();
-
-        if ($isAdmin) {
-            $model = $model->where("user_id", auth()->id());
-        }
+        $model = DataSource::where('_id', $id);
         $model = $model->firstOrFail();
         $model->delete();
         return response()->json($model);
@@ -58,27 +47,24 @@ class DataSourceController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
+                "url" => "required",
             ],
         );
         if ($va->passes()) {
-            $value = trim($request->value);
-
-            if ($request->type == "telegram") {
-                $model = Endpoint::create([
-                    'user_id' => \Auth::id(),
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'chatId' => $value,
-                    'threadId' => $request->threadId,
-                ]);
-            } else {
-                $model = Endpoint::create([
-                    'user_id' => \Auth::id(),
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'value' => $value,
-                ]);
+            $url = rtrim($request->url, "/");
+            $modelArray = [
+                "type" => $request->type,
+                "name" => $request->name,
+                "url" => $url,
+            ];
+            if ($request->has("api_token") && !empty($request->api_token)) {
+                $modelArray["api_token"] = $request->api_token;
             }
+            if ($request->has("username") && !empty($request->username)) {
+                $modelArray["username"] = $request->username;
+                $modelArray['password'] = $request->password ?? "";
+            }
+            $model = DataSource::create($modelArray);
             return response()->json([
                 'status' => true,
                 "data" => $model
@@ -92,11 +78,7 @@ class DataSourceController extends Controller
 
     public function Update(Request $request, $id)
     {
-        $model = Endpoint::where('_id', $id);
-        $isAdmin = auth()->user()->isAdmin();
-        if (!$isAdmin) {
-            $model = $model->where("user_id", auth()->id());
-        }
+        $model = DataSource::where('_id', $id);
         $model = $model->firstOrFail();
 
 
@@ -105,25 +87,27 @@ class DataSourceController extends Controller
             [
                 'name' => "required",
                 'type' => "required",
+                "url" => "required",
             ],
         );
-        if ($va->passes()) {
-            $value = trim($request->value);
 
-            if ($request->type == "telegram") {
-                $model->update([
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'chatId' => $value,
-                    'threadId' => $request->threadId,
-                ]);
-            } else {
-                $model->update([
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'value' => $value,
-                ]);
+        if ($va->passes()) {
+            $url = rtrim($request->url, "/");
+            $modelArray = [
+                "type" => $request->type,
+                "name" => $request->name,
+                "url" => $url,
+            ];
+            if ($request->has("api_token") && !empty($request->api_token)) {
+                $modelArray["api_token"] = $request->api_token;
             }
+            if ($request->has("username") && !empty($request->username)) {
+                $modelArray["username"] = $request->username;
+                $modelArray['password'] = $request->password ?? "";
+            }
+
+            $model->update($modelArray);
+
             return response()->json([
                 'status' => true,
                 'data' => $model,
@@ -133,6 +117,11 @@ class DataSourceController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+    public function GetTypes(Request $request)
+    {
+        return response()->json(DataSourceType::GetTypes());
     }
 
 
