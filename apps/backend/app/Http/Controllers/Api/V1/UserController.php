@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\Constants;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\User;
@@ -30,7 +31,7 @@ class UserController extends Controller
 
         $data = $data->paginate($perPage);
 
-        return response()->json($data);
+        return UserResource::collection($data);
     }
 
     public function Show(Request $request, $id)
