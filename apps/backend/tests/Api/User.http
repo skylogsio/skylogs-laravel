@@ -33,7 +33,7 @@ Authorization: Bearer {{authToken}}
 
 {
     "password": "123456",
-    "newPassword" : "123456"
+    "confirmPassword" : "123456"
 }
 
 ###

@@ -57,9 +57,9 @@ class UserController extends Controller
             $request->all(),
             [
                 'username' => "required|unique:users,username",
-                'name' => "required",
+                'name' => "required|string|max:255",
                 'password' => "required",
-                'role' => "required",
+                'role' => "required|in:owner,member,manager",
             ],
         );
 
@@ -92,14 +92,13 @@ class UserController extends Controller
 
     public function Update(Request $request, $id)
     {
-        Validator::validate(
-            $request->all(),
-            [
-                'username' => "required|unique:users,username",
-                'name' => "required",
-                'role' => "required",
-            ],
-        );
+
+        Validator::validate($request->all(), [
+            'username' => "required|unique:users,username,{$id}",
+            'name' => "required|string|max:255",
+            'role' => "required|in:owner,member,manager",
+        ]);
+
         $model = User::where('_id', $id)->firstOrFail();
         $currentUser = auth()->user();
         if (!$currentUser->hasRole(Constants::ROLE_OWNER) && $model->hasRole(Constants::ROLE_OWNER)) {
@@ -132,7 +131,7 @@ class UserController extends Controller
             $request->all(),
             [
                 'password' => "required",
-                'newPassword' => "required|same:password",
+                'confirmPassword' => "required|same:password",
             ],
         );
 
@@ -143,7 +142,7 @@ class UserController extends Controller
         }
 
         $model->update([
-            'password' =>   Hash::make($request->post('newPassword')),
+            'password' =>   Hash::make($request->post('confirmPassword')),
         ]);
 
         return response()->json([
