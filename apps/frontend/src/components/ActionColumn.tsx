@@ -9,7 +9,7 @@ interface ActionColumnProps {
 
 export default function ActionColumn({ onEdit, onDelete, onChangePassword }: ActionColumnProps) {
   return (
-    <Stack direction="row" spacing={1}>
+    <Stack direction="row" spacing={1} justifyContent="center">
       {onEdit && (
         <IconButton
           onClick={onEdit}
