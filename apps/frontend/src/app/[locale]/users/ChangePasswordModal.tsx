@@ -19,18 +19,13 @@ const changePasswordSchema = z
       .refine((data) => data.trim() !== "", {
         message: "This field is Required."
       }),
-    newPassword: z
-      .string({ required_error: "This field is Required." })
-      .refine((data) => data.trim() !== "", {
-        message: "This field is Required."
-      }),
-    confirmNewPassword: z
+    confirmPassword: z
       .string({ required_error: "This field is Required." })
       .refine((data) => data.trim() !== "", {
         message: "This field is Required."
       })
   })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Confirm Password does not match.",
     path: ["confirmPassword"]
   });
@@ -39,8 +34,7 @@ type ChangePasswordFormType = z.infer<typeof changePasswordSchema>;
 
 const defaultValues: ChangePasswordFormType = {
   password: "",
-  newPassword: "",
-  confirmNewPassword: ""
+  confirmPassword: ""
 };
 
 export default function ChangePasswordModal({
@@ -102,22 +96,12 @@ export default function ChangePasswordModal({
         </Grid>
         <Grid size={6}>
           <TextField
-            label="New Password"
-            type={showPassword ? "text" : "password"}
-            variant="filled"
-            {...register("newPassword")}
-            error={!!errors.newPassword}
-            helperText={errors.newPassword?.message}
-          />
-        </Grid>
-        <Grid size={6}>
-          <TextField
             label="Confirm New Password"
             type={showPassword ? "text" : "password"}
             variant="filled"
-            {...register("confirmNewPassword")}
-            error={!!errors.confirmNewPassword}
-            helperText={errors.confirmNewPassword?.message}
+            {...register("confirmPassword")}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword?.message}
           />
         </Grid>
         <Grid size={6} display="flex">
