@@ -55,21 +55,21 @@ class UserController extends Controller
     public function Create(Request $request)
     {
 
-
         \Validator::validate(
             $request->all(),
             [
                 'username' => "required|unique:users,username",
                 'name' => "required|string|max:255",
                 'password' => "required",
+                'confirmPassword' => "required|same:password",
                 'role' => "required|in:owner,member,manager",
             ],
         );
+
         if (!auth()->user()->hasRole(Constants::ROLE_OWNER) &&
             $request->post('role') == Constants::ROLE_OWNER) {
             abort(403);
         }
-
 
         $model = User::create([
             'username' => $request->post('username'),
@@ -88,7 +88,6 @@ class UserController extends Controller
         }
 
         $model->assignRole($role);
-
 
         return response()->json([
             'status' => true,
