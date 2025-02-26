@@ -99,7 +99,7 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
-  //TODO:این قسمت باید متناسب با سرور تکمیل شود
+  //TODO: Should complete the pagination based on server response
   const table = useReactTable({
     data: data?.data?.data || [],
     columns: tableColumns,
@@ -113,8 +113,6 @@ function Table<T>(
     },
     manualPagination: true
   });
-
-  console.log(data);
 
   if (isError)
     return (

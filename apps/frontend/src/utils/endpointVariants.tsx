@@ -34,8 +34,7 @@ export function renderEndPointChip(type: unknown, size: "small" | "medium" = "me
       avatar={Avatar}
       sx={{
         backgroundColor: alpha(color, 0.1),
-        color,
-        borderRadius: "0.4rem"
+        color
       }}
       label={ENDPOINT_TYPE_CHIP[variant].title}
     />
