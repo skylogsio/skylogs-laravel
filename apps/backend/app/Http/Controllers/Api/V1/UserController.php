@@ -54,6 +54,8 @@ class UserController extends Controller
 
     public function Create(Request $request)
     {
+
+
         \Validator::validate(
             $request->all(),
             [
@@ -63,7 +65,6 @@ class UserController extends Controller
                 'role' => "required|in:owner,member,manager",
             ],
         );
-
         if (!auth()->user()->hasRole(Constants::ROLE_OWNER) &&
             $request->post('role') == Constants::ROLE_OWNER) {
             abort(403);
@@ -76,11 +77,16 @@ class UserController extends Controller
             'password' => \Hash::make($request->post('password')),
         ]);
 
-        $role = match ($request->post('role')) {
-            Constants::ROLE_OWNER => Constants::ROLE_OWNER,
-            Constants::ROLE_MEMBER => Constants::ROLE_MEMBER,
-            default => Constants::ROLE_MANAGER,
-        };
+        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
+            $role = match ($request->post('role')) {
+                Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
+                Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
+                default => Constants::ROLE_MEMBER,
+            };
+        }else{
+            $role = Constants::ROLE_MEMBER->value;
+        }
+
         $model->assignRole($role);
 
 
