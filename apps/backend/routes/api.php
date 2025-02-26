@@ -1,14 +1,13 @@
 <?php
 
+use App\Enums\Constants;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\DataSourceController;
 use App\Http\Controllers\Api\V1\EndpointController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
 
 Route::prefix('v1')->group(function () {
 
@@ -39,6 +38,18 @@ Route::prefix('v1')->group(function () {
             ->controller(EndpointController::class)
             ->group(function () {
                 Route::get('/', 'Index');
+                Route::get('/{id}', 'Show');
+                Route::post('/', 'Create');
+                Route::put('/{id}', 'Update');
+                Route::delete('/{id}', 'Delete');
+            });
+
+        Route::prefix("/data-source")
+            ->controller(DataSourceController::class)
+            ->middleware("role:".Constants::ROLE_OWNER->value."|".Constants::ROLE_MANAGER->value)
+            ->group(function () {
+                Route::get('/', 'Index');
+                Route::get('/types', 'GetTypes');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');

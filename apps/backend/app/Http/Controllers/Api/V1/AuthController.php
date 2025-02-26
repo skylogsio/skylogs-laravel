@@ -19,7 +19,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $refreshToken = auth()->claims(['refresh' => true])->tokenById(auth()->id());
+        $refreshToken = auth()->claims(['refresh' => true])
+            ->setTTL(config("jwt.refresh_ttl"))
+            ->tokenById(auth()->id());
 
         return $this->respondWithTokens($token, $refreshToken);
     }
@@ -37,7 +39,9 @@ class AuthController extends Controller
             }
 
             $newAccessToken = auth()->tokenById($payload->get('sub'));
-            $newRefreshToken = auth()->claims(['refresh' => true])->setTTL(43200)->tokenById($payload->get('sub'));
+            $newRefreshToken = auth()->claims(['refresh' => true])
+                ->setTTL(config("jwt.refresh_ttl"))
+                ->tokenById($payload->get('sub'));
 
             return $this->respondWithTokens($newAccessToken, $newRefreshToken);
         } catch (\Exception $e) {
@@ -51,8 +55,8 @@ class AuthController extends Controller
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
-            'refresh_expires_in' => 43200 * 60,
+            'expires_in' => config("jwt.ttl") * 60,
+            'refresh_expires_in' => config("jwt.refresh_ttl") * 60,
         ]);
     }
 
