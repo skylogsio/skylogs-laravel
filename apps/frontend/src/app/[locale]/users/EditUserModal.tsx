@@ -72,7 +72,8 @@ export default function EditUserModal({
 
   useEffect(() => {
     if (userData) {
-      reset(userData);
+      const temp = { ...userData, role: userData.roles[0] };
+      reset(temp as UserFormType);
     } else {
       reset(defaultValues);
     }
