@@ -40,7 +40,7 @@ export default function EndPoints() {
         defaultPage={1}
         defaultPageSize={10}
         columns={[
-          { header: "Row", accessorFn: (_, index) => index },
+          { header: "Row", accessorFn: (_, index) => ++index },
           { header: "Name", accessorKey: "name" },
           {
             header: "Type",

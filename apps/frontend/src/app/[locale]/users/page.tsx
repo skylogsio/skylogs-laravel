@@ -36,7 +36,7 @@ export default function Users() {
         defaultPage={1}
         defaultPageSize={10}
         columns={[
-          { header: "Row", accessorFn: (_, index) => index },
+          { header: "Row", accessorFn: (_, index) => ++index },
           { header: "Username", accessorKey: "username" },
           { header: "Full Name", accessorKey: "name" },
           {
