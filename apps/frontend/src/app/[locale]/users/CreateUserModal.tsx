@@ -3,15 +3,16 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
-  Checkbox,
-  FormControlLabel,
   Grid2 as Grid,
+  IconButton,
   TextField,
   ToggleButton,
-  Typography
+  Typography,
+  useTheme
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { HiEye, HiEyeOff } from "react-icons/hi";
 import { toast } from "react-toastify";
 import * as z from "zod";
 
@@ -80,6 +81,7 @@ export default function CreateUserModal({
     resolver: zodResolver(createUserSchema),
     defaultValues
   });
+  const { palette } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate: createUserMutation, isPending: isCreating } = useMutation({
@@ -90,10 +92,6 @@ export default function CreateUserModal({
       onClose?.();
     }
   });
-
-  function handleTogglePassword(_: unknown, checked: boolean) {
-    setShowPassword(checked);
-  }
 
   function handleSubmitForm(data: UserFormType) {
     createUserMutation(data);
@@ -157,6 +155,19 @@ export default function CreateUserModal({
             {...register("password")}
             error={!!errors.password}
             helperText={errors.password?.message}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <IconButton disableRipple onClick={() => setShowPassword((prev) => !prev)}>
+                    {showPassword ? (
+                      <HiEyeOff color={palette.secondary.main} size="1.2rem" />
+                    ) : (
+                      <HiEye color={palette.secondary.main} size="1.2rem" />
+                    )}
+                  </IconButton>
+                )
+              }
+            }}
           />
         </Grid>
         <Grid size={6}>
@@ -167,15 +178,19 @@ export default function CreateUserModal({
             {...register("confirmPassword")}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword?.message}
-          />
-        </Grid>
-        <Grid size={6} display="flex">
-          <FormControlLabel
-            sx={{ userSelect: "none" }}
-            control={
-              <Checkbox id="ShowPassword" checked={showPassword} onChange={handleTogglePassword} />
-            }
-            label="Show Password"
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <IconButton disableRipple onClick={() => setShowPassword((prev) => !prev)}>
+                    {showPassword ? (
+                      <HiEyeOff color={palette.secondary.main} size="1.2rem" />
+                    ) : (
+                      <HiEye color={palette.secondary.main} size="1.2rem" />
+                    )}
+                  </IconButton>
+                )
+              }
+            }}
           />
         </Grid>
         <Grid size={12} marginTop="1rem">
