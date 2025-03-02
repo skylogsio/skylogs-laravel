@@ -2,7 +2,7 @@ import { Grid2 as Grid, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
-import { IDataSource } from "@/@types/dataSource";
+import type { IDataSource } from "@/@types/dataSource";
 import { deleteDataSource } from "@/api/dataSource";
 import DataSourceChip from "@/components/DataSourceChip";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
