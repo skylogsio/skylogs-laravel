@@ -4,14 +4,15 @@ import { useRef, useState } from "react";
 import { alpha, Chip } from "@mui/material";
 
 import type { IUser } from "@/@types/user";
-import ChangePasswordModal from "@/app/[locale]/users/ChangePasswordModal";
-import EditUserModal from "@/app/[locale]/users/EditUserModal";
 import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table";
 import type { TableComponentRef } from "@/components/Table/types";
 import { ROLE_COLORS } from "@/utils/userUtils";
 
+import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModal from "./CreateUserModal";
+import DeleteUserModal from "./DeleteUserModal";
+import EditUserModal from "./EditUserModal";
 
 export default function Users() {
   const tableRef = useRef<TableComponentRef>(null);
@@ -20,11 +21,17 @@ export default function Users() {
   const [selectedUserToChangePassword, setSelectedUserToChangePassword] = useState<string | null>(
     null
   );
+  const [deleteModalData, setDeleteModalData] = useState<IUser | null>(null);
 
   function handleRefreshData() {
     if (tableRef.current) {
       tableRef.current.refreshData();
     }
+  }
+
+  function handleDelete() {
+    setDeleteModalData(null);
+    handleRefreshData();
   }
 
   return (
@@ -60,7 +67,11 @@ export default function Users() {
               <ActionColumn
                 onEdit={() => setEditModalUserData(row.original)}
                 onChangePassword={() => setSelectedUserToChangePassword(row.original.id)}
-                onDelete={() => {}}
+                onDelete={
+                  row.original.username === "admin"
+                    ? undefined
+                    : () => setDeleteModalData(row.original)
+                }
               />
             )
           }
@@ -87,6 +98,14 @@ export default function Users() {
           open={!!selectedUserToChangePassword}
           onClose={() => setSelectedUserToChangePassword(null)}
           userId={selectedUserToChangePassword}
+        />
+      )}
+      {deleteModalData && (
+        <DeleteUserModal
+          open={!!deleteModalData}
+          onClose={() => setDeleteModalData(null)}
+          data={deleteModalData}
+          onDelete={handleDelete}
         />
       )}
     </>
