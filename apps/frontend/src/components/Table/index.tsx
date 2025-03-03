@@ -59,9 +59,12 @@ function Table<T>(
   const direction = useCurrentDirection();
   const t = useScopedI18n("table");
 
-  const { data, isLoading, isError, refetch } = useQuery<{ data: { Data: T[] } }>({
+  const { data, isLoading, isError, refetch } = useQuery<{ data: { data: T[] } }>({
     queryKey: ["tableData", url, pageIndex, pageSize],
-    queryFn: () => axios(`${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc`)
+    queryFn: () =>
+      axios(
+        `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc`
+      )
   });
 
   useImperativeHandle(ref, () => ({
@@ -96,9 +99,9 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
-  //TODO:این قسمت باید متناسب با سرور تکمیل شود
+  //TODO: Should complete the pagination based on server response
   const table = useReactTable({
-    data: data?.data?.Data || [],
+    data: data?.data?.data || [],
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -110,8 +113,6 @@ function Table<T>(
     },
     manualPagination: true
   });
-
-  console.log(data);
 
   if (isError)
     return (
@@ -183,6 +184,7 @@ function Table<T>(
                   {headerGroup.headers.map((header) => (
                     <TableCell
                       key={header.id}
+                      align="center"
                       sx={({ typography, palette }) => ({
                         ...typography.body1,
                         fontWeight: "bold",
@@ -237,7 +239,11 @@ function Table<T>(
                       }}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} sx={{ borderBottomColor: "grey.200" }}>
+                        <TableCell
+                          key={cell.id}
+                          sx={{ borderBottomColor: "grey.200" }}
+                          align="center"
+                        >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}

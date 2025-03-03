@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import NextAuth, { type User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -18,26 +18,18 @@ const handler = NextAuth({
           username: credentials?.username,
           password: credentials?.password
         };
-        try{
-
-        const user = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, body, {
-          headers: { "Content-Type": "application/json", "Accept-Language": acceptLanguage }
-        });
-        return user.data;
-        }catch (e) {
-          console.log(e);
+        try {
+          const user = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, body, {
+            headers: { "Content-Type": "application/json", "Accept-Language": acceptLanguage }
+          });
+          return user.data;
+        } catch (error) {
+          if (isAxiosError(error)) {
+            if (error.response) {
+              throw new Error(error.response.data.message);
+            }
+          }
         }
-        // const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}auth/login`, {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json", "Accept-Language": acceptLanguage },
-        //   body: JSON.stringify(body)
-        // });
-
-        // const user = await res.json();
-        // if (res.ok && user) {
-        //   return user;
-        // }
-        // throw new Error(JSON.stringify(user));
       }
     })
   ],
