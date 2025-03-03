@@ -22,6 +22,7 @@ Authorization: Bearer {{authToken}}
     "name": "user1",
     "username" : "user1",
     "password" : "123456",
+    "confirmPassword" : "123456",
     "role" : "member"
 }
 

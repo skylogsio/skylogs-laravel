@@ -43,7 +43,7 @@ class UserController extends Controller
 
     public function Delete(Request $request, $id)
     {
-        $model = User::where('_id', $id)->firstOrFail();
+        $model = User::whereNot('username','admin')->where('_id', $id)->firstOrFail();
 
         if ($model->hasRole(Constants::ROLE_OWNER) && !auth()->user()->hasRole(Constants::ROLE_OWNER)) {
             abort(403);
@@ -116,11 +116,16 @@ class UserController extends Controller
             'name' => $request->post('name'),
         ]);
 
-        $role = match ($request->post('role')) {
-            Constants::ROLE_OWNER => Constants::ROLE_OWNER,
-            Constants::ROLE_MEMBER => Constants::ROLE_MEMBER,
-            default => Constants::ROLE_MANAGER,
-        };
+        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
+            $role = match ($request->post('role')) {
+                Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
+                Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
+                default => Constants::ROLE_MEMBER,
+            };
+        }else{
+            $role = Constants::ROLE_MEMBER->value;
+        }
+
         $model->syncRoles($role);
 
 
