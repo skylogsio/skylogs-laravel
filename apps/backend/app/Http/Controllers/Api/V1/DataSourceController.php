@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\DataSourceType;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DataSourceResource;
 use App\Models\DataSource\DataSource;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -22,7 +23,12 @@ class DataSourceController extends Controller
 
         $data = $data->paginate($perPage);
 
+        foreach ($data->items() as &$item) {
+            $item['status'] = "connected";
+        }
+
         return response()->json($data);
+
     }
 
     public function Show(Request $request, $id)
