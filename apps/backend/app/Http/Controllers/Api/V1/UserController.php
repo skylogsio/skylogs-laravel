@@ -125,9 +125,11 @@ class UserController extends Controller
         }else{
             $role = Constants::ROLE_MEMBER->value;
         }
-
+        foreach ($model->roles as $role) {
+            $model->removeRole($role);
+        }
         $model->syncRoles($role);
-
+//        $model->syncRoles([$role]);
 
         return response()->json([
             'status' => true,

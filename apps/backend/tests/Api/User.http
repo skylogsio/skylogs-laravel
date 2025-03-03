@@ -23,7 +23,7 @@ Authorization: Bearer {{authToken}}
     "username" : "user1",
     "password" : "123456",
     "confirmPassword" : "123456",
-    "role" : "member"
+    "role" : "manager"
 }
 
 ###
@@ -38,15 +38,15 @@ Authorization: Bearer {{authToken}}
 }
 
 ###
-PUT {{domain}}/user/67ae64ca98509c886504e9e2
+PUT {{domain}}/user/67c5dc54bdf1685c060cf8f2
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "user11",
-    "username" : "user11",
-    "role" : "manager"
+    "name": "user1",
+    "username" : "user1",
+    "role" : "member"
 }
 
 
