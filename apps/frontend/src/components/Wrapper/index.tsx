@@ -5,6 +5,8 @@ import { type PropsWithChildren } from "react";
 
 import { Box } from "@mui/material";
 
+import SideBar from "@/components/Wrapper/SideBar";
+
 import TopBar from "./TopBar";
 
 export default function Wrapper({ children }: PropsWithChildren) {
@@ -33,7 +35,7 @@ export default function Wrapper({ children }: PropsWithChildren) {
         maxWidth="300px"
         sx={{ backgroundColor: ({ palette }) => palette.background.paper }}
       >
-        {/* //TODO: Place SideBar component here. */}
+        <SideBar />
       </Box>
       <Box display="flex" flexDirection="column" flex={1} height="100%">
         <TopBar />

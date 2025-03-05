@@ -1,18 +1,9 @@
-import Table from "@/components/Table";
+import { Typography } from "@mui/material";
 
 export default async function Home() {
   return (
-    <Table
-      title="EndPoints"
-      url="https://api.escuelajs.co/api/v1/products"
-      hasCheckbox
-      defaultPage={0}
-      defaultPageSize={10}
-      columns={[
-        { header: "id", accessorKey: "id" },
-        { header: "title", accessorKey: "title" },
-        { header: "price", accessorKey: "price" }
-      ]}
-    />
+    <Typography variant="h6" component="div">
+      This is Home page.
+    </Typography>
   );
 }

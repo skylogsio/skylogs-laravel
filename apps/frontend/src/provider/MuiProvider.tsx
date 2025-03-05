@@ -18,13 +18,20 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
           light: {
             palette: {
               primary: { light: "#6F9BFF", main: "#4880FF", dark: "#3D6FDF" },
-              secondary: { light: "#DDDDDD", main: "#9A9A9A", dark: "#565656" },
+              secondary: { light: "#DDDDDD", main: "#9A9A9A", dark: "#525252" },
               error: { light: "#FF7D76", main: "#FF3B30", dark: "#E3382E" },
               background: { default: "#F5F6FA", paper: "#FFFFFF" }
             }
           }
         },
         components: {
+          MuiChip: {
+            styleOverrides: {
+              root: {
+                borderRadius: "0.4rem"
+              }
+            }
+          },
           MuiTextField: {
             styleOverrides: {
               root: {

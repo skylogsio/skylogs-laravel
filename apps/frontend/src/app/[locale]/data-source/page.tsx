@@ -1,24 +1,19 @@
 "use client";
 import { useRef, useState } from "react";
 
-import type { IEndpoint } from "@/@types/endpoint";
-import { CreateUpdateModal } from "@/@types/global";
-import DeleteEndPointModal from "@/app/[locale]/endpoints/DeleteEndPointModal";
+import type { IDataSource } from "@/@types/dataSource";
+import type { CreateUpdateModal } from "@/@types/global";
+import DataSourceModal from "@/app/[locale]/data-source/DataSourceModal";
+import DeleteDataSourceModal from "@/app/[locale]/data-source/DeleteDataSourceModal";
 import ActionColumn from "@/components/ActionColumn";
+import DataSourceChip from "@/components/DataSourceChip";
 import Table from "@/components/Table";
 import { type TableComponentRef } from "@/components/Table/types";
-import { renderEndPointChip } from "@/utils/endpointVariants";
 
-import EndPointModal from "./EndPointModal";
-
-export default function EndPoints() {
+export default function DataSource() {
   const tableRef = useRef<TableComponentRef>(null);
-  const [modalData, setModalData] = useState<CreateUpdateModal<IEndpoint>>(null);
-  const [deleteModalData, setDeleteModalData] = useState<IEndpoint | null>(null);
-
-  function handleEdit(data: IEndpoint) {
-    setModalData(data);
-  }
+  const [modalData, setModalData] = useState<CreateUpdateModal<IDataSource>>(null);
+  const [deleteModalData, setDeleteModalData] = useState<IDataSource | null>(null);
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -33,10 +28,10 @@ export default function EndPoints() {
 
   return (
     <>
-      <Table<IEndpoint>
+      <Table<IDataSource>
         ref={tableRef}
-        title="EndPoints"
-        url="endpoint"
+        title="Data Sources"
+        url="data-source"
         defaultPage={1}
         defaultPageSize={10}
         columns={[
@@ -44,18 +39,17 @@ export default function EndPoints() {
           { header: "Name", accessorKey: "name" },
           {
             header: "Type",
-            accessorKey: "type",
-            cell: ({ cell }) => renderEndPointChip(cell.getValue())
+            cell: ({ row }) => <DataSourceChip type={row.original.type} />
           },
           {
-            header: "Value",
-            accessorFn: (row) => (row.type === "telegram" ? row.chatId : row.value)
+            header: "Status",
+            accessorFn: () => "unknown status"
           },
           {
             header: "Action",
             cell: ({ row }) => (
               <ActionColumn
-                onEdit={() => handleEdit(row.original)}
+                onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
               />
             )
@@ -64,7 +58,7 @@ export default function EndPoints() {
         onCreate={() => setModalData("NEW")}
       />
       {modalData && (
-        <EndPointModal
+        <DataSourceModal
           open={!!modalData}
           onClose={() => setModalData(null)}
           data={modalData}
@@ -72,7 +66,7 @@ export default function EndPoints() {
         />
       )}
       {deleteModalData && (
-        <DeleteEndPointModal
+        <DeleteDataSourceModal
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
