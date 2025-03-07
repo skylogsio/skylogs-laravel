@@ -6,6 +6,7 @@ import type { CreateUpdateModal } from "@/@types/global";
 import DataSourceModal from "@/app/[locale]/data-source/DataSourceModal";
 import DeleteDataSourceModal from "@/app/[locale]/data-source/DeleteDataSourceModal";
 import ActionColumn from "@/components/ActionColumn";
+import ConnectionStatus from "@/components/ConnectionStatus";
 import DataSourceChip from "@/components/DataSourceChip";
 import Table from "@/components/Table";
 import { type TableComponentRef } from "@/components/Table/types";
@@ -43,7 +44,7 @@ export default function DataSource() {
           },
           {
             header: "Status",
-            accessorFn: () => "unknown status"
+            cell: ({ row }) => <ConnectionStatus status={row.original.status} />
           },
           {
             header: "Action",

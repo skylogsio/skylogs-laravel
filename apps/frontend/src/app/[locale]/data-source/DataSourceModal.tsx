@@ -40,7 +40,7 @@ const schema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  api_token: z.string({ required_error: "This field is Required." }).optional(),
+  api_token: z.string().optional(),
   username: z
     .string({ required_error: "This field is Required." })
     .refine((data) => data.trim() !== "", {
@@ -200,6 +200,18 @@ export default function DataSourceModal({ open, onClose, data, onSubmit }: DataS
                 )
               }
             }}
+          />
+        </Grid>
+        <Grid size={12}>
+          <TextField
+            label="API Token"
+            variant="filled"
+            error={!!errors.api_token}
+            helperText={errors.api_token?.message}
+            {...register("api_token")}
+            multiline
+            minRows={2}
+            maxRows={8}
           />
         </Grid>
         <Grid size={12} marginTop="1rem">
