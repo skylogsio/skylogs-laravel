@@ -19,7 +19,9 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
             palette: {
               primary: { light: "#6F9BFF", main: "#4880FF", dark: "#3D6FDF" },
               secondary: { light: "#DDDDDD", main: "#9A9A9A", dark: "#525252" },
-              error: { light: "#FF7D76", main: "#FF3B30", dark: "#E3382E" },
+              success: { light: "#7BEA85", main: "#13C82B", dark: "#0E8F1F" },
+              warning: { light: "#FABF7A", main: "#F28D22", dark: "#B86419" },
+              error: { light: "#FF7D76", main: "#E64940", dark: "#A8322C" },
               background: { default: "#F5F6FA", paper: "#FFFFFF" }
             }
           }
