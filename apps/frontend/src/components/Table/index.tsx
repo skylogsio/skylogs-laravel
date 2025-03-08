@@ -46,7 +46,8 @@ function Table<T>(
     defaultPage = 0,
     defaultPageSize,
     rowsPerPageOptions = [10, 25, 50, 100],
-    onCreate
+    onCreate,
+    refetchInterval
   }: TableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
@@ -64,7 +65,8 @@ function Table<T>(
     queryFn: () =>
       axios(
         `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc`
-      )
+      ),
+    refetchInterval
   });
 
   useImperativeHandle(ref, () => ({
