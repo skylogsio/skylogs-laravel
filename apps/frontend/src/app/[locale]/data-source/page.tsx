@@ -35,6 +35,7 @@ export default function DataSource() {
         url="data-source"
         defaultPage={1}
         defaultPageSize={10}
+        refetchInterval={5000}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
           { header: "Name", accessorKey: "name" },
