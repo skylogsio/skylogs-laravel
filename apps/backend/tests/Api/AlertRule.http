@@ -76,3 +76,12 @@ Authorization: Bearer {{authToken}}
 
 
 
+###
+
+GET {{domain}}/alert-rule/create-data
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
