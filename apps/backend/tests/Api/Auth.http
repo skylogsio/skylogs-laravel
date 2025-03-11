@@ -7,7 +7,19 @@ Accept: application/json
     "password" : "123456"
 }
 
-> {% client.global.set("authToken", response.body.access_token); %}
+> {%
+    client.global.set("authToken", response.body.access_token);
+    client.global.set("refreshToken", response.body.refresh_token); %}
+
+###
+POST {{domain}}/auth/refresh
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{refreshToken}}
+
+> {%
+    client.global.set("authToken", response.body.access_token);
+    client.global.set("refreshToken", response.body.refresh_token); %}
 
 ###
 POST {{domain}}/auth/me
