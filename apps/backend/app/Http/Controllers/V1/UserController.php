@@ -116,6 +116,11 @@ class UserController extends Controller
             'name' => $request->post('name'),
         ]);
 
+
+        foreach ($model->roles as $role) {
+            $model->removeRole($role);
+        }
+
         if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
             $role = match ($request->post('role')) {
                 Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
@@ -125,11 +130,8 @@ class UserController extends Controller
         }else{
             $role = Constants::ROLE_MEMBER->value;
         }
-        foreach ($model->roles as $role) {
-            $model->removeRole($role);
-        }
+
         $model->syncRoles($role);
-//        $model->syncRoles([$role]);
 
         return response()->json([
             'status' => true,
