@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use App\Utility\Constants;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -13,7 +13,5 @@ php artisan migrate --force
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
-chmod 755 -R storage
-chmod 755 -R bootstrap
 
 exec php-fpm

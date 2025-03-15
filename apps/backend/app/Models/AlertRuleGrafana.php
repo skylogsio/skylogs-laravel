@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;

@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use App\Models\AlertRule;
 use App\Models\ElasticCheck;
 use App\Models\ElasticHistory;
