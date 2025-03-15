@@ -44,6 +44,7 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\MessageBag;
 use MongoDB\BSON\UTCDateTime;
 
 class AlertingController extends Controller
@@ -296,9 +297,9 @@ class AlertingController extends Controller
                 }
 
 
-            return ['success' => true];
+            return ['status' => true];
         } else {
-            return ['success' => false];
+            return ['status' => false,"message" => $va->messages()];
         }
     }
 
