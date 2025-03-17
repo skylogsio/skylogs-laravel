@@ -1,15 +1,12 @@
-import { blue, grey, lightBlue, orange, red, yellow } from "@mui/material/colors";
-import { FaBell, FaCloud } from "react-icons/fa";
-import { SiGrafana, SiMetabase, SiPrometheus, SiSentry } from "react-icons/si";
+import { blue, grey, orange, red, yellow } from "@mui/material/colors";
+import { FaBell } from "react-icons/fa";
+import {SiGrafana, SiMetabase, SiPrometheus, SiSentry, SiSplunk, SiVictoriametrics} from "react-icons/si";
 
 import ElasticIcon from "@/assets/svg/ElasticIcon";
 import ZabbixIcon from "@/assets/svg/ZabbixIcon";
 
 export const DATA_SOURCE_TYPE = [
-  {
-    value: "clientAPI",
-    icon: <FaCloud color={lightBlue[500]} size="1.2rem" />
-  },
+
   {
     value: "prometheus",
     icon: <SiPrometheus color={red[500]} size="1.2rem" />
@@ -37,5 +34,13 @@ export const DATA_SOURCE_TYPE = [
   {
     value: "zabbix",
     icon: <ZabbixIcon size="1.2rem" />
-  }
+  },
+  {
+    value: "splunk",
+    icon: <SiSplunk size="1.2rem" />
+  },
+  {
+    value: "victoriametrics",
+    icon: <SiVictoriametrics size="1.2rem" />
+  },
 ];
