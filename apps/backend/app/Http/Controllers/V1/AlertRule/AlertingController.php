@@ -75,10 +75,10 @@ class AlertingController extends Controller
             $data = $data->whereIn("type", $request->types);
         }
 
-        if ($request->has("endpoint") && !empty($request->endpoint)) {
-            $endpoint = $request->endpoint;
+        if ($request->has("endpointId") && !empty($request->endpointId)) {
+            $endpointId = $request->endpointId;
 
-            $data = $data->whereIn("endpoint_ids", [$endpoint]);
+            $data = $data->whereIn("endpoint_ids", [$endpointId]);
 
         }
 
@@ -86,6 +86,7 @@ class AlertingController extends Controller
 
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+            $alert->status_label = $alert->getStatus();
         }
 
         return response()->json($data);

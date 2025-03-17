@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
 use App\Utility\Constants;
 use MongoDB\Laravel\Eloquent\Model;
@@ -51,9 +52,10 @@ class AlertRule extends Model implements Messageable
         }
         return null;
     }
+
     public function metabaseWebhook()
     {
-        if ($this->type == Constants::METABASE ) {
+        if ($this->type == Constants::METABASE) {
             return $this->hasOne(MetabaseWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
         }
         return null;
@@ -100,39 +102,39 @@ class AlertRule extends Model implements Messageable
         $this->save();
     }
 
-    public function getStatus()
+    public function getStatus(): string|int
     {
-        switch ($this->type) {
-            case Constants::API:
-                $alert = AlertInstance::where('alertname', $this->alertname)->where("state", AlertInstance::FIRE)->count();
-                if ($alert == 0) {
+
+        $type = AlertRuleType::tryFrom($this->type);
+        switch ($type) {
+            case AlertRuleType::API:
+                $alertCount = AlertInstance::where('alertname', $this->alertname)
+                    ->where("state", AlertInstance::FIRE)->count();
+                if ($alertCount == 0) {
                     return self::RESOlVED;
                 }
-                return $alert;
-                break;
-            case Constants::SENTRY:
+                return $alertCount;
+            case AlertRuleType::SENTRY:
                 if (empty($this->state)) {
                     return self::UNKNOWN;
                 } else {
                     return $this->state;
                 }
-                break;
-            case Constants::METABASE:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-                break;
-            case Constants::ZABBIX:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-                break;
 
-            case Constants::PROMETHEUS:
+            case AlertRuleType::METABASE:
+                if (empty($this->state)) {
+                    return self::UNKNOWN;
+                } else {
+                    return $this->state;
+                }
+            case AlertRuleType::ZABBIX:
+                if (empty($this->state)) {
+                    return self::UNKNOWN;
+                } else {
+                    return $this->state;
+                }
+
+            case AlertRuleType::PROMETHEUS:
                 $alert = PrometheusCheck::where('alert_rule_id', $this->_id)->first();
                 if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
                     return self::RESOlVED;
@@ -143,39 +145,37 @@ class AlertRule extends Model implements Messageable
                         return self::CRITICAL;
                     }
                 }
-                break;
-            case Constants::GRAFANA:
+            case AlertRuleType::GRAFANA:
                 if (empty($this->state)) {
                     return self::UNKNOWN;
                 } else {
                     return $this->state;
                 }
-                break;
-            case Constants::HEALTH:
+            case AlertRuleType::HEALTH:
                 $check = HealthCheck::where('alert_rule_id', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
                     return self::RESOlVED;
                 } else {
                     return self::CRITICAL;
                 }
-            case Constants::ELASTIC:
+            case AlertRuleType::ELASTIC:
                 $check = ElasticCheck::where('alert_rule_id', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
                     return self::RESOlVED;
                 } else {
                     return self::CRITICAL;
                 }
-                break;
-            case Constants::NOTIFICATION:
+            case AlertRuleType::NOTIFICATION:
                 return self::UNKNOWN;
-            case Constants::SERVICE:
-                $check = ServiceCheck::where('alert_rule_id', $this->_id)->first();
-                if (empty($check) || $check->state == ServiceCheck::UP) {
-                    return self::RESOlVED;
-                } else {
-                    return self::CRITICAL;
-                }
+            case AlertRuleType::PMM:
+                // TODO
+                return self::UNKNOWN;
+            case AlertRuleType::SPLUNK:
+                // TODO
+                return self::UNKNOWN;
+
         }
+        return self::UNKNOWN;
     }
 
     public function accessUsers()
@@ -242,6 +242,7 @@ class AlertRule extends Model implements Messageable
         $text .= " resolved manually.";
         return $text;
     }
+
     public function testMessage()
     {
         $text = "Testing ";

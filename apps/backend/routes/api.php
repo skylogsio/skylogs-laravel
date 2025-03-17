@@ -2,6 +2,8 @@
 
 use App\Enums\Constants;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
+use App\Http\Controllers\V1\AlertRule\NotifyController;
+use App\Http\Controllers\V1\AlertRule\TagsController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
@@ -59,7 +61,6 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix("/alert-rule")
             ->controller(AlertingController::class)
-            ->middleware("role:".Constants::ROLE_OWNER->value."|".Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
@@ -68,6 +69,26 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', 'Store');
                 Route::put('/{id}', 'Update');
                 Route::delete('/{id}', 'Delete');
+            });
+
+        Route::prefix("/alert-rule-tag")
+            ->controller(TagsController::class)
+            ->group(function () {
+                Route::get('/{id}', 'Create');
+                Route::put('/{id}', 'Store');
+            });
+        Route::prefix("/alert-rule-notify")
+            ->controller(NotifyController::class)
+            ->group(function () {
+                Route::get('/{id}', 'Create');
+                Route::put('/{id}', 'Store');
+                Route::delete('/{alertId}/{endpointId}', 'Delete');
+
+                Route::post('/test/{id}', 'Test');
+
+                Route::get('/batchAlert', 'CreateBatch');
+                Route::put('/batchAlert', 'StoreBatch');
+
             });
 
     });
