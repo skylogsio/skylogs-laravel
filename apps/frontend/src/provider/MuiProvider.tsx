@@ -38,6 +38,17 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
             styleOverrides: {
               root: {
                 width: "100%",
+                "& input::-webkit-outer-spin-button,& input::-webkit-inner-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0
+                },
+                "& input::-webkit-inner-spin-button": {
+                  WebkitAppearance: "none",
+                  margin: 0
+                },
+                "& input[type=number]": {
+                  MozAppearance: "textfield"
+                },
                 [`& .${inputBaseClasses.root}`]: {
                   borderRadius: "0.55rem",
                   backgroundColor: "#F1F4F9",
