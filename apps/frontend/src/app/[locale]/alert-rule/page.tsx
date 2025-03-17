@@ -4,8 +4,7 @@ import { useRef, useState } from "react";
 import type { IDataSource } from "@/@types/dataSource";
 import type { CreateUpdateModal } from "@/@types/global";
 import ActionColumn from "@/components/ActionColumn";
-import ConnectionStatus from "@/components/ConnectionStatus";
-import DataSourceChip from "@/components/DataSourceChip";
+import AlertRuleChip from "@/components/AlertRuleChip";
 import Table from "@/components/Table";
 import type { TableComponentRef } from "@/components/Table/types";
 
@@ -26,7 +25,7 @@ export default function AlertRule() {
       <Table<IDataSource>
         ref={tableRef}
         title="Alert Rule"
-        url="data-source"
+        url="alert-rule"
         defaultPage={1}
         defaultPageSize={10}
         columns={[
@@ -34,11 +33,11 @@ export default function AlertRule() {
           { header: "Name", accessorKey: "name" },
           {
             header: "Type",
-            cell: ({ row }) => <DataSourceChip type={row.original.type} />
+            cell: ({ row }) => <AlertRuleChip type={row.original.type} />
           },
           {
-            header: "Status",
-            cell: ({ row }) => <ConnectionStatus status={row.original.status} />
+            header: "Status"
+            // cell: ({ row }) => <ConnectionStatus status={row.original.status} />
           },
           {
             header: "Action",

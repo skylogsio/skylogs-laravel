@@ -11,20 +11,29 @@ import {
   Paper,
   useTheme
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { type AxiosResponse } from "axios";
 
+import type { IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
+import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRuleForms/ClientAPIForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
-import { DATA_SOURCE_TYPE } from "@/utils/dataSourceUtils";
+import { ALERT_RULE_TYPE } from "@/utils/alertRuleUtils";
 
-type DataSourceModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
+type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
   data: CreateUpdateModal<unknown>;
   onSubmit: () => void;
 };
 
-export default function AlertRuleModal({ open, onClose }: DataSourceModalProps) {
+export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertRuleModalProps) {
   const { palette } = useTheme();
-  const [selectedDataSource, setSelectedDataSource] = useState(DATA_SOURCE_TYPE[0].value);
+  const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_TYPE[0].value);
+
+  const {} = useQuery<AxiosResponse<IAlertRuleCreateData>>({
+    queryKey: ["alert-rule-create-data"],
+    queryFn: () => getAlertRuleCreateData()
+  });
 
   return (
     <Modal
@@ -57,7 +66,7 @@ export default function AlertRuleModal({ open, onClose }: DataSourceModalProps) 
               orientation="vertical"
               sx={{ paddingX: "1rem", paddingY: 1, borderRight: `1px solid ${palette.divider}` }}
             >
-              {DATA_SOURCE_TYPE.map((item, index) => (
+              {ALERT_RULE_TYPE.map((item, index) => (
                 <Button
                   startIcon={item.icon}
                   key={index}
@@ -99,7 +108,9 @@ export default function AlertRuleModal({ open, onClose }: DataSourceModalProps) 
                 </Button>
               ))}
             </ButtonGroup>
-            {selectedDataSource === "clientAPI" && <ClientAPIForm />}
+            {selectedDataSource === "api" && (
+              <ClientAPIForm onClose={onClose} data={data} onSubmit={onSubmit} />
+            )}
           </Paper>
         </Box>
       </Fade>
