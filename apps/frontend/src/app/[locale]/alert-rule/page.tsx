@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 
 import type { IDataSource } from "@/@types/dataSource";
 import type { CreateUpdateModal } from "@/@types/global";
+import AlertRuleFilter from "@/app/[locale]/alert-rule/AlertRuleFilter";
 import ActionColumn from "@/components/ActionColumn";
 import AlertRuleChip from "@/components/AlertRuleChip";
 import Table from "@/components/Table";
@@ -26,7 +27,7 @@ export default function AlertRule() {
         ref={tableRef}
         title="Alert Rule"
         url="alert-rule"
-        defaultPage={1}
+        filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
