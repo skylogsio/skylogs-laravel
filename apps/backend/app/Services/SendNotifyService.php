@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;

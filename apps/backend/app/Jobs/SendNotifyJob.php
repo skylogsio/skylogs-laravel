@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 
 //use Log;
 use App\Models\GrafanaWebhookAlert;

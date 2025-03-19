@@ -44,6 +44,7 @@ use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\MessageBag;
 use MongoDB\BSON\UTCDateTime;
 
 class AlertingController extends Controller
@@ -74,10 +75,10 @@ class AlertingController extends Controller
             $data = $data->whereIn("type", $request->types);
         }
 
-        if ($request->has("endpoint") && !empty($request->endpoint)) {
-            $endpoint = $request->endpoint;
+        if ($request->has("endpointId") && !empty($request->endpointId)) {
+            $endpointId = $request->endpointId;
 
-            $data = $data->whereIn("endpoint_ids", [$endpoint]);
+            $data = $data->whereIn("endpoint_ids", [$endpointId]);
 
         }
 
@@ -85,6 +86,7 @@ class AlertingController extends Controller
 
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+            $alert->status_label = $alert->getStatus();
         }
 
         return response()->json($data);
@@ -296,9 +298,9 @@ class AlertingController extends Controller
                 }
 
 
-            return ['success' => true];
+            return ['status' => true];
         } else {
-            return ['success' => false];
+            return ['status' => false,"message" => $va->messages()];
         }
     }
 

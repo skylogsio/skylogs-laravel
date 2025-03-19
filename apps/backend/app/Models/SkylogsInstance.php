@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use App\Services\PrometheusInstanceService;
 use App\Services\SkylogsInstanceService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

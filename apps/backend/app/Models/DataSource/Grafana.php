@@ -2,7 +2,7 @@
 
 namespace App\Models\DataSource;
 
-use App\interfaces\Messageable;
+use App\Interfaces\Messageable;
 use App\Models\AlertInstance;
 use App\Models\ElasticCheck;
 use App\Models\Endpoint;

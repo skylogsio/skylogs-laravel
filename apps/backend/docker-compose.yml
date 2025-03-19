@@ -57,34 +57,21 @@ services:
             - skylogs_net
 
     horizon:
-        build: .
+        build:
+            context: .
+            dockerfile: HorizonDockerfile
         container_name: skylogs_horizon
         restart: unless-stopped
         working_dir: /var/www
         volumes:
             - .:/var/www
-        command: php artisan horizon
         depends_on:
-            - redis
             - app
+            - mongo
+            - redis
         networks:
             - skylogs_net
-#    scheduler:
-#        build:
-#            context: .
-#            dockerfile: Dockerfile
-#        container_name: skylogs_scheduler
-#        restart: unless-stopped
-#        working_dir: /var/www
-#        command: ["cron", "-f"]
-#        depends_on:
-#            - mongo
-#            - redis
-#            - app
-#        networks:
-#            - skylogs_net
-#        volumes:
-#            - .:/var/www
+
 
 networks:
     skylogs_net:
