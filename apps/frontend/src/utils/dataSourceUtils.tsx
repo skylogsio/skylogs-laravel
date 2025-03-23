@@ -1,16 +1,10 @@
 import { blue, grey, orange, red, yellow } from "@mui/material/colors";
 import { FaBell } from "react-icons/fa";
-import {
-  SiGrafana,
-  SiMetabase,
-  SiPrometheus,
-  SiSentry,
-  SiSplunk,
-  SiVictoriametrics
-} from "react-icons/si";
+import { SiGrafana, SiMetabase, SiPrometheus, SiSentry, SiVictoriametrics } from "react-icons/si";
 
 import ElasticIcon from "@/assets/svg/ElasticIcon";
 import PerconaIcon from "@/assets/svg/PerconaIcon";
+import SplunkIcon from "@/assets/svg/SplunkIcon";
 import ZabbixIcon from "@/assets/svg/ZabbixIcon";
 
 export const DATA_SOURCE_TYPE = [
@@ -44,7 +38,7 @@ export const DATA_SOURCE_TYPE = [
   },
   {
     value: "splunk",
-    icon: <SiSplunk size="1.2rem" />
+    icon: <SplunkIcon size="1.2rem" />
   },
   {
     value: "victoriametrics",
