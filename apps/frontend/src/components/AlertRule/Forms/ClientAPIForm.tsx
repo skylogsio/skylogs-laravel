@@ -96,7 +96,7 @@ export default function ClientAPIForm({ onClose }: ClientAPIModalProps) {
 
   useEffect(() => {
     reset(defaultValues);
-  }, []);
+  }, [reset]);
 
   return (
     <Stack component="form" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
