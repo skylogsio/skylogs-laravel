@@ -76,7 +76,7 @@ export default function EndPoints() {
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
-          onDelete={handleDelete}
+          onAfterDelete={handleDelete}
         />
       )}
     </>

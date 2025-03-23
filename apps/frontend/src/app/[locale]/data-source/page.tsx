@@ -72,7 +72,7 @@ export default function DataSource() {
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
-          onDelete={handleDelete}
+          onAfterDelete={handleDelete}
         />
       )}
     </>

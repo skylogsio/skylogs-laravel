@@ -10,7 +10,7 @@ import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes
 
 export default function DeleteDataSourceModal({
   data,
-  onDelete,
+  onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IDataSource }) {
   const { id, name, type } = data;
@@ -18,13 +18,13 @@ export default function DeleteDataSourceModal({
   const { mutate: deleteDataSourceMutation, isPending } = useMutation({
     mutationFn: () => deleteDataSource(id),
     onSuccess() {
-      onDelete?.();
+      onAfterDelete?.();
       toast.success("DataSource Deleted Successfully.");
     }
   });
 
   return (
-    <DeleteModalContainer {...props} onDelete={deleteDataSourceMutation} isLoading={isPending}>
+    <DeleteModalContainer {...props} onAfterDelete={deleteDataSourceMutation} isLoading={isPending}>
       <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
         <Typography variant="body1" fontWeight="bold">
           Name:
