@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 
 import type { IAlertRuleCreateData } from "@/@types/alertRule";
-import type { CreateUpdateModal } from "@/@types/global";
+import type { CreateUpdateModal, ServerResponse } from "@/@types/global";
 import { createAlertRule } from "@/api/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
@@ -30,7 +30,7 @@ const clientApiSchema = z
       }),
     type: z.literal("api").default("api"),
     enableAutoResolve: z.boolean().default(false),
-    autoResolveMinutes: z.number().or(z.literal("")),
+    autoResolveMinutes: z.number().min(1, "The value should be greater than 0.").or(z.literal("")),
     endpoints: z.array(z.string()).min(1, "This field is Required."),
     accessUsers: z.array(z.string()).min(1, "This field is Required.")
   })
@@ -56,7 +56,7 @@ const defaultValues: ClientAPIFormType = {
   autoResolveMinutes: ""
 };
 
-export default function ClientAPIForm({ onClose }: ClientAPIModalProps) {
+export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -76,10 +76,12 @@ export default function ClientAPIForm({ onClose }: ClientAPIModalProps) {
 
   const { mutate: createClientAPIMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: ClientAPIFormType) => createAlertRule(body),
-    onSuccess: () => {
-      toast.success("Client Api Alert Rule Created Successfully.");
-      // onSubmit();
-      onClose?.();
+    onSuccess: ({ data }: ServerResponse<unknown>) => {
+      if (data.status) {
+        toast.success("Client Api Alert Rule Created Successfully.");
+        onSubmit();
+        onClose?.();
+      }
     }
   });
 
@@ -163,7 +165,7 @@ export default function ClientAPIForm({ onClose }: ClientAPIModalProps) {
             disabled={!watch("enableAutoResolve")}
             error={!!errors.autoResolveMinutes}
             helperText={errors.autoResolveMinutes?.message}
-            {...register("autoResolveMinutes")}
+            {...register("autoResolveMinutes", { valueAsNumber: true })}
           />
         </Grid>
         <Grid size={12} marginTop="auto" flex={1}></Grid>

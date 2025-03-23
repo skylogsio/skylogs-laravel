@@ -30,7 +30,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
   const { palette } = useTheme();
   const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_TYPE[0].value);
 
-  const {} = useQuery<AxiosResponse<IAlertRuleCreateData>>({
+  useQuery<AxiosResponse<IAlertRuleCreateData>>({
     queryKey: ["alert-rule-create-data"],
     queryFn: () => getAlertRuleCreateData()
   });
