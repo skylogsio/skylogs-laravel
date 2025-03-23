@@ -24,6 +24,11 @@ export default function AlertRule() {
     }
   }
 
+  function handleAfterDelete() {
+    handleRefreshData();
+    setDeleteModalData(null);
+  }
+
   return (
     <>
       <Table<IAlertRule>
@@ -64,7 +69,7 @@ export default function AlertRule() {
         <DeleteAlertRuleModal
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
-          onDelete={handleRefreshData}
+          onAfterDelete={handleAfterDelete}
           data={deleteModalData}
         />
       )}
