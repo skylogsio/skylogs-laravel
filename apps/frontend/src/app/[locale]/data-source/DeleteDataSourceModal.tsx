@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import type { IDataSource } from "@/@types/dataSource";
 import { deleteDataSource } from "@/api/dataSource";
-import DataSourceChip from "@/components/DataSourceChip";
+import DataSourceType from "@/components/DataSource/DataSourceType";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
 import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes";
 
@@ -45,7 +45,7 @@ export default function DeleteDataSourceModal({
         justifyContent="flex-start"
         size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}
       >
-        <DataSourceChip type={type} />
+        <DataSourceType type={type} />
       </Grid>
       <Grid size={{ xs: 4, sm: 4, md: 3, lg: 3, xl: 3 }}>
         <Typography variant="body1" fontWeight="bold">

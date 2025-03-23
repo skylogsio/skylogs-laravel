@@ -33,8 +33,8 @@ import type { AxiosResponse } from "axios";
 import { HiOutlinePlusSm, HiFilter } from "react-icons/hi";
 
 import { useCurrentDirection } from "@/hooks";
+import axios from "@/lib/axios";
 import { useScopedI18n } from "@/locales/client";
-import axios from "@/utils/axios";
 
 import SearchBox from "./SearchBox";
 import { IServerResponseTabularDate, TableComponentProps, TableComponentRef } from "./types";

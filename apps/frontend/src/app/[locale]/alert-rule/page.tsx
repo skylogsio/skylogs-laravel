@@ -5,7 +5,7 @@ import type { IDataSource } from "@/@types/dataSource";
 import type { CreateUpdateModal } from "@/@types/global";
 import AlertRuleFilter from "@/app/[locale]/alert-rule/AlertRuleFilter";
 import ActionColumn from "@/components/ActionColumn";
-import AlertRuleChip from "@/components/AlertRuleChip";
+import AlertRuleType from "@/components/AlertRule/AlertRuleType";
 import Table from "@/components/Table";
 import type { TableComponentRef } from "@/components/Table/types";
 
@@ -34,7 +34,7 @@ export default function AlertRule() {
           { header: "Name", accessorKey: "name" },
           {
             header: "Type",
-            cell: ({ row }) => <AlertRuleChip type={row.original.type} />
+            cell: ({ row }) => <AlertRuleType type={row.original.type} />
           },
           {
             header: "Status"

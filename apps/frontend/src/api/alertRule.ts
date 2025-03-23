@@ -1,4 +1,4 @@
-import axios from "@/utils/axios";
+import axios from "@/lib/axios";
 
 const ALERT_RULE_URL = "alert-rule";
 

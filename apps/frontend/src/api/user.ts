@@ -1,4 +1,4 @@
-import axios from "@/utils/axios";
+import axios from "@/lib/axios";
 
 const USER_URL = "user";
 const USER_PASSWORD_URL = "user/pass";

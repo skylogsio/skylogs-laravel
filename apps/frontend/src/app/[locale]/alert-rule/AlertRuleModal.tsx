@@ -17,7 +17,7 @@ import { type AxiosResponse } from "axios";
 import type { IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule";
-import ClientAPIForm from "@/components/AlertRuleForms/ClientAPIForm";
+import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import { ALERT_RULE_TYPE } from "@/utils/alertRuleUtils";
 
