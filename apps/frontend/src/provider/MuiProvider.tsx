@@ -108,7 +108,7 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
           MuiIconButton: {
             styleOverrides: {
               root: {
-                borderRadius: "0.55rem"
+                borderRadius: "0.4rem"
               }
             }
           }
