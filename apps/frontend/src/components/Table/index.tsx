@@ -65,7 +65,7 @@ function Table<T>(
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [filterSearchParams, setFilterSearchParams] = useState("");
 
-  const { data, isLoading, isError, refetch } = useQuery<
+  const { data, isFetching, isError, refetch } = useQuery<
     AxiosResponse<IServerResponseTabularDate<T>>
   >({
     queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
@@ -237,7 +237,7 @@ function Table<T>(
               ))}
             </TableHead>
             <TableBody>
-              {!data || isLoading
+              {!data || isFetching
                 ? Array.from({ length: pageSize }).map((_, index) => (
                     <TableRow key={index}>
                       {Array.from({ length: tableColumns.length }).map((_, cellIndex) => (
