@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Box,
   Button,
+  Chip,
   Grid2 as Grid,
   MenuItem,
   Stack,
@@ -96,6 +98,38 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
     createClientAPIMutation(values);
   }
 
+  function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
+    const selectedEndpoints = data?.data.endpoints.filter((item) =>
+      (selectedEndpointIds as string[]).includes(item.id)
+    );
+    if (selectedEndpoints && selectedEndpoints.length > 0) {
+      return (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+          {selectedEndpoints.map((value) => (
+            <Chip size="small" key={value.id} label={value.name} />
+          ))}
+        </Box>
+      );
+    }
+    return <></>;
+  }
+
+  function renderUsersChip(selectedUserIds: unknown): ReactNode {
+    const selectedUsers = data?.data.users.filter((item) =>
+      (selectedUserIds as string[]).includes(item.id)
+    );
+    if (selectedUsers && selectedUsers.length > 0) {
+      return (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+          {selectedUsers.map((value) => (
+            <Chip size="small" key={value.id} label={value.name} />
+          ))}
+        </Box>
+      );
+    }
+    return <></>;
+  }
+
   useEffect(() => {
     reset(defaultValues);
   }, [reset]);
@@ -123,7 +157,12 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
             helperText={errors.endpoints?.message}
             {...register("endpoints")}
             value={watch("endpoints") ?? []}
-            slotProps={{ select: { multiple: true } }}
+            slotProps={{
+              select: {
+                multiple: true,
+                renderValue: renderEndpointsChip
+              }
+            }}
             select
           >
             {data?.data?.endpoints.map((endpoint) => (
@@ -141,7 +180,12 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
             helperText={errors.accessUsers?.message}
             {...register("accessUsers")}
             value={watch("accessUsers") ?? []}
-            slotProps={{ select: { multiple: true } }}
+            slotProps={{
+              select: {
+                multiple: true,
+                renderValue: renderUsersChip
+              }
+            }}
             select
           >
             {data?.data?.users.map((user) => (
