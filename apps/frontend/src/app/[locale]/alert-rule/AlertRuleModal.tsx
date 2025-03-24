@@ -19,7 +19,7 @@ import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
-import { ALERT_RULE_TYPE } from "@/utils/alertRuleUtils";
+import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
 
 type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
   data: CreateUpdateModal<unknown>;
@@ -28,7 +28,7 @@ type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
 
 export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertRuleModalProps) {
   const { palette } = useTheme();
-  const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_TYPE[0].value);
+  const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_VARIANTS[0].value);
 
   useQuery<AxiosResponse<IAlertRuleCreateData>>({
     queryKey: ["alert-rule-create-data"],
@@ -66,7 +66,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
               orientation="vertical"
               sx={{ paddingX: "1rem", paddingY: 1, borderRight: `1px solid ${palette.divider}` }}
             >
-              {ALERT_RULE_TYPE.map((item, index) => (
+              {ALERT_RULE_VARIANTS.map((item, index) => (
                 <Button
                   startIcon={item.icon}
                   key={index}

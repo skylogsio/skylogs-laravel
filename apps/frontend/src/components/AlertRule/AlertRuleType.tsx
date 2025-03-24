@@ -1,9 +1,9 @@
 import { Stack, Typography } from "@mui/material";
 
-import { ALERT_RULE_TYPE } from "@/utils/alertRuleUtils";
+import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
 
 export default function AlertRuleType({ type }: { type: string }) {
-  const alertRuleType = ALERT_RULE_TYPE.find((item) => item.value === type);
+  const alertRuleType = ALERT_RULE_VARIANTS.find((item) => item.value === type);
 
   if (!alertRuleType) return;
 
