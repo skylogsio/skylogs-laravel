@@ -7,7 +7,7 @@ import PerconaIcon from "@/assets/svg/PerconaIcon";
 import SplunkIcon from "@/assets/svg/SplunkIcon";
 import ZabbixIcon from "@/assets/svg/ZabbixIcon";
 
-export const DATA_SOURCE_TYPE = [
+export const DATA_SOURCE_VARIANTS = [
   {
     value: "prometheus",
     icon: <SiPrometheus color={red[500]} size="1.2rem" />
@@ -49,3 +49,15 @@ export const DATA_SOURCE_TYPE = [
     icon: <PerconaIcon size="1.2rem" />
   }
 ];
+
+export type DataSourceType =
+    | "prometheus"
+    | "notification"
+    | "sentry"
+    | "grafana"
+    | "metabase"
+    | "elastic"
+    | "zabbix"
+    | "splunk"
+    | "victoriametrics"
+    | "Percona"

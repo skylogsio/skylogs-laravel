@@ -22,7 +22,7 @@ import { type CreateUpdateModal } from "@/@types/global";
 import { createDataSource, updateDataSource } from "@/api/dataSource";
 import ModalContainer from "@/components/Modal";
 import type { ModalContainerProps } from "@/components/Modal/types";
-import { DATA_SOURCE_TYPE } from "@/utils/dataSourceUtils";
+import { DATA_SOURCE_VARIANTS } from "@/utils/dataSourceUtils";
 
 const schema = z.object({
   name: z
@@ -142,7 +142,7 @@ export default function DataSourceModal({ open, onClose, data, onSubmit }: DataS
             value={watch("type") ?? ""}
             select
           >
-            {DATA_SOURCE_TYPE.map((item) => (
+            {DATA_SOURCE_VARIANTS.map((item) => (
               <MenuItem key={item.value} value={item.value} sx={{ textTransform: "capitalize" }}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   {item.icon}
