@@ -4,17 +4,32 @@ import { alpha, Chip, Grid2 as Grid, MenuItem, Stack, TextField, Typography } fr
 import { FaCheck } from "react-icons/fa6";
 
 import type { TableFilterComponentProps } from "@/components/Table/types";
-import { ALERT_RULE_TYPE } from "@/utils/alertRuleUtils";
+import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
 type AlertRuleStatus = "running" | "warning" | "fire" | "";
 type AlertRuleSilentStatus = "silent" | "not-silent" | "";
+
+interface IAlertRuleFilters {
+  alertname?: string;
+  types?: Array<AlertRuleType>;
+}
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
   const [status, setStatus] = useState<AlertRuleStatus>("");
   const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
 
+  const [filter, setFilter] = useState<IAlertRuleFilters>({});
+
   function handleChangeStatus(selectedStatus: AlertRuleStatus) {
     setStatus((prev) => (prev === selectedStatus ? "" : selectedStatus));
+  }
+
+  function handleChange(
+    key: keyof IAlertRuleFilters,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
+    onChange(key, event.target.value);
+    setFilter((prev) => ({ ...prev, [key]: event.target.value }));
   }
 
   return (
@@ -23,13 +38,22 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         <TextField
           size="small"
           label="Name"
+          value={filter.alertname}
           variant="filled"
-          onChange={(event) => onChange("name", event.target.value)}
+          onChange={(event) => handleChange("alertname", event)}
         />
       </Grid>
       <Grid size={3}>
-        <TextField label="Type Of Data Source" variant="filled" select size="small">
-          {ALERT_RULE_TYPE.map((item) => (
+        <TextField
+          label="Type Of Data Source"
+          variant="filled"
+          select
+          value={filter.types ?? []}
+          slotProps={{ select: { multiple: true } }}
+          size="small"
+          onChange={(event) => handleChange("types", event)}
+        >
+          {ALERT_RULE_VARIANTS.map((item) => (
             <MenuItem key={item.value} value={item.value} sx={{ textTransform: "capitalize" }}>
               <Stack direction="row" alignItems="center" spacing={1}>
                 {item.icon}
