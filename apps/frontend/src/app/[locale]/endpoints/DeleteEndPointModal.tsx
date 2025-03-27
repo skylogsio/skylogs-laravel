@@ -10,7 +10,7 @@ import { renderEndPointChip } from "@/utils/endpointVariants";
 
 export default function DeleteEndPointModal({
   data,
-  onDelete,
+  onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IEndpoint }) {
   const { id, name, value, type, chatId } = data;
@@ -18,13 +18,13 @@ export default function DeleteEndPointModal({
   const { mutate: deleteEndpointMutation, isPending } = useMutation({
     mutationFn: () => deleteEndpoint(id),
     onSuccess() {
-      onDelete?.();
+      onAfterDelete?.();
       toast.success("EndPoint Deleted Successfully.");
     }
   });
 
   return (
-    <DeleteModalContainer {...props} onDelete={deleteEndpointMutation} isLoading={isPending}>
+    <DeleteModalContainer {...props} onAfterDelete={deleteEndpointMutation} isLoading={isPending}>
       <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
         <Typography variant="body1" fontWeight="bold">
           Name:

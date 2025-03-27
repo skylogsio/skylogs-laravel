@@ -17,7 +17,8 @@ import {
   Typography,
   Button,
   useTheme,
-  Stack
+  Stack,
+  Collapse
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -28,14 +29,15 @@ import {
   flexRender,
   type PaginationState
 } from "@tanstack/react-table";
+import type { AxiosResponse } from "axios";
 import { HiOutlinePlusSm, HiFilter } from "react-icons/hi";
 
 import { useCurrentDirection } from "@/hooks";
+import axios from "@/lib/axios";
 import { useScopedI18n } from "@/locales/client";
-import axios from "@/utils/axios";
 
 import SearchBox from "./SearchBox";
-import type { TableComponentProps, TableComponentRef } from "./types";
+import { IServerResponseTabularDate, TableComponentProps, TableComponentRef } from "./types";
 
 function Table<T>(
   {
@@ -46,25 +48,32 @@ function Table<T>(
     defaultPage = 0,
     defaultPageSize,
     rowsPerPageOptions = [10, 25, 50, 100],
-    onCreate
+    onCreate,
+    refetchInterval,
+    filterComponent
   }: TableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: defaultPage,
-    pageSize: defaultPageSize
-  });
-
   const { palette } = useTheme();
   const direction = useCurrentDirection();
   const t = useScopedI18n("table");
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: defaultPage,
+    pageSize: defaultPageSize ?? 10
+  });
+  const [openFilterBox, setOpenFilterBox] = useState(false);
+  const [filter, setFilter] = useState<Record<string, unknown>>({});
+  const [filterSearchParams, setFilterSearchParams] = useState("");
 
-  const { data, isLoading, isError, refetch } = useQuery<{ data: { data: T[] } }>({
-    queryKey: ["tableData", url, pageIndex, pageSize],
+  const { data, isFetching, isError, refetch } = useQuery<
+    AxiosResponse<IServerResponseTabularDate<T>>
+  >({
+    queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
     queryFn: () =>
       axios(
-        `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc`
-      )
+        `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc&${filterSearchParams}`
+      ),
+    refetchInterval
   });
 
   useImperativeHandle(ref, () => ({
@@ -99,7 +108,6 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
-  //TODO: Should complete the pagination based on server response
   const table = useReactTable({
     data: data?.data?.data || [],
     columns: tableColumns,
@@ -107,12 +115,16 @@ function Table<T>(
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    pageCount: 50,
+    pageCount: data?.data?.last_page,
     state: {
       pagination: { pageIndex, pageSize }
     },
     manualPagination: true
   });
+
+  function handleChangeFilter(key: string, value: unknown) {
+    setFilter((prev) => ({ ...prev, [key]: value }));
+  }
 
   if (isError)
     return (
@@ -121,15 +133,19 @@ function Table<T>(
       </Typography>
     );
 
+  function handleSetFilter() {
+    const temp = new URLSearchParams(filter as Record<string, string>);
+    setFilterSearchParams(temp.toString());
+  }
+
   return (
-    <Box display="flex" flexDirection="column" width="100%" height="100%">
+    <Box display="flex" flexDirection="column" width="100%" minHeight="100%">
       <Box
         width="100%"
         display="flex"
         justifyContent="space-between"
         alignItems="flex-end"
-        marginBottom="1rem"
-        paddingX="1rem"
+        paddingX={1}
       >
         {title && (
           <Typography variant="h5" fontSize="1.8rem" fontWeight="700" component="div">
@@ -142,11 +158,12 @@ function Table<T>(
             startIcon={<HiFilter />}
             size="small"
             variant="outlined"
+            onClick={() => setOpenFilterBox((prev) => !prev)}
             sx={{
-              backgroundColor: palette.background.paper,
+              backgroundColor: openFilterBox ? palette.secondary.dark : palette.background.paper,
               borderColor: palette.secondary.light,
-              color: palette.secondary.dark,
               paddingY: "0.19rem",
+              color: openFilterBox ? palette.background.paper : palette.secondary.dark,
               paddingRight: "0.7rem",
               textTransform: "none"
             }}
@@ -166,15 +183,33 @@ function Table<T>(
           )}
         </Stack>
       </Box>
+      <Collapse in={openFilterBox}>
+        <Stack
+          padding={1}
+          spacing={1}
+          bgcolor={palette.background.paper}
+          borderRadius="1rem"
+          marginTop={1}
+          border="1px solid"
+          borderColor="grey.200"
+        >
+          {filterComponent?.({ onChange: handleChangeFilter })}
+          <Stack direction="row-reverse">
+            <Button size="small" variant="contained" onClick={handleSetFilter}>
+              Filter
+            </Button>
+          </Stack>
+        </Stack>
+      </Collapse>
       <Box
         width="100%"
-        height="100%"
-        maxHeight="100%"
+        height="70vh"
         bgcolor="background.paper"
         borderRadius="1rem"
         border="1px solid"
         borderColor="grey.200"
         overflow="hidden"
+        marginTop={1}
       >
         <TableContainer sx={{ width: "100%", maxHeight: "100%", overflow: "auto" }}>
           <MuiTable stickyHeader sx={{ width: "100%" }}>
@@ -202,7 +237,7 @@ function Table<T>(
               ))}
             </TableHead>
             <TableBody>
-              {!data || isLoading
+              {!data || isFetching
                 ? Array.from({ length: pageSize }).map((_, index) => (
                     <TableRow key={index}>
                       {Array.from({ length: tableColumns.length }).map((_, cellIndex) => (

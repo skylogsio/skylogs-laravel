@@ -9,7 +9,7 @@ export default function DeleteModalContainer({
   open,
   onClose,
   children,
-  onDelete,
+  onAfterDelete,
   isLoading
 }: DeleteModalProps) {
   const { palette } = useTheme();
@@ -41,7 +41,7 @@ export default function DeleteModalContainer({
             disabled={isLoading}
             variant="contained"
             color="error"
-            onClick={onDelete}
+            onClick={onAfterDelete}
           >
             Yes, I&#39;m Sure.
           </Button>

@@ -1,9 +1,9 @@
 import { Stack, Typography } from "@mui/material";
 
-import { DATA_SOURCE_TYPE } from "@/utils/dataSourceUtils";
+import { DATA_SOURCE_VARIANTS } from "@/utils/dataSourceUtils";
 
-export default function DataSourceChip({ type }: { type: string }) {
-  const dataSourceType = DATA_SOURCE_TYPE.find((item) => item.value === type);
+export default function DataSourceType({ type }: { type: string }) {
+  const dataSourceType = DATA_SOURCE_VARIANTS.find((item) => item.value === type);
 
   if (!dataSourceType) return;
 

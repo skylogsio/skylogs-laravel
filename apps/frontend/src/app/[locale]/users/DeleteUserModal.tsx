@@ -10,7 +10,7 @@ import { ROLE_COLORS } from "@/utils/userUtils";
 
 export default function DeleteUserModal({
   data,
-  onDelete,
+  onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IUser }) {
   const { id, name, username, roles } = data;
@@ -18,13 +18,13 @@ export default function DeleteUserModal({
   const { mutate: deleteUserMutation, isPending } = useMutation({
     mutationFn: () => deleteUser(id),
     onSuccess() {
-      onDelete?.();
+      onAfterDelete?.();
       toast.success("User Deleted Successfully.");
     }
   });
 
   return (
-    <DeleteModalContainer {...props} onDelete={deleteUserMutation} isLoading={isPending}>
+    <DeleteModalContainer {...props} onAfterDelete={deleteUserMutation} isLoading={isPending}>
       <Grid size={{ xs: 4 }}>
         <Typography variant="body1" fontWeight="bold">
           Username:

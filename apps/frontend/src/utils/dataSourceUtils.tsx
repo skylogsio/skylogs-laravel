@@ -1,15 +1,13 @@
-import { blue, grey, lightBlue, orange, red, yellow } from "@mui/material/colors";
-import { FaBell, FaCloud } from "react-icons/fa";
-import { SiGrafana, SiMetabase, SiPrometheus, SiSentry } from "react-icons/si";
+import { blue, grey, orange, red, yellow } from "@mui/material/colors";
+import { FaBell } from "react-icons/fa";
+import { SiGrafana, SiMetabase, SiPrometheus, SiSentry, SiVictoriametrics } from "react-icons/si";
 
 import ElasticIcon from "@/assets/svg/ElasticIcon";
+import PerconaIcon from "@/assets/svg/PerconaIcon";
+import SplunkIcon from "@/assets/svg/SplunkIcon";
 import ZabbixIcon from "@/assets/svg/ZabbixIcon";
 
-export const DATA_SOURCE_TYPE = [
-  {
-    value: "clientAPI",
-    icon: <FaCloud color={lightBlue[500]} size="1.2rem" />
-  },
+export const DATA_SOURCE_VARIANTS = [
   {
     value: "prometheus",
     icon: <SiPrometheus color={red[500]} size="1.2rem" />
@@ -37,5 +35,29 @@ export const DATA_SOURCE_TYPE = [
   {
     value: "zabbix",
     icon: <ZabbixIcon size="1.2rem" />
+  },
+  {
+    value: "splunk",
+    icon: <SplunkIcon size="1.2rem" />
+  },
+  {
+    value: "victoriametrics",
+    icon: <SiVictoriametrics size="1.2rem" />
+  },
+  {
+    value: "Percona",
+    icon: <PerconaIcon size="1.2rem" />
   }
 ];
+
+export type DataSourceType =
+    | "prometheus"
+    | "notification"
+    | "sentry"
+    | "grafana"
+    | "metabase"
+    | "elastic"
+    | "zabbix"
+    | "splunk"
+    | "victoriametrics"
+    | "Percona"

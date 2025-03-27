@@ -7,7 +7,8 @@ const URLS = [
   { pathname: "/", label: "Home" },
   { pathname: "/endpoints", label: "Endpoints" },
   { pathname: "/users", label: "Users" },
-  { pathname: "/data-source", label: "Data Source" }
+  { pathname: "/data-source", label: "Data Sources" },
+  { pathname: "/alert-rule", label: "Alert Rules" }
 ];
 
 function ListItem(url: { pathname: string; label: string }) {

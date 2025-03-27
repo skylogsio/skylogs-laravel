@@ -15,9 +15,13 @@ import {
   Popover,
   Typography
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import type { AxiosResponse } from "axios";
 import { signOut } from "next-auth/react";
 import { FaAngleDown } from "react-icons/fa6";
 
+import type { IUser } from "@/@types/user";
+import { getMyInfo } from "@/api/profile";
 import { useScopedI18n } from "@/locales/client";
 
 import type { ProfileListType } from "./types";
@@ -42,6 +46,11 @@ export default function TopBarProfile() {
 
   const open = Boolean(anchorEl);
   const id = open ? "top-bar-profile-popover" : undefined;
+
+  const { data } = useQuery<AxiosResponse<IUser>>({
+    queryKey: ["profile"],
+    queryFn: () => getMyInfo()
+  });
 
   return (
     <>
@@ -70,7 +79,7 @@ export default function TopBarProfile() {
               textOverflow: "ellipsis"
             }}
           >
-            {t("fullName")}
+            {data?.data.name}
           </Typography>
           <Typography variant="caption">{t("role")}</Typography>
         </Box>

@@ -105,7 +105,7 @@ export default function Users() {
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
-          onDelete={handleDelete}
+          onAfterDelete={handleDelete}
         />
       )}
     </>

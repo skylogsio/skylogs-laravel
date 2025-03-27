@@ -1,14 +1,24 @@
 import axios, { AxiosError } from "axios";
 import { getServerSession } from "next-auth";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 async function getAuthorizationHeader() {
   if (typeof window === "undefined") {
     const session = await getServerSession();
-    return `Bearer ${session?.user.token}`;
+    if (session && session.error !== "RefreshTokenError") {
+      return `Bearer ${session.user.token}`;
+    } else {
+      //TODO: User should log out
+      return null;
+    }
   } else {
     const session = await getSession();
-    return `Bearer ${session?.user.token}`;
+    if (session && session.error !== "RefreshTokenError") {
+      return `Bearer ${session?.user.token}`;
+    } else {
+      await signOut();
+      return null;
+    }
   }
 }
 
@@ -37,7 +47,6 @@ axiosInstance.interceptors.response.use(
         error.request.config.headers.Authorization = await getAuthorizationHeader();
         return axiosInstance.request(error.request.config);
       } catch (tokenRefreshError) {
-        console.error("Token refresh failed:", tokenRefreshError);
         return Promise.reject(tokenRefreshError);
       }
     }

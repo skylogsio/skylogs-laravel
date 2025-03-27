@@ -6,7 +6,8 @@ import type { CreateUpdateModal } from "@/@types/global";
 import DataSourceModal from "@/app/[locale]/data-source/DataSourceModal";
 import DeleteDataSourceModal from "@/app/[locale]/data-source/DeleteDataSourceModal";
 import ActionColumn from "@/components/ActionColumn";
-import DataSourceChip from "@/components/DataSourceChip";
+import ConnectionStatus from "@/components/ConnectionStatus";
+import DataSourceType from "@/components/DataSource/DataSourceType";
 import Table from "@/components/Table";
 import { type TableComponentRef } from "@/components/Table/types";
 
@@ -34,16 +35,17 @@ export default function DataSource() {
         url="data-source"
         defaultPage={1}
         defaultPageSize={10}
+        refetchInterval={5000}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
           { header: "Name", accessorKey: "name" },
           {
             header: "Type",
-            cell: ({ row }) => <DataSourceChip type={row.original.type} />
+            cell: ({ row }) => <DataSourceType type={row.original.type} />
           },
           {
             header: "Status",
-            accessorFn: () => "unknown status"
+            cell: ({ row }) => <ConnectionStatus status={row.original.status} />
           },
           {
             header: "Action",
@@ -70,7 +72,7 @@ export default function DataSource() {
           open={!!deleteModalData}
           onClose={() => setDeleteModalData(null)}
           data={deleteModalData}
-          onDelete={handleDelete}
+          onAfterDelete={handleDelete}
         />
       )}
     </>
