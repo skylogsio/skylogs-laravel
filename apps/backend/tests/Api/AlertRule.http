@@ -6,6 +6,12 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+GET {{domain}}/alert-rule/filter-endpoints
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
 GET {{domain}}/alert-rule/types
 Content-Type: application/json
 Accept: application/json
@@ -47,7 +53,7 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "test2",
+    "name": "test23",
     "type" : "api",
     "enableAutoResolve": true,
     "autoResolveMinutes" : 5,

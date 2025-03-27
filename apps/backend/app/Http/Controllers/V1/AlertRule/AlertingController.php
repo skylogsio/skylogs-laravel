@@ -94,6 +94,20 @@ class AlertingController extends Controller
 
     }
 
+    public function FilterEndpoints(Request $request){
+
+        $adminUserId = User::where('username', 'admin')->first()->_id;
+
+        $currentUser = \Auth::user();
+
+        if ($currentUser->hasRole("admin")) {
+            $selectableEndpoints = Endpoint::get();
+        } else {
+            $selectableEndpoints = Endpoint::whereIn("user_id", [$adminUserId, $currentUser->_id])->get();
+        }
+
+        return response()->json($selectableEndpoints);
+    }
     public function GetTypes(Request $request){
         return response()->json(AlertRuleType::GetTypes());
     }
@@ -693,7 +707,8 @@ class AlertingController extends Controller
                 $model->save();
                 break;
         }
-        return ['success' => true];
+        return response()->json(['status'=>true]);
+
     }
 
     public function ResolveAlert(Request $request, $service, $id)
