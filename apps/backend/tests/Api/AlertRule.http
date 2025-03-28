@@ -26,6 +26,19 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+POST {{domain}}/alert-rule/silent/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+POST {{domain}}/alert-rule/resolve/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
 POST {{domain}}/alert-rule/
 Content-Type: application/json
 Accept: application/json

@@ -68,6 +68,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/create-data', 'CreateData');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Store');
+                Route::post('/silent/{id}', 'Silent');
+                Route::post('/resolve/{id}', 'ResolveAlert');
                 Route::put('/{id}', 'StoreUpdate');
                 Route::delete('/{id}', 'Delete');
             });
