@@ -25,4 +25,5 @@ export interface IAlertRule {
   hasAdminAccess: boolean;
   status_label: AlertRuleStatus;
   notify?: number;
+  is_silent: boolean;
 }

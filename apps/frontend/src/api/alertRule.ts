@@ -22,3 +22,7 @@ export function getAlertRuleCreateData() {
 export function testAlertRule(id: unknown) {
   return axios.post(`${ALERT_RULE_NOTIFY_URL}/test/${id}`);
 }
+
+export function silenceAlertRule(id: unknown) {
+  return axios.post(`${ALERT_RULE_URL}/silent/${id}`);
+}

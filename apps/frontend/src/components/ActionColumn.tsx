@@ -3,10 +3,11 @@ import { useState } from "react";
 import { alpha, Button, IconButton, Popover, Stack, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { HiKey, HiPencil, HiTrash } from "react-icons/hi";
+import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { RiTestTubeFill } from "react-icons/ri";
 
 import type { ServerResponse } from "@/@types/global";
-import { testAlertRule } from "@/api/alertRule";
+import { silenceAlertRule, testAlertRule } from "@/api/alertRule";
 
 interface ActionColumnProps {
   rowId?: string | number;
@@ -14,6 +15,8 @@ interface ActionColumnProps {
   onDelete?: () => void;
   onChangePassword?: () => void;
   hasTest?: boolean;
+  hasSilent?: boolean;
+  isSilent?: boolean;
 }
 
 export default function ActionColumn({
@@ -21,10 +24,13 @@ export default function ActionColumn({
   onEdit,
   onDelete,
   onChangePassword,
-  hasTest
+  hasTest,
+  hasSilent,
+  isSilent
 }: ActionColumnProps) {
   const [testConfirmationAnchorEl, setTestConfirmationAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+  const [isSilentStatus, setIsSilentStatus] = useState<boolean>(Boolean(isSilent));
 
   const handleCloseTestConfirmationPopover = () => {
     setTestConfirmationAnchorEl(null);
@@ -46,6 +52,15 @@ export default function ActionColumn({
     }
   });
 
+  const { mutate: silenceAlertRuleMutation, isPending: isSilencing } = useMutation({
+    mutationFn: () => silenceAlertRule(rowId),
+    onSuccess: ({ data }: ServerResponse<unknown>) => {
+      if (data.status) {
+        setIsSilentStatus((prev) => !prev);
+      }
+    }
+  });
+
   return (
     <>
       <Stack direction="row" spacing={1} justifyContent="center">
@@ -60,6 +75,30 @@ export default function ActionColumn({
             <RiTestTubeFill size="1.4rem" />
           </IconButton>
         )}
+        {hasSilent &&
+          (isSilentStatus ? (
+            <IconButton
+              onClick={() => silenceAlertRuleMutation()}
+              disabled={isSilencing}
+              sx={({ palette }) => ({
+                color: palette.warning.main,
+                backgroundColor: alpha(palette.warning.main, 0.05)
+              })}
+            >
+              <IoNotifications size="1.4rem" />
+            </IconButton>
+          ) : (
+            <IconButton
+              onClick={() => silenceAlertRuleMutation()}
+              disabled={isSilencing}
+              sx={({ palette }) => ({
+                color: palette.warning.main,
+                backgroundColor: alpha(palette.warning.main, 0.05)
+              })}
+            >
+              <IoNotificationsOff size="1.4rem" />
+            </IconButton>
+          ))}
         {onEdit && (
           <IconButton
             onClick={onEdit}

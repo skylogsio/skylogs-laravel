@@ -55,6 +55,8 @@ export default function AlertRule() {
             cell: ({ row }) => (
               <ActionColumn
                 rowId={row.original.id}
+                hasSilent
+                isSilent={row.original.is_silent}
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
                 hasTest
