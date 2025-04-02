@@ -1,3 +1,4 @@
+import { IEndpoint } from "@/@types/endpoint";
 import axios from "@/lib/axios";
 
 const ALERT_RULE_URL = "alert-rule";
@@ -25,4 +26,10 @@ export function testAlertRule(id: unknown) {
 
 export function silenceAlertRule(id: unknown) {
   return axios.post(`${ALERT_RULE_URL}/silent/${id}`);
+}
+
+export async function getAlertFilterEndpointList() {
+  return axios
+    .get<Array<IEndpoint>>(`${ALERT_RULE_URL}/filter-endpoints`)
+    .then((response) => response.data);
 }
