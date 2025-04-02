@@ -52,7 +52,14 @@ export default function AlertRule() {
           },
           {
             header: "Action",
-            cell: ({ row }) => <ActionColumn onDelete={() => setDeleteModalData(row.original)} />
+            cell: ({ row }) => (
+              <ActionColumn
+                rowId={row.original.id}
+                onEdit={() => setModalData(row.original)}
+                onDelete={() => setDeleteModalData(row.original)}
+                hasTest
+              />
+            )
           }
         ]}
         onCreate={() => setModalData("NEW")}
