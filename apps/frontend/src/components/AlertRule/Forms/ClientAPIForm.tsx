@@ -18,9 +18,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-import type { IAlertRuleCreateData } from "@/@types/alertRule";
+import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal, ServerResponse } from "@/@types/global";
-import { createAlertRule } from "@/api/alertRule";
+import { createAlertRule, updateAlertRule } from "@/api/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const clientApiSchema = z
@@ -45,7 +45,7 @@ const clientApiSchema = z
 
 type ClientAPIFormType = z.infer<typeof clientApiSchema>;
 type ClientAPIModalProps = Pick<ModalContainerProps, "onClose"> & {
-  data: CreateUpdateModal<unknown>;
+  data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
 };
 
@@ -58,7 +58,7 @@ const defaultValues: ClientAPIFormType = {
   autoResolveMinutes: ""
 };
 
-export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps) {
+export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -72,12 +72,24 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
     defaultValues
   });
 
-  const data = queryClient.getQueryData<AxiosResponse<IAlertRuleCreateData>>([
+  const requiredData = queryClient.getQueryData<AxiosResponse<IAlertRuleCreateData>>([
     "alert-rule-create-data"
   ]);
 
   const { mutate: createClientAPIMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: ClientAPIFormType) => createAlertRule(body),
+    onSuccess: ({ data }: ServerResponse<unknown>) => {
+      if (data.status) {
+        toast.success("Client Api Alert Rule Created Successfully.");
+        onSubmit();
+        onClose?.();
+      }
+    }
+  });
+
+  const { mutate: updateClientAPIMutation, isPending: isUpdating } = useMutation({
+    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: ClientAPIFormType }) =>
+      updateAlertRule(id, body),
     onSuccess: ({ data }: ServerResponse<unknown>) => {
       if (data.status) {
         toast.success("Client Api Alert Rule Created Successfully.");
@@ -95,11 +107,15 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
   }
 
   function handleSubmitForm(values: ClientAPIFormType) {
-    createClientAPIMutation(values);
+    if (data === "NEW") {
+      createClientAPIMutation(values);
+    } else if (data) {
+      updateClientAPIMutation({ id: data.id, body: values });
+    }
   }
 
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
-    const selectedEndpoints = data?.data.endpoints.filter((item) =>
+    const selectedEndpoints = requiredData?.data.endpoints.filter((item) =>
       (selectedEndpointIds as string[]).includes(item.id)
     );
     if (selectedEndpoints && selectedEndpoints.length > 0) {
@@ -115,7 +131,7 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
   }
 
   function renderUsersChip(selectedUserIds: unknown): ReactNode {
-    const selectedUsers = data?.data.users.filter((item) =>
+    const selectedUsers = requiredData?.data.users.filter((item) =>
       (selectedUserIds as string[]).includes(item.id)
     );
     if (selectedUsers && selectedUsers.length > 0) {
@@ -131,14 +147,25 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
   }
 
   useEffect(() => {
-    reset(defaultValues);
-  }, [reset]);
+    if (data === "NEW") {
+      reset(defaultValues);
+    } else if (data) {
+      reset({
+        name: data.name,
+        type: "api",
+        accessUsers: data.user_ids,
+        endpoints: data.endpoint_ids,
+        enableAutoResolve: data.enableAutoResolve,
+        autoResolveMinutes: data.autoResolveMinutes
+      });
+    }
+  }, [reset, data]);
 
   return (
     <Stack component="form" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
       <Grid container spacing={2} flex={1} alignContent="flex-start">
         <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
-          Create Client API Alert
+          {data === "NEW" ? "Create" : "Update"} Client API Alert
         </Typography>
         <Grid size={12}>
           <TextField
@@ -165,7 +192,7 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
             }}
             select
           >
-            {data?.data?.endpoints.map((endpoint) => (
+            {requiredData?.data?.endpoints.map((endpoint) => (
               <MenuItem key={endpoint.id} value={endpoint.id}>
                 {endpoint.name}
               </MenuItem>
@@ -188,7 +215,7 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
             }}
             select
           >
-            {data?.data?.users.map((user) => (
+            {requiredData?.data?.users.map((user) => (
               <MenuItem key={user.id} value={user.id}>
                 {user.name}
               </MenuItem>
@@ -215,11 +242,11 @@ export default function ClientAPIForm({ onClose, onSubmit }: ClientAPIModalProps
         <Grid size={12} marginTop="auto" flex={1}></Grid>
       </Grid>
       <Stack direction="row" justifyContent="flex-end" spacing={2}>
-        <Button disabled={isCreating} variant="outlined" onClick={onClose}>
+        <Button disabled={isCreating || isUpdating} variant="outlined" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={isCreating} type="submit" variant="contained">
-          Create
+        <Button disabled={isCreating || isUpdating} type="submit" variant="contained">
+          {data === "NEW" ? "Create" : "Update"}
         </Button>
       </Stack>
     </Stack>
