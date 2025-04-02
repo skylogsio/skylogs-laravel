@@ -32,16 +32,30 @@ const clientApiSchema = z
       }),
     type: z.literal("api").default("api"),
     enableAutoResolve: z.boolean().default(false),
-    autoResolveMinutes: z.number().min(1, "The value should be greater than 0.").or(z.literal("")),
+    autoResolveMinutes: z.number({
+      required_error: "This field is Required.",
+      invalid_type_error: "This field is Required."
+    }),
     endpoints: z.array(z.string()).min(1, "This field is Required."),
     accessUsers: z.array(z.string()).min(1, "This field is Required.")
   })
-  .refine(
-    (data) =>
-      !data.enableAutoResolve ||
-      (data.enableAutoResolve && (data.autoResolveMinutes !== "" || +data.autoResolveMinutes > 0)),
-    { path: ["autoResolveMinutes"], message: "This field is Required." }
-  );
+  .superRefine((data, ctx) => {
+    if (data.enableAutoResolve) {
+      if (data.autoResolveMinutes === undefined) {
+        ctx.addIssue({
+          path: ["autoResolveMinutes"],
+          message: "This field is Required.",
+          code: "custom"
+        });
+      } else if (!Number.isInteger(data.autoResolveMinutes) || data.autoResolveMinutes <= 0) {
+        ctx.addIssue({
+          path: ["autoResolveMinutes"],
+          message: "Must be a positive integer.",
+          code: "custom"
+        });
+      }
+    }
+  });
 
 type ClientAPIFormType = z.infer<typeof clientApiSchema>;
 type ClientAPIModalProps = Pick<ModalContainerProps, "onClose"> & {
@@ -55,7 +69,7 @@ const defaultValues: ClientAPIFormType = {
   accessUsers: [],
   endpoints: [],
   enableAutoResolve: false,
-  autoResolveMinutes: ""
+  autoResolveMinutes: 0
 };
 
 export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModalProps) {
@@ -66,6 +80,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     watch,
     setValue,
     reset,
+    clearErrors,
     formState: { errors }
   } = useForm<ClientAPIFormType>({
     resolver: zodResolver(clientApiSchema),
@@ -101,7 +116,8 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
 
   function handleAutoResolve(event: React.ChangeEvent<HTMLInputElement>) {
     if (!event.target.checked) {
-      setValue("autoResolveMinutes", "");
+      clearErrors("autoResolveMinutes");
+      setValue("autoResolveMinutes", 0);
     }
     setValue("enableAutoResolve", event.target.checked);
   }
@@ -236,7 +252,10 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
             disabled={!watch("enableAutoResolve")}
             error={!!errors.autoResolveMinutes}
             helperText={errors.autoResolveMinutes?.message}
-            {...register("autoResolveMinutes", { valueAsNumber: true })}
+            {...register("autoResolveMinutes", {
+              valueAsNumber: true,
+              setValueAs: (value) => parseInt(value)
+            })}
           />
         </Grid>
         <Grid size={12} marginTop="auto" flex={1}></Grid>
