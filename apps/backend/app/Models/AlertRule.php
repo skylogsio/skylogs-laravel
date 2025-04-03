@@ -17,6 +17,9 @@ class AlertRule extends Model implements Messageable
     public const TRIGGERED = "triggered";
     public const RESOlVED = "resolved";
 
+    protected $casts = [
+        "type" => AlertRuleType::class,
+    ];
     public const DYNAMIC_QUERY_TYPE = "dynamic";
     public const TEXT_QUERY_QUERY_TYPE = "textQuery";
 
@@ -105,8 +108,7 @@ class AlertRule extends Model implements Messageable
     public function getStatus(): string|int
     {
 
-        $type = AlertRuleType::tryFrom($this->type);
-        switch ($type) {
+        switch ($this->type) {
             case AlertRuleType::API:
                 $alertCount = AlertInstance::where('alertname', $this->alertname)
                     ->where("state", AlertInstance::FIRE)->count();

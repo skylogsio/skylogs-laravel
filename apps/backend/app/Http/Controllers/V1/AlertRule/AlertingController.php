@@ -86,7 +86,9 @@ class AlertingController extends Controller
 
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+            $alert->has_admin_access = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
             $alert->status_label = $alert->getStatus();
+            $alert->is_silent = $alert->isSilent();
         }
 
         return response()->json($data);
@@ -94,6 +96,20 @@ class AlertingController extends Controller
 
     }
 
+    public function FilterEndpoints(Request $request){
+
+        $adminUserId = User::where('username', 'admin')->first()->_id;
+
+        $currentUser = \Auth::user();
+
+        if ($currentUser->hasRole("admin")) {
+            $selectableEndpoints = Endpoint::get();
+        } else {
+            $selectableEndpoints = Endpoint::whereIn("user_id", [$adminUserId, $currentUser->_id])->get();
+        }
+
+        return response()->json($selectableEndpoints);
+    }
     public function GetTypes(Request $request){
         return response()->json(AlertRuleType::GetTypes());
     }
@@ -693,15 +709,21 @@ class AlertingController extends Controller
                 $model->save();
                 break;
         }
-        return ['success' => true];
+        return response()->json(['status'=>true]);
+
     }
 
-    public function ResolveAlert(Request $request, $service, $id)
+    public function ResolveAlert(Request $request, $id)
     {
-        $adminUserId = User::where('username', 'admin')->first()->_id;
+
         $alert = AlertRule::where('_id', $id)->first();
         $sendResolve = false;
-        switch ($service) {
+        $currentUser = auth()->user();
+        if (!AlertRuleService::HasUserAccessAlert($currentUser, $alert)) {
+            abort(403);
+        }
+
+        switch ($alert->type) {
             case AlertRuleType::API:
                 $apiAlerts = AlertInstance::where("alertname", $alert->alertname)->where("state", AlertInstance::FIRE)->get();
                 if ($apiAlerts->isNotEmpty()) {
@@ -798,7 +820,7 @@ class AlertingController extends Controller
         if ($sendResolve) {
             SendNotifyService::CreateNotify(SendNotifyJob::RESOLVED_MANUALLY, $alert, $alert->_id);
         }
-        return ['success' => true];
+        return ['status' => true];
     }
 
     public function CreateAccessUser(Request $request, $service, $id)

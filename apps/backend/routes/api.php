@@ -64,10 +64,13 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
+                Route::get('/filter-endpoints', 'FilterEndpoints');
                 Route::get('/create-data', 'CreateData');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Store');
-                Route::put('/{id}', 'Update');
+                Route::post('/silent/{id}', 'Silent');
+                Route::post('/resolve/{id}', 'ResolveAlert');
+                Route::put('/{id}', 'StoreUpdate');
                 Route::delete('/{id}', 'Delete');
             });
 
