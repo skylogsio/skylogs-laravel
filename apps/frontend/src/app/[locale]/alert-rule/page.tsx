@@ -47,7 +47,7 @@ export default function AlertRule() {
           {
             header: "Status",
             cell: ({ row }) => (
-              <AlertRuleStatus onResolve={() => {}} status={row.original.status_label} />
+              <AlertRuleStatus id={row.original.id} status={row.original.status_label} />
             )
           },
           {

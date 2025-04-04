@@ -1,4 +1,5 @@
-import { IEndpoint } from "@/@types/endpoint";
+import type { IEndpoint } from "@/@types/endpoint";
+import type { ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
 
 const ALERT_RULE_URL = "alert-rule";
@@ -32,4 +33,8 @@ export async function getAlertFilterEndpointList() {
   return axios
     .get<Array<IEndpoint>>(`${ALERT_RULE_URL}/filter-endpoints`)
     .then((response) => response.data);
+}
+
+export async function resolveFiredAlertRule(alertRuleId: unknown) {
+  return axios.post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/resolve/${alertRuleId}`);
 }
