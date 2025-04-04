@@ -14,7 +14,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { type AxiosResponse } from "axios";
 
-import type { IAlertRuleCreateData } from "@/@types/alertRule";
+import type {IAlertRule, IAlertRuleCreateData} from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
@@ -109,7 +109,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
               ))}
             </ButtonGroup>
             {selectedDataSource === "api" && (
-              <ClientAPIForm onClose={onClose} data={data} onSubmit={onSubmit} />
+              <ClientAPIForm onClose={onClose} data={data as CreateUpdateModal<IAlertRule>} onSubmit={onSubmit} />
             )}
           </Paper>
         </Box>
