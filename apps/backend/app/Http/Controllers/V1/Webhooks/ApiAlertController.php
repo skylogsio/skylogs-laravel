@@ -13,43 +13,37 @@ class ApiAlertController extends Controller
 
     public function FireAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
+        if (!$request->has('instance')) {
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
         return ApiService::FireAlert($post);
     }
-    public function StopAlert(Request $request)
+    public function ResolveAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
+        if (!$request->has('instance')) {
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
-        return ApiService::StopAlert($post);
+        return ApiService::ResolveAlert($post);
     }
 
     public function StatusAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
+        if (!$request->has( 'instance')) {
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
         return ApiService::StatusAlert($post);
     }
 
-
     public function Notification(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
+        if (!$request->has('instance')) {
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
-
         return ApiService::NotificationAlert($post);
     }
-
 
 }

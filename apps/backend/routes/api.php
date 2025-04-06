@@ -8,6 +8,7 @@ use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
 use App\Http\Controllers\V1\UserController;
+use App\Http\Controllers\V1\Webhooks\ApiAlertController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
 
     Route::post("auth/login", [AuthController::class, "login"]);
+
+    Route::middleware("api_auth")->controller(ApiAlertController::class)->group(function () {
+        Route::post("fire-alert","FireAlert");
+        Route::post("resolve-alert","ResolveAlert");
+        Route::post("status-alert","StatusAlert");
+        Route::post("notification-alert","Notification");
+        
+        Route::post("stop-alert","ResolveAlert");
+    });
 
     Route::middleware('auth')->group(function () {
 

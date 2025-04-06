@@ -108,7 +108,7 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-GET {{domain}}/alert-rule-tag/67cf5e9d60f5ce9d5f003b52
+GET {{domain}}/alert-rule-tag/67f12f4ef7cc7cd3c4001702
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -117,7 +117,7 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-PUT {{domain}}/alert-rule-tag/67cf5e9d60f5ce9d5f003b52
+PUT {{domain}}/alert-rule-tag/67f12f4ef7cc7cd3c4001702
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

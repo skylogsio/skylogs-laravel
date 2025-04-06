@@ -54,7 +54,7 @@ class AutoResolveApiAlertsJob implements ShouldQueue
                                 "instance" => $instance->instance,
                                 "description" => "Alert Resolved Automatically"
                             ];
-                            ApiService::StopAlert($post,);
+                            ApiService::ResolveAlert($post,);
                         }
                     }
                 }

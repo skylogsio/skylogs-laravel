@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\AlertRuleType;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
@@ -10,6 +11,7 @@ use App\Utility\Call;
 use App\Utility\Constants;
 use App\Utility\SMS;
 use App\Utility\Telegram;
+use Illuminate\Support\Facades\Cache;
 
 class ApiService
 {
@@ -145,7 +147,7 @@ class ApiService
 
     }
 
-    public static function StopAlert(mixed $post)
+    public static function ResolveAlert(mixed $post)
     {
         $alert = AlertInstance::where('alertname', $post['alertname'])
             ->where('instance', $post['instance'])
@@ -272,6 +274,21 @@ class ApiService
         ];
 
 
+    }
+
+    public static function AlertRuleByToken($token)
+    {
+        $alertRules = Cache::remember("api_alerts",3600*24,function(){
+            return AlertRule::where("type",AlertRuleType::API)->get();
+        });
+
+        $alert = $alertRules->where("api_token", $token)->first();
+
+        if ($alert) {
+            return $alert;
+        }
+
+        return null;
     }
 
 }
