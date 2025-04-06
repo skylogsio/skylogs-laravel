@@ -2,9 +2,11 @@ import axios, { AxiosError } from "axios";
 import { getServerSession } from "next-auth";
 import { getSession, signOut } from "next-auth/react";
 
+import { authOptions } from "@/services/next-auth/authOptions";
+
 async function getAuthorizationHeader() {
   if (typeof window === "undefined") {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (session && session.error !== "RefreshTokenError") {
       return `Bearer ${session.user.token}`;
     } else {
