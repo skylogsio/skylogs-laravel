@@ -19,7 +19,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
 
   const { mutate: resolveAlertRule, isPending } = useMutation({
     mutationFn: () => resolveFiredAlertRule(id),
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       if (data.status) {
         onAfterResolve?.();
         toast.success("Alert Rule Resolved Successfully.");

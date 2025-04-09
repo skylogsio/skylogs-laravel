@@ -12,9 +12,8 @@ import {
   useTheme
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { type AxiosResponse } from "axios";
 
-import type {IAlertRule, IAlertRuleCreateData} from "@/@types/alertRule";
+import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
@@ -30,7 +29,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
   const { palette } = useTheme();
   const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_VARIANTS[0].value);
 
-  useQuery<AxiosResponse<IAlertRuleCreateData>>({
+  useQuery({
     queryKey: ["alert-rule-create-data"],
     queryFn: () => getAlertRuleCreateData()
   });
@@ -109,7 +108,11 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
               ))}
             </ButtonGroup>
             {selectedDataSource === "api" && (
-              <ClientAPIForm onClose={onClose} data={data as CreateUpdateModal<IAlertRule>} onSubmit={onSubmit} />
+              <ClientAPIForm
+                onClose={onClose}
+                data={data as CreateUpdateModal<IAlertRule>}
+                onSubmit={onSubmit}
+              />
             )}
           </Paper>
         </Box>

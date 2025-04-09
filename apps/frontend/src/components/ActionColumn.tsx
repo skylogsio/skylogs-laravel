@@ -6,7 +6,6 @@ import { HiKey, HiPencil, HiTrash } from "react-icons/hi";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { RiTestTubeFill } from "react-icons/ri";
 
-import type { ServerResponse } from "@/@types/global";
 import { silenceAlertRule, testAlertRule } from "@/api/alertRule";
 
 interface ActionColumnProps {
@@ -45,7 +44,7 @@ export default function ActionColumn({
 
   const { mutate: testAlertRuleMutation, isPending: isTesting } = useMutation({
     mutationFn: () => testAlertRule(rowId),
-    onSuccess: ({ data }: ServerResponse<unknown>) => {
+    onSuccess: (data) => {
       if (data.status) {
         handleCloseTestConfirmationPopover();
       }
@@ -54,7 +53,7 @@ export default function ActionColumn({
 
   const { mutate: silenceAlertRuleMutation, isPending: isSilencing } = useMutation({
     mutationFn: () => silenceAlertRule(rowId),
-    onSuccess: ({ data }: ServerResponse<unknown>) => {
+    onSuccess: (data) => {
       if (data.status) {
         setIsSilentStatus((prev) => !prev);
       }
