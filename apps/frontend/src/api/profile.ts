@@ -1,5 +1,8 @@
+"use server";
+
+import type { IUser } from "@/@types/user";
 import axios from "@/lib/axios";
 
-export function getMyInfo() {
-  return axios.post("auth/me");
+export async function getMyInfo() {
+  return axios.post<IUser>("auth/me").then((response) => response.data);
 }
