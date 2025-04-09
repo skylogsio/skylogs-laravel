@@ -45,3 +45,11 @@ export interface IServerResponseTabularDate<T> {
     active: boolean;
   }>;
 }
+
+
+export interface FetchTableDataArgs {
+  url: string;
+  pageSize: number;
+  pageIndex: number;
+  filterSearchParams: string;
+}

@@ -29,15 +29,14 @@ import {
   flexRender,
   type PaginationState
 } from "@tanstack/react-table";
-import type { AxiosResponse } from "axios";
 import { HiOutlinePlusSm, HiFilter } from "react-icons/hi";
 
+import { fetchTableData } from "@/components/Table/fetchTableData";
 import { useCurrentDirection } from "@/hooks";
-import axios from "@/lib/axios";
 import { useScopedI18n } from "@/locales/client";
 
 import SearchBox from "./SearchBox";
-import { IServerResponseTabularDate, TableComponentProps, TableComponentRef } from "./types";
+import { TableComponentProps, TableComponentRef } from "./types";
 
 function Table<T>(
   {
@@ -65,14 +64,9 @@ function Table<T>(
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [filterSearchParams, setFilterSearchParams] = useState("");
 
-  const { data, isFetching, isError, refetch } = useQuery<
-    AxiosResponse<IServerResponseTabularDate<T>>
-  >({
+  const { data, isFetching, isError, refetch } = useQuery({
     queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
-    queryFn: () =>
-      axios(
-        `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc&${filterSearchParams}`
-      ),
+    queryFn: () => fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams }),
     refetchInterval
   });
 
@@ -109,13 +103,13 @@ function Table<T>(
   }, [columns, hasCheckbox]);
 
   const table = useReactTable({
-    data: data?.data?.data || [],
+    data: data?.data || [],
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    pageCount: data?.data?.last_page,
+    pageCount: data?.last_page,
     state: {
       pagination: { pageIndex, pageSize }
     },
