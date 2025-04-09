@@ -7,13 +7,14 @@ import { deleteDataSource } from "@/api/dataSource";
 import DataSourceType from "@/components/DataSource/DataSourceType";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
 import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes";
+import ConnectionStatus from "@/components/ConnectionStatus";
 
 export default function DeleteDataSourceModal({
   data,
   onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IDataSource }) {
-  const { id, name, type } = data;
+  const { id, name, type, status } = data;
 
   const { mutate: deleteDataSourceMutation, isPending } = useMutation({
     mutationFn: () => deleteDataSource(id),
@@ -52,7 +53,9 @@ export default function DeleteDataSourceModal({
           Status:
         </Typography>
       </Grid>
-      <Grid size={{ xs: 8, sm: 8, md: 9, lg: 9, xl: 9 }}>unknown status</Grid>
+      <Grid size={{ xs: 8, sm: 8, md: 9, lg: 9, xl: 9 }}>
+        <ConnectionStatus status={status} />
+      </Grid>
     </DeleteModalContainer>
   );
 }
