@@ -35,8 +35,8 @@ const clientApiSchema = z
       required_error: "This field is Required.",
       invalid_type_error: "This field is Required."
     }),
-    endpoints: z.array(z.string()).min(1, "This field is Required."),
-    accessUsers: z.array(z.string()).min(1, "This field is Required.")
+    endpoints: z.array(z.string()).optional().default([]),
+    accessUsers: z.array(z.string()).optional().default([])
   })
   .superRefine((data, ctx) => {
     if (data.enableAutoResolve) {
@@ -120,12 +120,15 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   }
 
   function handleSubmitForm(values: ClientAPIFormType) {
+    console.log(values);
     if (data === "NEW") {
       createClientAPIMutation(values);
     } else if (data) {
       updateClientAPIMutation({ id: data.id, body: values });
     }
   }
+
+  console.log("data:", data);
 
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
     const selectedEndpoints = requiredData?.endpoints.filter((item) =>
