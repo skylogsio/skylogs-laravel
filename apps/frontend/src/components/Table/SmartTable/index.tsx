@@ -31,12 +31,12 @@ import {
 } from "@tanstack/react-table";
 import { HiOutlinePlusSm, HiFilter } from "react-icons/hi";
 
-import { fetchTableData } from "@/components/Table/fetchTableData";
+import { fetchTableData } from "@/components/Table/SmartTable/fetchTableData";
 import { useCurrentDirection } from "@/hooks";
 import { useScopedI18n } from "@/locales/client";
 
-import SearchBox from "./SearchBox";
-import { TableComponentProps, TableComponentRef } from "./types";
+import SearchBox from "../SearchBox";
+import { TableComponentProps, TableComponentRef } from "../types";
 
 function Table<T>(
   {

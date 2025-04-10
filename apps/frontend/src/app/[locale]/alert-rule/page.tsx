@@ -8,7 +8,7 @@ import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal
 import ActionColumn from "@/components/ActionColumn";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
-import Table from "@/components/Table";
+import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
 
 import AlertRuleModal from "./AlertRuleModal";

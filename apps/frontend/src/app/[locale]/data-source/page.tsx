@@ -8,7 +8,7 @@ import DeleteDataSourceModal from "@/app/[locale]/data-source/DeleteDataSourceMo
 import ActionColumn from "@/components/ActionColumn";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import DataSourceType from "@/components/DataSource/DataSourceType";
-import Table from "@/components/Table";
+import Table from "@/components/Table/SmartTable";
 import { type TableComponentRef } from "@/components/Table/types";
 
 export default function DataSource() {

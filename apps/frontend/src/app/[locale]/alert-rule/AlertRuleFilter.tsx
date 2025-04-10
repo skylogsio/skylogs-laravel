@@ -106,9 +106,11 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         </TextField>
       </Grid>
       <Grid size={6}>
+        {/*fieldName:tags*/}
         <TextField size="small" label="Tags" variant="filled" />
       </Grid>
       <Grid size={3}>
+        {/*fieldName:endpointId []*/}
         <Autocomplete
           multiple
           id="endpoints"
@@ -130,6 +132,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         />
       </Grid>
       <Grid size={3}>
+        {/*fieldName:silentStatus*/}
         <TextField
           label="Silent Status"
           variant="filled"
@@ -158,6 +161,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         </TextField>
       </Grid>
       <Grid size={4}>
+        {/*fieldName:status*/}
         <Stack direction="row" height="100%" alignItems="center" spacing={1}>
           <Typography variant="body2">Status: </Typography>
           <Chip

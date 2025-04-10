@@ -5,7 +5,7 @@ import type { IEndpoint } from "@/@types/endpoint";
 import { CreateUpdateModal } from "@/@types/global";
 import DeleteEndPointModal from "@/app/[locale]/endpoints/DeleteEndPointModal";
 import ActionColumn from "@/components/ActionColumn";
-import Table from "@/components/Table";
+import Table from "@/components/Table/SmartTable";
 import { type TableComponentRef } from "@/components/Table/types";
 import { renderEndPointChip } from "@/utils/endpointVariants";
 
