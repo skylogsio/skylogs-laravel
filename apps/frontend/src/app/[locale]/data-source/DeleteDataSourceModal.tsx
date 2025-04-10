@@ -4,10 +4,10 @@ import { toast } from "react-toastify";
 
 import type { IDataSource } from "@/@types/dataSource";
 import { deleteDataSource } from "@/api/dataSource";
+import ConnectionStatus from "@/components/ConnectionStatus";
 import DataSourceType from "@/components/DataSource/DataSourceType";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
 import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes";
-import ConnectionStatus from "@/components/ConnectionStatus";
 
 export default function DeleteDataSourceModal({
   data,
