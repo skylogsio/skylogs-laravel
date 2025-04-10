@@ -55,7 +55,7 @@ class NotifyController extends Controller
     {
         $adminUserId = User::where('username', 'admin')->first()->_id;
 
-        $alert = AlertRule::where('_id', $id)->first();
+        $alert = AlertRule::where('_id', $id)->firstOrFail();
         $currentUser = \Auth::user();
 
         $alertUserIds = $alert->user_ids ?? [];
@@ -94,7 +94,7 @@ class NotifyController extends Controller
     public function Test($id)
     {
         $user = Auth::user();
-        $alert = AlertRule::where('_id', $id)->first();
+        $alert = AlertRule::where('_id', $id)->firstOrFail();
         $access = AlertRuleService::HasUserAccessAlert($user, $alert);
         if (!$access) {
             abort(403);
@@ -113,7 +113,7 @@ class NotifyController extends Controller
         if ($request->has("endpoint_ids") && !empty($request->post("endpoint_ids"))) {
             $adminUserId = User::where('username', 'admin')->first()->_id;
 
-            $alert = AlertRule::where('_id', $id)->first();
+            $alert = AlertRule::where('_id', $id)->firstOrFail();
 
             foreach ($request->endpoint_ids as $end) {
                 $exists =false;
@@ -179,7 +179,7 @@ class NotifyController extends Controller
     public function Delete($alertId, $endpointId)
     {
 
-        $alert = AlertRule::where('_id', $alertId)->first();
+        $alert = AlertRule::where('_id', $alertId)->firstOrFail();
         $alert->pull("endpoint_ids", $endpointId);
         $alert->save();
         return response()->json(['status' => true]);

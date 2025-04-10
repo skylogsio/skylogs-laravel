@@ -4,48 +4,35 @@ namespace App\Http\Controllers\V1\AlertRule;
 
 
 use App\Enums\AlertRuleType;
-use App\Enums\Constants;
 use App\Enums\DataSourceType;
-
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
 use App\Models\DataSource\DataSource;
+use App\Models\ElasticCheck;
 use App\Models\ElasticHistory;
 use App\Models\Endpoint;
 use App\Models\GrafanaInstance;
 use App\Models\GrafanaWebhookAlert;
-use App\Models\GroupAlertRule;
 use App\Models\HealthCheck;
-use App\Models\ElasticCheck;
 use App\Models\HealthHistory;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\PrometheusCheck;
 use App\Models\PrometheusHistory;
 use App\Models\PrometheusInstance;
 use App\Models\SentryWebhookAlert;
-use App\Models\Service;
-
 use App\Models\User;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\AlertRuleService;
-use App\Services\DataSourceService;
 use App\Services\GrafanaInstanceService;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-
 use App\Services\TagService;
 use Carbon\Carbon;
-use Excel;
-use Illuminate\Console\View\Components\Alert;
-use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\MessageBag;
-use MongoDB\BSON\UTCDateTime;
 
 class AlertingController extends Controller
 {
@@ -62,17 +49,28 @@ class AlertingController extends Controller
 
         if (!$currentUser->hasRole("admin")) {
             $data = $data->where(function ($query) use ($request) {
-                return $query->where('user_id', \Auth::id())->orWhereIn("user_ids", [\Auth::user()->_id]);
+                return $query->where('user_id', \Auth::id())
+                    ->orWhereIn("user_ids", [\Auth::user()->_id]);
             });
         }
 
 
         if ($request->has("alertname") && !empty($request->alertname)) {
-            $data = $data->where("alertname", "like", '%' . $request->alertname . '%');
+            $data = $data->where("name", "like", '%' . $request->alertname . '%');
         }
 
         if ($request->has("types") && !empty($request->types)) {
-            $data = $data->whereIn("type", $request->types);
+            $types = implode(',',$request->types);
+            $data = $data->whereIn("type", $types);
+        }
+
+        if ($request->has("tags") && !empty($request->tags)) {
+            $tags = implode(',',$request->tags);
+            $data = $data->whereIn("tags", $tags);
+        }
+        if ($request->has("silentStatus") && !empty($request->silentStatus)) {
+            $silent = $request->silentStatus == 'silent' ? 1 : 0;
+            $data = $data->where("silent", $silent);
         }
 
         if ($request->has("endpointId") && !empty($request->endpointId)) {
@@ -127,6 +125,7 @@ class AlertingController extends Controller
 
     public function CreateData(Request $request)
     {
+
         $prometheusDataSources = DataSource::where("type", DataSourceType::PROMETHEUS)->get()->pluck("name");
         $grafanaDataSources = DataSource::where("type", DataSourceType::GRAFANA)->get()->pluck("name");
         $splunkDataSources = DataSource::where("type", DataSourceType::SPLUNK)->get()->pluck("name");
