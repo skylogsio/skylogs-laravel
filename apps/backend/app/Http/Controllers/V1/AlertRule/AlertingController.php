@@ -26,6 +26,7 @@ use App\Models\SentryWebhookAlert;
 use App\Models\User;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\AlertRuleService;
+use App\Services\EndpointService;
 use App\Services\GrafanaInstanceService;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
@@ -60,12 +61,12 @@ class AlertingController extends Controller
         }
 
         if ($request->has("types") && !empty($request->types)) {
-            $types = implode(',',$request->types);
+            $types = explode(',',$request->types);
             $data = $data->whereIn("type", $types);
         }
 
         if ($request->has("tags") && !empty($request->tags)) {
-            $tags = implode(',',$request->tags);
+            $tags = explode(',',$request->tags);
             $data = $data->whereIn("tags", $tags);
         }
         if ($request->has("silentStatus") && !empty($request->silentStatus)) {
@@ -84,9 +85,10 @@ class AlertingController extends Controller
 
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
-            $alert->has_admin_access = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+            $alert->has_admin_access = $alert->hasAdminAccess;
             $alert->status_label = $alert->getStatus();
             $alert->is_silent = $alert->isSilent();
+            $alert->count_endpoints = EndpointService::SelectableUserEndpoint($currentUser, $alert)->count();
         }
 
         return response()->json($data);
@@ -162,17 +164,21 @@ class AlertingController extends Controller
 //        dd("");
         if ($va->passes()) {
             $alertType = AlertRuleType::tryFrom($request->type);
-
+            $commonFields = [
+                'name' => $request->name,
+                'type' => $request->type,
+                "user_id" => \Auth::id(),
+                "endpoint_ids" => [],
+                "user_ids" => [],
+            ];
             switch ($alertType) {
                 case AlertRuleType::GRAFANA:
 
                     $alert = AlertRule::create([
 //                        'instance' => $request->grafana_instance,
-                        'name' => $request->name,
-                        'interval' => ((int)$request->interval),
 //                        'grafana_alertname' => $request->grafana_alert,
-                        'type' => $request->type,
-                        "user_id" => \Auth::id()
+                        ...$commonFields,
+                        'interval' => ((int)$request->interval),
                     ]);
                     $alert->queryType = $request->grafanaQueryType;
 
@@ -198,11 +204,9 @@ class AlertingController extends Controller
                 case AlertRuleType::PROMETHEUS:
                     $alert = AlertRule::create([
 //                        'instance' => $request->prometheus_instance,
-                        'name' => $request->name,
+                        ...$commonFields,
                         'interval' => ((int)$request->interval),
 //                        'prometheus_alertname' => $request->prometheus_alert,
-                        'type' => $request->type,
-                        "user_id" => \Auth::id()
                     ]);
                     $alert->queryType = $request->prometheusQueryType;
                     if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
@@ -230,27 +234,21 @@ class AlertingController extends Controller
                 case AlertRuleType::ZABBIX:
 
                     $alert = AlertRule::create([
-                        'name' => $request->name,
-                        'type' => $request->type,
+                        ...$commonFields,
                         'interval' => ((int)$request->interval),
-                        "user_id" => \Auth::id()
                     ]);
                     break;
                 case AlertRuleType::SPLUNK:
 
                     $alert = AlertRule::create([
-                        'name' => $request->name,
+                        ...$commonFields,
                         "splunk_alertname" => $request->splunk_alertname,
-                        'type' => AlertRuleType::SPLUNK,
-                        "user_id" => \Auth::id()
                     ]);
                     break;
                 case AlertRuleType::NOTIFICATION:
 
                     $alert = AlertRule::create([
-                        'name' => $request->name,
-                        'type' => $request->type,
-                        "user_id" => \Auth::id()
+                        ...$commonFields,
                     ]);
                     break;
                 case AlertRuleType::API:
@@ -262,9 +260,7 @@ class AlertingController extends Controller
                         $autoResolveMinutes = ((int)$request->autoResolveMinutes);
                     }
                     $alert = AlertRule::create([
-                        'name' => $request->name,
-                        'type' => $request->type,
-                        "user_id" => \Auth::id(),
+                        ...$commonFields,
                         "enableAutoResolve" => $enableAutoResolve,
                         "autoResolveMinutes" => $autoResolveMinutes,
                     ]);
@@ -272,10 +268,8 @@ class AlertingController extends Controller
                 case AlertRuleType::HEALTH:
 
                     $alert = AlertRule::create([
-                        'name' => $request->name,
-                        'type' => $request->type,
+                        ...$commonFields,
                         'interval' => ((int)$request->interval),
-                        "user_id" => \Auth::id(),
                         "url" => $request->url,
                         "threshold_down" => ((int)$request->threshold_down),
                         "threshold_up" => ((int)$request->threshold_up),
@@ -286,10 +280,8 @@ class AlertingController extends Controller
                 case AlertRuleType::ELASTIC:
 
                     $alert = AlertRule::create([
-                        'name' => $request->name,
-                        'type' => $request->type,
+                        ...$commonFields,
                         'interval' => ((int)$request->interval),
-                        "user_id" => \Auth::id(),
                         "dataview_name" => $request->dataview_name,
                         "dataview_title" => $request->dataview_title,
                         "query_string" => $request->query_string,
