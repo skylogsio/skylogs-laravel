@@ -37,7 +37,7 @@ class ApiAlertController extends Controller
         return ApiService::StatusAlert($post);
     }
 
-    public function Notification(Request $request)
+    public function NotificationAlert(Request $request)
     {
         if (!$request->has('instance')) {
             abort(404, "wrong parameters!");

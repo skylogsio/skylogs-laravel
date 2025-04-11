@@ -21,8 +21,8 @@ Route::prefix('v1')->group(function () {
         Route::post("fire-alert","FireAlert");
         Route::post("resolve-alert","ResolveAlert");
         Route::post("status-alert","StatusAlert");
-        Route::post("notification-alert","Notification");
-        
+        Route::post("notification-alert","NotificationAlert");
+
         Route::post("stop-alert","ResolveAlert");
     });
 

@@ -249,6 +249,7 @@ class AlertingController extends Controller
 
                     $alert = AlertRule::create([
                         ...$commonFields,
+                        "api_token" => Str::random(60),
                     ]);
                     break;
                 case AlertRuleType::API:
@@ -263,6 +264,7 @@ class AlertingController extends Controller
                         ...$commonFields,
                         "enableAutoResolve" => $enableAutoResolve,
                         "autoResolveMinutes" => $autoResolveMinutes,
+                        "api_token" => Str::random(60),
                     ]);
                     break;
                 case AlertRuleType::HEALTH:
