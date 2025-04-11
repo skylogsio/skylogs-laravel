@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\AlertRule;
 
 use App\Enums\AlertRuleType;
 use App\Enums\DataSourceType;
+use \Str;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;

@@ -45,7 +45,7 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "test21",
+    "name": "test1",
     "type" : "api",
     "enableAutoResolve": true,
     "autoResolveMinutes" : 5,
