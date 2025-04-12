@@ -14,7 +14,7 @@ export interface TableFilterComponentProps {
   onChange: (key: string, value: unknown) => void;
 }
 
-export interface TableComponentProps<T> extends SearchBoxProps {
+export interface SmartTableComponentProps<T> extends SearchBoxProps {
   url: string;
   columns: ColumnDef<T>[];
   hasCheckbox?: boolean;
@@ -24,6 +24,13 @@ export interface TableComponentProps<T> extends SearchBoxProps {
   onCreate?: MouseEventHandler<HTMLButtonElement> | undefined;
   refetchInterval?: number;
   filterComponent?: (props: TableFilterComponentProps) => ReactNode;
+}
+
+export interface DataTableComponentProps<T> {
+  data:Array<T>;
+  columns: ColumnDef<T>[];
+  hasCheckbox?: boolean;
+  isLoading?: boolean;
 }
 
 export interface IServerResponseTabularDate<T> {

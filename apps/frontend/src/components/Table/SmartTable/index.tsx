@@ -36,7 +36,7 @@ import { useCurrentDirection } from "@/hooks";
 import { useScopedI18n } from "@/locales/client";
 
 import SearchBox from "../SearchBox";
-import { TableComponentProps, TableComponentRef } from "../types";
+import { SmartTableComponentProps, TableComponentRef } from "../types";
 
 function Table<T>(
   {
@@ -50,7 +50,7 @@ function Table<T>(
     onCreate,
     refetchInterval,
     filterComponent
-  }: TableComponentProps<T>,
+  }: SmartTableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
   const { palette } = useTheme();
@@ -330,5 +330,5 @@ function Table<T>(
 }
 
 export default forwardRef(Table) as <T>(
-  props: TableComponentProps<T> & { ref?: React.Ref<TableComponentRef> }
+  props: SmartTableComponentProps<T> & { ref?: React.Ref<TableComponentRef> }
 ) => React.ReactElement;
