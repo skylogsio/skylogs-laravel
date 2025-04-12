@@ -246,7 +246,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         </Grid>
         <Grid size={6}>
           <TextField
-            label="Minutes"
+            label="Auto Resolve After (Minutes)"
             variant="filled"
             type="number"
             disabled={!watch("enableAutoResolve")}
