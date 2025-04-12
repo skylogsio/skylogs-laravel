@@ -120,7 +120,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   }
 
   function handleSubmitForm(values: ClientAPIFormType) {
-    console.log(values);
     if (data === "NEW") {
       createClientAPIMutation(values);
     } else if (data) {
