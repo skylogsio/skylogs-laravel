@@ -87,9 +87,7 @@ class AlertRule extends Model implements Messageable
 
     public function isSilent(): bool
     {
-        if (empty($this->silent_user_ids)) return false;
-        if (in_array(\Auth::user()->_id, $this->silent_user_ids)) return true;
-        return false;
+        return !empty($this->silent_user_ids) && in_array(\Auth::user()->_id, $this->silent_user_ids);
     }
 
     public function silent()

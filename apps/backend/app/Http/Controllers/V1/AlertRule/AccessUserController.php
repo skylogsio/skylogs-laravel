@@ -21,14 +21,14 @@ class AccessUserController extends Controller
 
         $selectableUsers = [];
         if ($currentUser->isAdmin() || $alert->user_id == $currentUser->_id) {
-            $selectableUsers = User::get();
+            $selectableUsers = User::whereNotIn('_id',[$currentUser->id,])->get();
         } else {
             abort(403);
         }
 
         $alertUsers = [];
         if (!empty($alert->user_ids))
-            $alertUsers = User::whereIn("_id", $alert->user_ids)->whereNotIn('_id',[$currentUser->id,])->get();
+            $alertUsers = User::whereIn("_id", $alert->user_ids)->get();
 
         return response()->json(compact('alertUsers', 'selectableUsers'));
     }

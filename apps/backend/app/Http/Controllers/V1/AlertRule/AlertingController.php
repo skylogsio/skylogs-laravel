@@ -168,6 +168,7 @@ class AlertingController extends Controller
             $commonFields = [
                 'name' => $request->name,
                 'type' => $request->type,
+                'tags' => $request->tags ?? [],
                 "user_id" => \Auth::id(),
                 "endpoint_ids" => [],
                 "user_ids" => [],
