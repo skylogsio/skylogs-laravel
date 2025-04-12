@@ -168,3 +168,36 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 
+
+
+###
+
+GET {{domain}}/alert-rule-user/67fa71941a1b976f2f012aa2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+
+PUT {{domain}}/alert-rule-user/67fa71941a1b976f2f012aa2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "user_ids" : [
+        "67c5dc54bdf1685c060cf8f2"
+    ]
+}
+
+
+
+###
+// /alert-rule-user/{alertId}/{userId}
+DELETE {{domain}}/alert-rule-user/67fa71941a1b976f2f012aa2/67c5dc54bdf1685c060cf8f2
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+

@@ -446,7 +446,7 @@ class AlertRuleService
 
     public static function HasAdminAccessAlert(User $user, AlertRule $alert)
     {
-        if ($user->hasRole("admin")) return true;
+        if ($user->isAdmin()) return true;
         if ($user->_id == $alert->user_id) return true;
         return false;
     }

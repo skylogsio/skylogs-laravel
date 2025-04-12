@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Constants;
+use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
@@ -101,6 +102,14 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/batchAlert', 'CreateBatch');
                 Route::put('/batchAlert', 'StoreBatch');
+
+            });
+        Route::prefix("/alert-rule-user")
+            ->controller(AccessUserController::class)
+            ->group(function () {
+                Route::get('/{id}', 'Create');
+                Route::put('/{id}', 'Store');
+                Route::delete('/{alertId}/{userId}', 'Delete');
 
             });
 

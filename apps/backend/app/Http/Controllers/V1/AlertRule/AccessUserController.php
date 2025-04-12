@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Http\Controllers\V1\AlertRule;
+
+
+use App\Http\Controllers\Controller;
+use App\Models\AlertRule;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AccessUserController extends Controller
+{
+
+
+    public function Create($id)
+    {
+
+        $alert = AlertRule::where('_id', $id)->firstOrFail();
+        $currentUser = \Auth::user();
+
+        $selectableUsers = [];
+        if ($currentUser->isAdmin() || $alert->user_id == $currentUser->_id) {
+            $selectableUsers = User::get();
+        } else {
+            abort(403);
+        }
+
+        $alertUsers = [];
+        if (!empty($alert->user_ids))
+            $alertUsers = User::whereIn("_id", $alert->user_ids)->whereNotIn('_id',[$currentUser->id,])->get();
+
+        return response()->json(compact('alertUsers', 'selectableUsers'));
+    }
+
+
+    public function Store(Request $request, $id)
+    {
+
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->isAdmin();
+        $alert = AlertRule::where('_id', $id)->firstOrFail();
+
+        if(!$isAdmin && $alert->user_id != $currentUser->id){
+            abort(403);
+        }
+        if ($request->has("user_ids") && !empty($request->post("user_ids"))) {
+
+            foreach ($request->user_ids as $userId) {
+                $alert->push("user_ids", $userId, true);
+            }
+            $alert->save();
+            info($alert);
+        }
+
+        return response()->json(['status' => true]);
+    }
+
+    public function Delete($alertId, $userId)
+    {
+
+        $alert = AlertRule::where('_id', $alertId)->firstOrFail();
+        if(!Auth::user()->isAdmin() && $alert->user_id != Auth::user()->id){
+            abort(403);
+        }
+
+        $alert->pull("user_ids", $userId);
+        $alert->save();
+        return response()->json(['status' => true]);
+    }
+
+
+}

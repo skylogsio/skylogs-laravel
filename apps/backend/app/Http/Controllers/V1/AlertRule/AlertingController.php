@@ -49,7 +49,7 @@ class AlertingController extends Controller
 
         $currentUser = \Auth::user();
 
-        if (!$currentUser->hasRole("admin")) {
+        if (!$currentUser->isAdmin()) {
             $data = $data->where(function ($query) use ($request) {
                 return $query->where('user_id', \Auth::id())
                     ->orWhereIn("user_ids", [\Auth::user()->_id]);
@@ -89,7 +89,7 @@ class AlertingController extends Controller
             $alert->has_admin_access = $alert->hasAdminAccess;
             $alert->status_label = $alert->getStatus();
             $alert->is_silent = $alert->isSilent();
-            $alert->count_endpoints = EndpointService::SelectableUserEndpoint($currentUser, $alert)->count();
+            $alert->count_endpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
         }
 
         return response()->json($data);
@@ -103,7 +103,7 @@ class AlertingController extends Controller
 
         $currentUser = \Auth::user();
 
-        if ($currentUser->hasRole("admin")) {
+        if ($currentUser->isAdmin()) {
             $selectableEndpoints = Endpoint::get();
         } else {
             $selectableEndpoints = Endpoint::whereIn("user_id", [$adminUserId, $currentUser->_id])->get();
@@ -323,7 +323,7 @@ class AlertingController extends Controller
         }
         $userIds[] = $alert->user_id;
 
-        if (!(Auth::user()->hasRole("admin") || in_array(Auth::user()->_id, $userIds))) {
+        if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
             abort(403);
         }
 
@@ -353,7 +353,7 @@ class AlertingController extends Controller
         }
         $userIds[] = $alert->user_id;
 
-        if (!(Auth::user()->hasRole("admin") || in_array(Auth::user()->_id, $userIds))) {
+        if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
             abort(403);
         }
 
@@ -817,88 +817,13 @@ class AlertingController extends Controller
         return ['status' => true];
     }
 
-    public function CreateAccessUser(Request $request, $service, $id)
-    {
-        $adminUserId = User::where('username', 'admin')->first()->_id;
-
-        $chooseUsers = User::whereNotIn("_id", [$adminUserId, \Auth::id()])->get();
-
-        $alert = AlertRule::where('_id', $id)->first();
-        $data = [];
-        if (!empty($alert->user_ids))
-            $data = User::whereIn("_id", $alert->user_ids)->get();
-
-        return view('content.pages.alerts.modal_create_access_user', compact('chooseUsers', "data"));
-    }
-
-
-    public function StoreAccessUser(Request $request, $service, $id)
-    {
-
-
-        if ($request->has("accessUsers") && !empty($request->post("accessUsers"))) {
-//            $adminUserId = User::where('username', 'admin')->first()->_id;
-
-            $alert = AlertRule::where('_id', $id)->first();
-            foreach ($request->accessUsers as $userId) {
-                $alert->push("user_ids", $userId, true);
-            }
-            $alert->save();
-
-        }
-
-        return ['success' => true];
-
-    }
-
-    public function DeleteAccessUser(Request $request, $service, $alertId, $userId)
-    {
-
-        $alert = AlertRule::where('_id', $alertId)->first();
-        $alert->pull("user_ids", $userId);
-        $alert->save();
-
-
-        return ['success' => true];
-    }
-
-    public function CreateTag(Request $request, $id)
-    {
-        $alert = AlertRule::where('_id', $id)->first();
-        $currentUser = Auth::user();
-        if (!AlertRuleService::HasAdminAccessAlert($currentUser, $alert)) {
-            abort(403);
-        }
-        $tags = $alert->tags ?? [];
-        $tags = implode(",", $tags);
-        return view('content.alerts.tags.modal_create_tags', compact("tags"));
-    }
-
-    public function StoreTag(Request $request, $id)
-    {
-
-        $alert = AlertRule::where('_id', $id)->first();
-        $currentUser = Auth::user();
-        $access = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
-
-        if (!$access) {
-            abort(403);
-        }
-
-        $alert->tags = TagService::GetTagsArray($request->tags);
-        $alert->save();
-
-
-        return ['success' => true];
-
-    }
 
     public function Delete(Request $request)
     {
 
         $alert = AlertRule::where('_id', $request->id)->first();
         $userId = \Auth::user()->_id;
-        if ($alert->user_id == $userId || \Auth::user()->hasRole("admin")) {
+        if ($alert->user_id == $userId || \Auth::user()->isAdmin()) {
             $alertRuleId = $alert->_id;
             $type = $alert->type;
             $alertname = $alert->alertname;
@@ -931,7 +856,7 @@ class AlertingController extends Controller
 
         }
 
-        return ['success' => true];
+        return response()->json(['status' => true]);
 //        return redirect()->route('role.index');
     }
 

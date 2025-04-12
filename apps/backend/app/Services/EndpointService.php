@@ -13,6 +13,7 @@ use App\Utility\Call;
 use App\Utility\Constants;
 use App\Utility\SMS;
 use App\Utility\Telegram;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class EndpointService
@@ -22,7 +23,7 @@ class EndpointService
     {
         $adminUserId = User::where('username', 'admin')->first()->_id;
 
-        if ($user->hasRole("admin")) {
+        if ($user->isAdmin()) {
             return Cache::remember("admin_endpoints",3600, fn() => Endpoint::get());
         }
 
@@ -43,6 +44,12 @@ class EndpointService
 
         return collect();
 
+    }
+    public static function CountUserEndpointAlert(User $user, AlertRule $alert = null)
+    {
+        $selectableEndpoints = self::SelectableUserEndpoint($user, $alert);
+        $alertEndpoints = collect($alert->endpoint_ids);
+        return $selectableEndpoints->pluck("id")->intersect($alertEndpoints)->count();
     }
 
     public static function ResolveAlert(mixed $post)

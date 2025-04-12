@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
@@ -42,7 +41,7 @@ class AlertRule extends Model implements Messageable
     public function grafanaWebhook()
     {
 
-        if ($this->type == Constants::GRAFANA && $this->state == self::CRITICAL) {
+        if ($this->type == AlertRuleType::GRAFANA && $this->state == self::CRITICAL) {
             return $this->hasOne(GrafanaWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
         }
         return null;
@@ -50,7 +49,7 @@ class AlertRule extends Model implements Messageable
 
     public function sentryWebhook()
     {
-        if ($this->type == Constants::SENTRY && $this->state == self::CRITICAL) {
+        if ($this->type == AlertRuleType::SENTRY && $this->state == self::CRITICAL) {
             return $this->hasOne(SentryWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
         }
         return null;
@@ -58,7 +57,7 @@ class AlertRule extends Model implements Messageable
 
     public function metabaseWebhook()
     {
-        if ($this->type == Constants::METABASE) {
+        if ($this->type == AlertRuleType::METABASE) {
             return $this->hasOne(MetabaseWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
         }
         return null;
@@ -66,7 +65,7 @@ class AlertRule extends Model implements Messageable
 
     public function apiInstances()
     {
-        if ($this->type == Constants::API) {
+        if ($this->type == AlertRuleType::API) {
             $instances = AlertInstance::where('alertname', $this->alertname)->orderByDesc("state")->orderByDesc("_id")->get();
             return $instances;
         }
@@ -76,7 +75,7 @@ class AlertRule extends Model implements Messageable
 
     public function notificationInstances()
     {
-        if ($this->type == Constants::NOTIFICATION) {
+        if ($this->type == AlertRuleType::NOTIFICATION) {
             $instances = AlertInstance::where('alertname', $this->alertname)
                 ->where("state", AlertInstance::NOTIFICATION)
                 ->orderByDesc("_id")->limit(10)->get();
@@ -110,7 +109,7 @@ class AlertRule extends Model implements Messageable
 
         switch ($this->type) {
             case AlertRuleType::API:
-                $alertCount = AlertInstance::where('alertname', $this->alertname)
+                $alertCount = AlertInstance::where('alert_rule_id', $this->id)
                     ->where("state", AlertInstance::FIRE)->count();
                 if ($alertCount == 0) {
                     return self::RESOlVED;
@@ -212,35 +211,35 @@ class AlertRule extends Model implements Messageable
     //########### ONLY FOR MANUALLY RESOLVE
     public function telegramMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function teamsMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function emailMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function smsMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function callMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
@@ -248,7 +247,7 @@ class AlertRule extends Model implements Messageable
     public function testMessage()
     {
         $text = "Testing ";
-        $text .= $this->alertname;
+        $text .= $this->name;
         $text .= " Alert.";
         return $text;
     }
