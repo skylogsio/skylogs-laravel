@@ -1,18 +1,21 @@
 "use client";
 import { useRef, useState } from "react";
 
+import { Stack } from "@mui/material";
+
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import AlertRuleFilter from "@/app/[locale]/alert-rule/AlertRuleFilter";
-import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
-import NotifyModal from "@/app/[locale]/alert-rule/NotifyModal";
 import ActionColumn from "@/components/ActionColumn";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
 import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
 
+import AlertRuleFilter from "./AlertRuleFilter";
 import AlertRuleModal from "./AlertRuleModal";
+import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
+import NotifyModal from "./NotifyModal";
+import AlertRuleUserModal from "./UserModal";
 
 export default function AlertRule() {
   const tableRef = useRef<TableComponentRef>(null);
@@ -64,14 +67,17 @@ export default function AlertRule() {
           {
             header: "Action",
             cell: ({ row }) => (
-              <ActionColumn
-                rowId={row.original.id}
-                hasSilent
-                isSilent={row.original.is_silent}
-                onEdit={() => setModalData(row.original)}
-                onDelete={() => setDeleteModalData(row.original)}
-                hasTest
-              />
+              <Stack direction="row" spacing={1}>
+                <ActionColumn
+                  rowId={row.original.id}
+                  hasSilent
+                  isSilent={row.original.is_silent}
+                  onEdit={() => setModalData(row.original)}
+                  onDelete={() => setDeleteModalData(row.original)}
+                  hasTest
+                />
+                <AlertRuleUserModal alertId={row.original.id} />
+              </Stack>
             )
           }
         ]}

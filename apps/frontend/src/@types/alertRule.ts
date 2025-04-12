@@ -32,3 +32,8 @@ export interface IAlertRuleEndpoints {
   alertEndpoints: Array<IEndpoint>;
   selectableEndpoints: Array<IEndpoint>;
 }
+
+export interface IAlertRuleUsers {
+  alertUsers: Array<IUser>;
+  selectableUsers: Array<IUser>;
+}
