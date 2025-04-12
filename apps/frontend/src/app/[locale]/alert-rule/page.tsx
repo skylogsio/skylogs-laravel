@@ -5,6 +5,7 @@ import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import AlertRuleFilter from "@/app/[locale]/alert-rule/AlertRuleFilter";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
+import NotifyModal from "@/app/[locale]/alert-rule/NotifyModal";
 import ActionColumn from "@/components/ActionColumn";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
@@ -43,6 +44,16 @@ export default function AlertRule() {
           {
             header: "Type",
             cell: ({ row }) => <AlertRuleType type={row.original.type} />
+          },
+          {
+            header: "Notify",
+            cell: ({ row }) => (
+              <NotifyModal
+                alertId={row.original.id}
+                numberOfEndpoints={row.original.count_endpoints}
+                onClose={handleRefreshData}
+              />
+            )
           },
           {
             header: "Status",

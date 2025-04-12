@@ -1,6 +1,6 @@
 "use server";
 
-import type { IAlertRuleCreateData } from "@/@types/alertRule";
+import type { IAlertRuleCreateData, IAlertRuleEndpoints } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
 import type { ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
@@ -55,3 +55,27 @@ export async function resolveFiredAlertRule(alertRuleId: unknown) {
     .post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/resolve/${alertRuleId}`)
     .then((response) => response.data);
 }
+
+export async function getAlertRuleEndpointsList(alertRuleId: unknown) {
+  return axios
+    .get<IAlertRuleEndpoints>(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`)
+    .then((response) => response.data);
+}
+
+export async function addEndpointToAlertRule(alertRuleId: unknown, endpointIds: string[]) {
+  return axios
+    .put<
+      ServerResponse<unknown>
+    >(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`, { endpoint_ids: endpointIds })
+    .then((response) => response.data);
+}
+
+export async function removeEndpointFromAlertRule(alertRuleId: unknown, endpointId: unknown) {
+  return axios
+      .delete<
+          ServerResponse<unknown>
+      >(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}/${endpointId}`)
+      .then((response) => response.data);
+}
+
+
