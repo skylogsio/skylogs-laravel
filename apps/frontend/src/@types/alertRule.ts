@@ -24,5 +24,16 @@ export interface IAlertRule {
   id: string;
   hasAdminAccess: boolean;
   status_label: AlertRuleStatus;
-  notify?: number;
+  is_silent: boolean;
+  count_endpoints: number;
+}
+
+export interface IAlertRuleEndpoints {
+  alertEndpoints: Array<IEndpoint>;
+  selectableEndpoints: Array<IEndpoint>;
+}
+
+export interface IAlertRuleUsers {
+  alertUsers: Array<IUser>;
+  selectableUsers: Array<IUser>;
 }

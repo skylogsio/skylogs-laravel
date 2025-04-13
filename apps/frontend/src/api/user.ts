@@ -1,20 +1,29 @@
+"use server";
+
+import type{ ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
 
 const USER_URL = "user";
 const USER_PASSWORD_URL = "user/pass";
 
-export function createUser(body: unknown) {
-  return axios.post(USER_URL, body);
+export async function createUser(body: unknown) {
+  return axios.post<ServerResponse<unknown>>(USER_URL, body).then((response) => response.data);
 }
 
-export function updateUser(userId:unknown,body: unknown) {
-  return axios.put(`${USER_URL}/${userId}`, body);
+export async function updateUser(userId: unknown, body: unknown) {
+  return axios
+    .put<ServerResponse<unknown>>(`${USER_URL}/${userId}`, body)
+    .then((response) => response.data);
 }
 
-export function deleteUser(userId:unknown) {
-  return axios.delete(`${USER_URL}/${userId}`);
+export async function deleteUser(userId: unknown) {
+  return axios
+    .delete<ServerResponse<unknown>>(`${USER_URL}/${userId}`)
+    .then((response) => response.data);
 }
 
-export function changePassword(userId:unknown,body:unknown) {
-  return axios.put(`${USER_PASSWORD_URL}/${userId}`, body);
+export async function changePassword(userId: unknown, body: unknown) {
+  return axios
+    .put<ServerResponse<unknown>>(`${USER_PASSWORD_URL}/${userId}`, body)
+    .then((response) => response.data);
 }

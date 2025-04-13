@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import type { IAlertRule } from "@/@types/alertRule";
-import {deleteAlertRule} from "@/api/alertRule";
+import { deleteAlertRule } from "@/api/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
@@ -14,7 +14,7 @@ export default function DeleteAlertRuleModal({
   onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IAlertRule }) {
-  const { id, name, type, status_label, notify = 0 } = data;
+  const { id, name, type, status_label, count_endpoints = 0 } = data;
 
   const { mutate: deleteAlertRuleMutation, isPending } = useMutation({
     mutationFn: () => deleteAlertRule(id),
@@ -59,7 +59,7 @@ export default function DeleteAlertRuleModal({
       </Grid>
       <Grid size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}>
         <Typography variant="body1" fontWeight="normal">
-          {notify}
+          {count_endpoints}
         </Typography>
       </Grid>
     </DeleteModalContainer>

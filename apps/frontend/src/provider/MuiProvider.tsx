@@ -27,6 +27,13 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
           }
         },
         components: {
+          MuiPaper: {
+            styleOverrides: {
+              root: {
+                borderRadius: "0.5rem"
+              }
+            }
+          },
           MuiChip: {
             styleOverrides: {
               root: {

@@ -1,26 +1,44 @@
-import { alpha, Chip, CircularProgress, IconButton, Stack, useTheme } from "@mui/material";
-import { FaFireExtinguisher } from "react-icons/fa6";
+import { useMemo } from "react";
 
-import { type AlertRuleStatus } from "@/@types/alertRule";
+import { alpha, Chip, CircularProgress, IconButton, Stack, useTheme } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import { FaFireExtinguisher } from "react-icons/fa6";
+import { toast } from "react-toastify";
+
+import { type AlertRuleStatus, IAlertRule } from "@/@types/alertRule";
+import { resolveFiredAlertRule } from "@/api/alertRule";
 
 interface AlertRuleStatusProps {
   status: AlertRuleStatus;
-  onResolve?: () => void;
-  loading?: boolean;
+  id?: IAlertRule["id"];
+  onAfterResolve?: () => void;
 }
 
-export default function AlertRuleStatus({ status, onResolve, loading }: AlertRuleStatusProps) {
+export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRuleStatusProps) {
   const { palette } = useTheme();
+
+  const { mutate: resolveAlertRule, isPending } = useMutation({
+    mutationFn: () => resolveFiredAlertRule(id),
+    onSuccess: (data) => {
+      if (data.status) {
+        onAfterResolve?.();
+        toast.success("Alert Rule Resolved Successfully.");
+      }
+    }
+  });
+
+  const color: Record<AlertRuleStatus, string> = useMemo(
+    () => ({
+      resolved: palette.success.main,
+      fire: palette.error.main,
+      warning: palette.warning.main
+    }),
+    [palette]
+  );
 
   if (!status) {
     return null;
   }
-
-  const color: Record<AlertRuleStatus, string> = {
-    resolved: palette.success.main,
-    fire: palette.error.main,
-    warning: palette.warning.main
-  };
 
   return (
     <Stack direction="row" spacing={1} justifyContent="center">
@@ -32,18 +50,18 @@ export default function AlertRuleStatus({ status, onResolve, loading }: AlertRul
           backgroundColor: alpha(color[status], 0.07)
         }}
       />
-      {status === "fire" && onResolve && (
+      {status === "fire" && (
         <IconButton
-          disabled={loading}
+          disabled={isPending}
           size="small"
           sx={{
             paddingX: 1,
             color: color[status],
-            backgroundColor: `${alpha(loading ? palette.grey[700] : color[status], 0.07)}!important`
+            backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
           }}
-          onClick={onResolve}
+          onClick={() => resolveAlertRule()}
         >
-          {loading ? <CircularProgress size={16} color="inherit" /> : <FaFireExtinguisher />}
+          {isPending ? <CircularProgress size={16} color="inherit" /> : <FaFireExtinguisher />}
         </IconButton>
       )}
     </Stack>

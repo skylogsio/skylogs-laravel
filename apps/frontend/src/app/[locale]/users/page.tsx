@@ -5,7 +5,7 @@ import { alpha, Chip } from "@mui/material";
 
 import type { IUser } from "@/@types/user";
 import ActionColumn from "@/components/ActionColumn";
-import Table from "@/components/Table";
+import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
 import { ROLE_COLORS } from "@/utils/userUtils";
 
