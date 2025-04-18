@@ -12,6 +12,7 @@ import axios from "@/lib/axios";
 const ALERT_RULE_URL = "alert-rule";
 const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
 const ALERT_RULE_USER_URL = "alert-rule-user";
+const ALERT_RULE_TAGS_URL = "alert-rule-tag";
 
 export async function createAlertRule(body: unknown) {
   return axios
@@ -97,4 +98,8 @@ export async function removeUserFromAlertRule(alertRuleId: unknown, userId: unkn
   return axios
     .delete<ServerResponse<unknown>>(`${ALERT_RULE_USER_URL}/${alertRuleId}/${userId}`)
     .then((response) => response.data);
+}
+
+export async function getAlertRuleTags() {
+  return axios.get<string[]>(`${ALERT_RULE_TAGS_URL}`).then((response) => response.data);
 }

@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -12,14 +13,14 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { createAlertRule, updateAlertRule } from "@/api/alertRule";
+import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const clientApiSchema = z
@@ -36,7 +37,8 @@ const clientApiSchema = z
       invalid_type_error: "This field is Required."
     }),
     endpoints: z.array(z.string()).optional().default([]),
-    accessUsers: z.array(z.string()).optional().default([])
+    accessUsers: z.array(z.string()).optional().default([]),
+    tags: z.array(z.string()).optional().default([])
   })
   .superRefine((data, ctx) => {
     if (data.enableAutoResolve) {
@@ -68,7 +70,8 @@ const defaultValues: ClientAPIFormType = {
   accessUsers: [],
   endpoints: [],
   enableAutoResolve: false,
-  autoResolveMinutes: 0
+  autoResolveMinutes: 0,
+  tags: []
 };
 
 export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModalProps) {
@@ -91,11 +94,15 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   const { mutate: createClientAPIMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: ClientAPIFormType) => createAlertRule(body),
     onSuccess: (data) => {
+      console.log(data);
       if (data.status) {
         toast.success("Client Api Alert Rule Created Successfully.");
         onSubmit();
         onClose?.();
       }
+    },
+    onError: (error) => {
+      console.log(error);
     }
   });
 
@@ -111,6 +118,11 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     }
   });
 
+  const { data: tagsList } = useQuery({
+    queryKey: ["all-alert-rule-tags"],
+    queryFn: () => getAlertRuleTags()
+  });
+
   function handleAutoResolve(event: React.ChangeEvent<HTMLInputElement>) {
     if (!event.target.checked) {
       clearErrors("autoResolveMinutes");
@@ -120,14 +132,13 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   }
 
   function handleSubmitForm(values: ClientAPIFormType) {
+    console.log(values);
     if (data === "NEW") {
       createClientAPIMutation(values);
     } else if (data) {
       updateClientAPIMutation({ id: data.id, body: values });
     }
   }
-
-  console.log("data:", data);
 
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
     const selectedEndpoints = requiredData?.endpoints.filter((item) =>
@@ -171,7 +182,8 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         accessUsers: data.user_ids,
         endpoints: data.endpoint_ids,
         enableAutoResolve: data.enableAutoResolve,
-        autoResolveMinutes: data.autoResolveMinutes
+        autoResolveMinutes: data.autoResolveMinutes,
+        tags: data.tags
       });
     }
   }, [reset, data]);
@@ -255,6 +267,34 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
               valueAsNumber: true,
               setValueAs: (value) => parseInt(value)
             })}
+          />
+        </Grid>
+        <Grid size={12}>
+          <Autocomplete
+            multiple
+            id="api-alert-tags"
+            options={tagsList ?? []}
+            freeSolo
+            value={watch("tags")}
+            onChange={(_, value) => setValue("tags", value)}
+            renderTags={(value: readonly string[], getItemProps) =>
+              value.map((option: string, index: number) => {
+                const { key, ...itemProps } = getItemProps({ index });
+                return <Chip variant="filled" label={option} key={key} {...itemProps} />;
+              })
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                slotProps={{
+                  input: params.InputProps,
+                  inputLabel: params.InputLabelProps,
+                  htmlInput: params.inputProps
+                }}
+                variant="filled"
+                label="Tags"
+              />
+            )}
           />
         </Grid>
         <Grid size={12} marginTop="auto" flex={1}></Grid>

@@ -26,6 +26,7 @@ export interface IAlertRule {
   status_label: AlertRuleStatus;
   is_silent: boolean;
   count_endpoints: number;
+  tags: string[];
 }
 
 export interface IAlertRuleEndpoints {
