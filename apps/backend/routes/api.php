@@ -96,6 +96,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix("/alert-rule-tag")
             ->controller(TagsController::class)
             ->group(function () {
+                Route::get('/', 'All');
                 Route::get('/{id}', 'Create');
                 Route::put('/{id}', 'Store');
             });

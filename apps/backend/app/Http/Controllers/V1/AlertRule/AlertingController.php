@@ -296,6 +296,7 @@ class AlertingController extends Controller
                     ]);
                     break;
             }
+            $alert->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
 
             $alert->save();
 
@@ -308,6 +309,8 @@ class AlertingController extends Controller
                 foreach ($request->accessUsers as $userId) {
                     $alert->push("user_ids", $userId, true);
                 }
+
+
             AlertRuleService::FlushAlertRuleCache();
 
             return ['status' => true];
@@ -528,6 +531,8 @@ class AlertingController extends Controller
     public function StoreUpdate(Request $request, $id)
     {
         $model = AlertRule::where("_id", $id)->firstOrFail();
+        $model->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
+
         switch ($model->type) {
             case AlertRuleType::GRAFANA:
                 $extraFields = [];
@@ -642,7 +647,7 @@ class AlertingController extends Controller
                 $model->save();
                 break;
         }
-
+        AlertRuleService::FlushAlertRuleCache();
         return response()->json(['status'=>true]);
 
     }

@@ -10,16 +10,19 @@ use Carbon\Carbon;
 class TagService
 {
 
-    public static function GetTagsArray($input): array
+    public static function All(): array
     {
-        $postTags = is_array($input) ? $input : json_decode($input, );
-        $newTags = collect($postTags);
-        $cleaned = $newTags->map(fn($item) => trim($item->value))
-            ->filter(fn($item) => !empty($item))
-            ->unique()
-            ->values();
-        return $cleaned->toArray();
+        return cache()->tags(['alert_rule','tags'])->rememberForever('alert_rule:tags', function () {
 
+            $array = AlertRule::select('tags')->distinct()->get()->toArray();
+
+            return collect($array)->flatten()->toArray();
+        });
+
+    }
+    public static function FlushCache():void
+    {
+        cache()->tags(['alert_rule','tags'])->flush();
     }
 
 }
