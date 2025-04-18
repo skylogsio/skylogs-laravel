@@ -1,12 +1,10 @@
 "use client";
 import { useRef, useState } from "react";
 
-import { Stack } from "@mui/material";
-
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
+import AlertRuleActionColumn from "@/app/[locale]/alert-rule/AlertRuleActionColumn";
 import TagsCell from "@/app/[locale]/alert-rule/TagsCell";
-import ActionColumn from "@/components/ActionColumn";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
 import Table from "@/components/Table/SmartTable";
@@ -16,7 +14,6 @@ import AlertRuleFilter from "./AlertRuleFilter";
 import AlertRuleModal from "./AlertRuleModal";
 import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
 import NotifyModal from "./NotifyModal";
-import AlertRuleUserModal from "./UserModal";
 
 export default function AlertRule() {
   const tableRef = useRef<TableComponentRef>(null);
@@ -72,17 +69,11 @@ export default function AlertRule() {
           {
             header: "Action",
             cell: ({ row }) => (
-              <Stack direction="row" justifyContent="center" spacing={1}>
-                <ActionColumn
-                  rowId={row.original.id}
-                  hasSilent
-                  isSilent={row.original.is_silent}
-                  onEdit={() => setModalData(row.original)}
-                  onDelete={() => setDeleteModalData(row.original)}
-                  hasTest
-                />
-                <AlertRuleUserModal alertId={row.original.id} />
-              </Stack>
+              <AlertRuleActionColumn
+                rowId={row.original.id}
+                onEdit={() => setModalData(row.original)}
+                onDelete={() => setDeleteModalData(row.original)}
+              />
             )
           }
         ]}
