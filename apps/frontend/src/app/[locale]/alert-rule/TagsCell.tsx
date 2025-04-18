@@ -11,12 +11,12 @@ const ChipStyle = {
 };
 
 export default function TagsCell({ tags }: { tags: string[] }) {
-  const [showMoreAnchorEl, setShowMoreAnchorEl] = useState<HTMLElement | null>(null);
+  const [showMoreAnchorEl, setShowMoreAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const visibleTags = tags.slice(0, 3);
   const hiddenTags = tags.slice(3);
 
-  const handleShowMorePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleShowMorePopoverOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setShowMoreAnchorEl(event.currentTarget);
   };
 
@@ -25,6 +25,8 @@ export default function TagsCell({ tags }: { tags: string[] }) {
   };
 
   const open = Boolean(showMoreAnchorEl);
+  const showMorePopoverId = open ? "show-more-popover" : undefined;
+
   return (
     <Stack direction="row" spacing={1} justifyContent="center" alignItems="flex-start">
       {visibleTags.map((tag, index) => (
@@ -48,6 +50,7 @@ export default function TagsCell({ tags }: { tags: string[] }) {
             <HiDotsHorizontal size="1.3rem" />
           </IconButton>
           <Popover
+            id={showMorePopoverId}
             open={open}
             anchorEl={showMoreAnchorEl}
             onClose={handleShowMorePopoverClose}
