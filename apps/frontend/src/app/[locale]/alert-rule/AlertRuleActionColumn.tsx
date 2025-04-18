@@ -88,7 +88,7 @@ export default function AlertRuleActionColumn({
               backgroundColor: alpha(palette.warning.main, 0.05)
             })}
           >
-            <IoNotifications size="1.4rem" />
+            <IoNotificationsOff size="1.4rem" />
           </IconButton>
         ) : (
           <IconButton
@@ -99,7 +99,7 @@ export default function AlertRuleActionColumn({
               backgroundColor: alpha(palette.warning.main, 0.05)
             })}
           >
-            <IoNotificationsOff size="1.4rem" />
+            <IoNotifications size="1.4rem" />
           </IconButton>
         )}
         <IconButton
