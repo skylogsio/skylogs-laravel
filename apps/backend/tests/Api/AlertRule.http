@@ -1,0 +1,170 @@
+// status_label can be 1. resolved 2.unknown 3. critical 4.warning or be an integer that means critical
+GET {{domain}}/alert-rule?alertname=&types[]=api&types[]=notification&endpointId=
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET {{domain}}/alert-rule/filter-endpoints
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+GET {{domain}}/alert-rule/types
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET {{domain}}/alert-rule/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+POST {{domain}}/alert-rule/silent/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+POST {{domain}}/alert-rule/resolve/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test21",
+    "type" : "api",
+    "enableAutoResolve": true,
+    "autoResolveMinutes" : 5,
+    "endpoints": [
+        "a",
+        "b"
+    ],
+    "accessUsers": [
+        "a",
+        "b"
+    ]
+}
+
+###
+PUT {{domain}}/alert-rule/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test23",
+    "type" : "api",
+    "enableAutoResolve": true,
+    "autoResolveMinutes" : 5,
+    "endpoints": [
+        "a",
+        "b"
+    ],
+    "accessUsers": [
+        "a",
+        "b"
+    ]
+}
+
+
+###
+DELETE {{domain}}/alert-rule/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+GET {{domain}}/alert-rule/types
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
+###
+
+GET {{domain}}/alert-rule/create-data
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
+
+###
+
+GET {{domain}}/alert-rule-tag/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
+###
+
+PUT {{domain}}/alert-rule-tag/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "tags" : [
+        "firstTag","secondTag","thirdTag"
+    ]
+}
+
+
+###
+
+GET {{domain}}/alert-rule-notify/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+
+PUT {{domain}}/alert-rule-notify/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "endpoint_ids" : [
+        "67d8a6adfd871d06510fef62"
+    ]
+}
+
+
+
+###
+// /alert-rule-notify/{alertId}/{endpointId}
+DELETE {{domain}}/alert-rule-notify/67cf5e9d60f5ce9d5f003b52/67d8a6adfd871d06510fef62
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+
+POST {{domain}}/alert-rule-notify/test/67cf5e9d60f5ce9d5f003b52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
