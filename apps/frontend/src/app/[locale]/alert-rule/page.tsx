@@ -5,6 +5,7 @@ import { Stack } from "@mui/material";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
+import TagsCell from "@/app/[locale]/alert-rule/TagsCell";
 import ActionColumn from "@/components/ActionColumn";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
@@ -65,9 +66,13 @@ export default function AlertRule() {
             )
           },
           {
+            header: "Tags",
+            cell: ({ row }) => <TagsCell tags={row.original.tags} />
+          },
+          {
             header: "Action",
             cell: ({ row }) => (
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" justifyContent="center" spacing={1}>
                 <ActionColumn
                   rowId={row.original.id}
                   hasSilent
