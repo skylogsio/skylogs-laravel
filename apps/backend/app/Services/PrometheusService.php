@@ -7,7 +7,7 @@ use App\Jobs\RefreshPrometheusCheckJob;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\PrometheusCheck;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 
 class PrometheusService
 {

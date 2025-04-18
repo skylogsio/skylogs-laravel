@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Utility;
+namespace App\Helpers;
 
 use backend\models\ElasticIndex;
 use common\models\User;

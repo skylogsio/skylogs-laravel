@@ -15,7 +15,7 @@ use App\Models\SentryWebhookAlert;
 use App\Models\Service;
 use App\Models\ServiceCheck;
 use App\Models\User;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 

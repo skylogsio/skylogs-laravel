@@ -12,7 +12,7 @@ use App\Services\ApiService;
 use App\Services\ElasticService;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;

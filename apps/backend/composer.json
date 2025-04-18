@@ -12,7 +12,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "maatwebsite/excel": "^3.1",
         "morilog/jalali": "3.*",
-        "mongodb/laravel-mongodb": "^5.2.0",
+        "mongodb/laravel-mongodb": "^5.4.0",
         "laravel/horizon": "v5.31.0",
         "predis/predis": "^2.3",
         "tymon/jwt-auth": "^2.1.1",

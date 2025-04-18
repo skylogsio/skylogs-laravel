@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Carbon\Carbon;
 
 class StatusService

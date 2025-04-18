@@ -11,7 +11,7 @@ use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Http\Request;
 
 

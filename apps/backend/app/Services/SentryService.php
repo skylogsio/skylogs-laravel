@@ -8,7 +8,7 @@ use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\PrometheusCheck;
 use App\Models\Service;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Http;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\Response;

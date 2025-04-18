@@ -6,7 +6,7 @@ use App\Helpers\Utilities;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\GrafanaWebhookAlert;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 
 class GrafanaService
 {

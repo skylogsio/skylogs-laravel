@@ -14,7 +14,7 @@ use App\Models\SentryWebhookAlert;
 use App\Models\Service;
 use App\Models\ServiceCheck;
 use App\Models\User;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use http\Exception\BadQueryStringException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;

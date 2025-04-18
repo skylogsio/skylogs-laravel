@@ -9,10 +9,10 @@ use App\Models\AlertRule;
 use App\Models\Endpoint;
 use App\Models\SentryWebhookAlert;
 use App\Models\User;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Telegram;
+use App\Helpers\Call;
+use App\Helpers\Constants;
+use App\Helpers\SMS;
+use App\Helpers\Telegram;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 

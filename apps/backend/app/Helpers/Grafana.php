@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Utility;
+namespace App\Helpers;
 
 use common\models\User;
 use yii\helpers\Json;

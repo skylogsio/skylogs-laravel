@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Helpers\Utilities;
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
