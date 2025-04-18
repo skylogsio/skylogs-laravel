@@ -6,6 +6,7 @@ namespace App\Http\Controllers\V1\AlertRule;
 use App\Http\Controllers\Controller;
 use App\Models\AlertRule;
 use App\Models\User;
+use App\Services\AlertRuleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,7 @@ class AccessUserController extends Controller
 {
 
 
-    public function Create($id)
+    public function CreateData($id)
     {
 
         $alert = AlertRule::where('_id', $id)->firstOrFail();
@@ -50,7 +51,6 @@ class AccessUserController extends Controller
                 $alert->push("user_ids", $userId, true);
             }
             $alert->save();
-            info($alert);
         }
 
         return response()->json(['status' => true]);
@@ -66,6 +66,7 @@ class AccessUserController extends Controller
 
         $alert->pull("user_ids", $userId);
         $alert->save();
+
         return response()->json(['status' => true]);
     }
 

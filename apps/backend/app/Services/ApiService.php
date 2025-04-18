@@ -13,8 +13,7 @@ class ApiService
 
     public static function FireAlert($post): array
     {
-
-        $alertRule = $post['alert'];
+        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
 
         if (!$alertRule) {
             return [
@@ -104,7 +103,9 @@ class ApiService
 
     public static function ResolveAlert(mixed $post)
     {
-        $alert = AlertInstance::where('alert_rule_id', $post['alert']['id'])
+        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
+
+        $alert = AlertInstance::where('alert_rule_id', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -143,8 +144,8 @@ class ApiService
 
     public static function StatusAlert(mixed $post)
     {
+        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
 
-        $alertRule = $post['alert'];
 
         if (!$alertRule) {
             return [
@@ -153,7 +154,7 @@ class ApiService
             ];
         }
 
-        $alert = AlertInstance::where('alert_rule_id', $post['alert']['id'])
+        $alert = AlertInstance::where('alert_rule_id', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -173,8 +174,8 @@ class ApiService
     public static function NotificationAlert(mixed $post)
     {
 
+        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
 
-        $alertRule = $post['alert'];
         if (!$alertRule) {
             return [
                 "status" => false,
@@ -185,7 +186,7 @@ class ApiService
 
         $alert = AlertInstance::updateOrCreate([
             "alert_rule_id" => $alertRule->_id,
-            "alert_rule_name" => $post['alert']['name'],
+            "alert_rule_name" => $alertRule['name'],
             "instance" => $post['instance'],
         ], [
             "state" => AlertInstance::NOTIFICATION,
@@ -206,7 +207,7 @@ class ApiService
 
     public static function AlertRuleByToken($token)
     {
-        $alertRules = Cache::remember("api_alerts", 3600 * 24, function () {
+        $alertRules = Cache::tags(['alert_rule','api'])->rememberForever("alert_rule:api", function () {
             return AlertRule::where("type", AlertRuleType::API)->get();
         });
 

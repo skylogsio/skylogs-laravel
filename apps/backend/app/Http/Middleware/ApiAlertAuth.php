@@ -12,15 +12,15 @@ class ApiAlertAuth
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
 
         $bearerToken = $request->bearerToken();
         $alert = ApiService::AlertRuleByToken($bearerToken);
-        if($alert){
-            return $next($request->merge(['alert' => $alert]));
+        if ($alert) {
+            return $next($request->merge(['alert' => $alert, "api_token" => $bearerToken]));
         }
         abort(Response::HTTP_UNAUTHORIZED);
     }

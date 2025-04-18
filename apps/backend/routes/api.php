@@ -23,7 +23,6 @@ Route::prefix('v1')->group(function () {
         Route::post("resolve-alert","ResolveAlert");
         Route::post("status-alert","StatusAlert");
         Route::post("notification-alert","NotificationAlert");
-
         Route::post("stop-alert","ResolveAlert");
     });
 
@@ -107,7 +106,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix("/alert-rule-user")
             ->controller(AccessUserController::class)
             ->group(function () {
-                Route::get('/{id}', 'Create');
+                Route::get('/{id}', 'CreateData');
                 Route::put('/{id}', 'Store');
                 Route::delete('/{alertId}/{userId}', 'Delete');
 

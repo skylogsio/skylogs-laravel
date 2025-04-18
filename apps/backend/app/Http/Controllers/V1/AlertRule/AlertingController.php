@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\AlertRule;
 
 use App\Enums\AlertRuleType;
 use App\Enums\DataSourceType;
+use Cache;
 use \Str;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
@@ -307,7 +308,7 @@ class AlertingController extends Controller
                 foreach ($request->accessUsers as $userId) {
                     $alert->push("user_ids", $userId, true);
                 }
-
+            AlertRuleService::FlushAlertRuleCache();
 
             return ['status' => true];
         } else {
@@ -523,70 +524,6 @@ class AlertingController extends Controller
         return null;
     }
 
-    public function Update(Request $request, $id)
-    {
-        $model = AlertRule::where("_id", $id)->firstOrFail();
-
-        $currentUser = Auth::user();
-        $access = AlertRuleService::HasAdminAccessAlert($currentUser, $model);
-
-        if (!$access) {
-            abort(403);
-        }
-
-        $prometheusAlerts = [];
-        $grafanaAlerts = [];
-
-        switch ($model->type) {
-            case AlertRuleType::GRAFANA:
-                $grafanaInstances = GrafanaInstance::pluck("name");
-
-                $r = GrafanaInstanceService::getRules($model->instance);
-
-                foreach ($r as $value) {
-                    $grafanaAlerts[] = $value->title;
-                }
-
-                return view('content.pages.alerts.modal_update_grafana',
-                    compact(
-                        "grafanaInstances",
-                        "grafanaAlerts",
-                        "model"
-                    ));
-            case AlertRuleType::PROMETHEUS:
-                $prometheusInstances = PrometheusInstance::pluck("name");
-
-                $r = PrometheusInstanceService::getRules();
-                foreach ($r as $value) {
-                    $prometheusAlerts[] = $value->name;
-                }
-
-                return view('content.pages.alerts.modal_update_prometheus',
-                    compact(
-                        "prometheusInstances",
-                        "prometheusAlerts",
-                        "model"
-                    ));
-            case AlertRuleType::SENTRY:
-            case AlertRuleType::METABASE:
-            case AlertRuleType::ZABBIX:
-                return view("content.pages.alerts.modal_update_sentry", compact("model"));
-            case AlertRuleType::SPLUNK:
-                $splunkAlerts = SplunkService::GetAlerts();
-                return view("content.pages.alerts.modal_update_splunk", compact("model", 'splunkAlerts'));
-            case AlertRuleType::NOTIFICATION:
-                return view("content.pages.alerts.modal_update_notification", compact("model"));
-            case AlertRuleType::API:
-                return view("content.pages.alerts.modal_update_api", compact("model"));
-            case AlertRuleType::HEALTH:
-                return view("content.pages.alerts.modal_update_health", compact("model"));
-            case AlertRuleType::ELASTIC:
-                return view("content.pages.alerts.modal_update_elastic", compact("model"));
-        }
-        abort(404);
-
-    }
-
 
     public function StoreUpdate(Request $request, $id)
     {
@@ -704,6 +641,7 @@ class AlertingController extends Controller
                 $model->save();
                 break;
         }
+
         return response()->json(['status'=>true]);
 
     }
@@ -856,6 +794,7 @@ class AlertingController extends Controller
             }
 
         }
+        AlertRuleService::FlushAlertRuleCache();
 
         return response()->json(['status' => true]);
 //        return redirect()->route('role.index');
