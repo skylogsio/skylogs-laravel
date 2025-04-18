@@ -101,7 +101,7 @@ class GrafanaService
 
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "instance" => $alert['instance'],
-                        "alertname" => $alertRule->alertname,
+                        "alert_rule_name" => $alertRule->name,
                         "grafana_alertname" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],

@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\DataSourceType;
 use App\Models\AlertRulePrometheus;
 
+use App\Models\DataSource\DataSource;
 use App\Models\PrometheusInstance;
 
 use App\Models\Service;
@@ -111,19 +113,19 @@ class PrometheusInstanceService
         return $alerts;
     }
 
-    public static function getRules($instance = null): array
+    public static function getRules($dataSourceId = null): array
     {
-        if (empty($instance)) {
+        if (empty($dataSourceId)) {
             return self::getAllRules();
         } else {
-            return self::getRulesInstance($instance);
+            return self::getRulesInstance($dataSourceId);
         }
 
     }
 
     private static function getAllLabelValues($label)
     {
-        $prometheusAll = PrometheusInstance::get();
+        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
         $resultLabels = [];
         $responses = [];
         if ($prometheusAll->isNotEmpty()) {
@@ -136,7 +138,7 @@ class PrometheusInstanceService
                     if (!empty($pro->username) && !empty($pro->password)) {
                         $request = $request->withBasicAuth($pro->username, $pro->password);
                     }
-                    $result[] = $request->get($pro->getLabelsValueUrl($label),);
+                    $result[] = $request->get($pro->prometheusGetLabelsValueUrl($label),);
                 }
 
                 return $result;
@@ -168,7 +170,7 @@ class PrometheusInstanceService
 
     private static function getAllLabels()
     {
-        $prometheusAll = PrometheusInstance::get();
+        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
         $resultLabels = [];
         $responses = [];
         if ($prometheusAll->isNotEmpty()) {
@@ -181,7 +183,7 @@ class PrometheusInstanceService
                     if (!empty($pro->username) && !empty($pro->password)) {
                         $request = $request->withBasicAuth($pro->username, $pro->password);
                     }
-                    $result[] = $request->get($pro->getLabelsUrl(),);
+                    $result[] = $request->get($pro->promethusGetLabelsUrl(),);
                 }
 
                 return $result;
@@ -283,9 +285,9 @@ class PrometheusInstanceService
         return $alerts;
     }
 
-    private static function getRulesInstance($instance)
+    private static function getRulesInstance($id)
     {
-        $pro = PrometheusInstance::where("name", $instance)->first();
+        $pro = DataSource::where("id", $id)->first();
         $alerts = [];
 
         try {
@@ -295,7 +297,7 @@ class PrometheusInstanceService
             if (!empty($pro->username) && !empty($pro->password)) {
                 $request = $request->withBasicAuth($pro->username, $pro->password);
             }
-            $response = $request->get($pro->getRulesUrl())->json();
+            $response = $request->get($pro->prometheusGetRulesUrl())->json();
 
 
             $ruleArr = $response['data']['groups'];
@@ -324,7 +326,8 @@ class PrometheusInstanceService
 
     public static function getTriggered(): array
     {
-        $prometheusAll = PrometheusInstance::all();
+
+        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
         $alerts = [];
 
         $responses = [];
@@ -332,27 +335,28 @@ class PrometheusInstanceService
 
             $responses = Http::pool(function (Pool $pool) use ($prometheusAll) {
                 $result = [];
+                /** @var $pro DataSource */
                 foreach ($prometheusAll as $pro) {
 
-                    $request = $pool->as($pro->name)->acceptJson();
+                    $request = $pool->as($pro->id)->acceptJson();
                     if (!empty($pro->username) && !empty($pro->password)) {
                         $request = $request->withBasicAuth($pro->username, $pro->password);
                     }
-                    $result[] = $request->get($pro->getAlertsUrl(),);
+                    $result[] = $request->get($pro->prometheusGetAlertsUrl(),);
                 }
 
                 return $result;
             });
 
 
-            foreach ($responses as $name => $response) {
+            foreach ($responses as $id => $response) {
                 if (!($response instanceof Response && $response->ok())) continue;
                 $response = $response->json();
 
                 $arr = $response['data']['alerts'];
 
                 foreach ($arr as &$alert) {
-                    $alert['instance'] = $name;
+                    $alert['data_source_id'] = $id;
 
                     if ($alert['state'] == PrometheusInstance::STATE_FIRING) {
                         $alerts[] = $alert;
@@ -368,9 +372,11 @@ class PrometheusInstanceService
 
     }
 
-    public static function getMetricLabels($instance, $metric)
+    public static function getMetricLabels($id, $metric)
     {
-        $prometheus = PrometheusInstance::where("name", $instance)->first();
+        $prometheus = DataSource::where("id", $id)->first();
+        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+
         $labels = [];
 
 
@@ -379,7 +385,7 @@ class PrometheusInstanceService
             if (!empty($prometheus->username) && !empty($prometheus->password)) {
                 $request = $request->withBasicAuth($prometheus->username, $prometheus->password);
             }
-            $response = $request->get($prometheus->getQueryUrl($metric))->json();
+            $response = $request->get($prometheus->prometheusGetQueryUrl($metric))->json();
 
             $webMetrics = $response['data']['result'];
             foreach ($webMetrics as $webMetric) {
@@ -406,7 +412,7 @@ class PrometheusInstanceService
             if (!empty($prometheusInstance->username) && !empty($prometheusInstance->password)) {
                 $request = $request->withBasicAuth($prometheusInstance->username, $prometheusInstance->password);
             }
-            $response = $request->timeout(6)->get($prometheusInstance->getAlertsUrl());
+            $response = $request->timeout(3)->get($prometheusInstance->getAlertsUrl());
 
             return $response->status() == 200;
         } catch (\Exception $e) {

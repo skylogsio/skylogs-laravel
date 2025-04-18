@@ -4,6 +4,7 @@ use App\Enums\Constants;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
+use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
@@ -82,6 +83,14 @@ Route::prefix('v1')->group(function () {
                 Route::post('/resolve/{id}', 'ResolveAlert');
                 Route::put('/{id}', 'StoreUpdate');
                 Route::delete('/{id}', 'Delete');
+            });
+
+        Route::prefix("/prometheus")
+            ->controller(PrometheusController::class)
+            ->group(function () {
+                Route::get('/rules', 'Rules');
+                Route::get('/labels', 'Labels');
+                Route::get('/label-values/{label}', 'LabelValues');
             });
 
         Route::prefix("/alert-rule-tag")
