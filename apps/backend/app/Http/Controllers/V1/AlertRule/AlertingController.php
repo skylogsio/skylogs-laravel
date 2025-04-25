@@ -213,8 +213,8 @@ class AlertingController extends Controller
                     ]);
                     $alert->queryType = $request->prometheusQueryType;
                     if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                        $alert->data_source_ids = array_unique($request->data_source_ids);
-                        $alert->prometheus_alertname = $request->prometheus_alert;
+                        $alert->data_source_ids = array_unique($request->dataSourceIds);
+                        $alert->prometheus_alertname = $request->prometheusAlert;
                         $extraFields = [];
                         if ($request->has("extraField") && !empty($request->extraField))
                             foreach ($request->extraField as $value) {
