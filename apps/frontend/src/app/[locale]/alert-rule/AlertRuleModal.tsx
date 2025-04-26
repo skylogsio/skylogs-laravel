@@ -17,6 +17,7 @@ import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
+import PrometheusForm from "@/components/AlertRule/Forms/PrometheusForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
 
@@ -34,6 +35,27 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
     queryFn: () => getAlertRuleCreateData()
   });
 
+  function handleShowForm() {
+    switch (selectedDataSource) {
+      case "api":
+        return (
+          <ClientAPIForm
+            onClose={onClose}
+            data={data as CreateUpdateModal<IAlertRule>}
+            onSubmit={onSubmit}
+          />
+        );
+      case "prometheus":
+        return (
+          <PrometheusForm
+            data={data as CreateUpdateModal<IAlertRule>}
+            onSubmit={onSubmit}
+            onClose={onClose}
+          />
+        );
+    }
+  }
+
   return (
     <Modal
       open={open}
@@ -50,6 +72,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
         <Box
           width="100%"
           maxWidth="1000px"
+          maxHeight="90vh"
           sx={{
             position: "absolute",
             top: "50%",
@@ -107,13 +130,9 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
                 </Button>
               ))}
             </ButtonGroup>
-            {selectedDataSource === "api" && (
-              <ClientAPIForm
-                onClose={onClose}
-                data={data as CreateUpdateModal<IAlertRule>}
-                onSubmit={onSubmit}
-              />
-            )}
+            <Box maxHeight="90vh" overflow="auto">
+              {handleShowForm()}
+            </Box>
           </Paper>
         </Box>
       </Fade>
