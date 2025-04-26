@@ -8,10 +8,10 @@ use App\Models\AlertRuleGrafana;
 use App\Models\Endpoint;
 use App\Models\GrafanaInstance;
 use App\Models\SentryWebhookAlert;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Telegram;
+use App\Helpers\Call;
+use App\Helpers\Constants;
+use App\Helpers\SMS;
+use App\Helpers\Telegram;
 
 class GrafanaInstanceService
 {

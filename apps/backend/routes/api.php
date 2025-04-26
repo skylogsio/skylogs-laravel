@@ -1,13 +1,16 @@
 <?php
 
 use App\Enums\Constants;
+use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
+use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
 use App\Http\Controllers\V1\UserController;
+use App\Http\Controllers\V1\Webhooks\ApiAlertController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +18,14 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
 
     Route::post("auth/login", [AuthController::class, "login"]);
+
+    Route::middleware("api_auth")->controller(ApiAlertController::class)->group(function () {
+        Route::post("fire-alert","FireAlert");
+        Route::post("resolve-alert","ResolveAlert");
+        Route::post("status-alert","StatusAlert");
+        Route::post("notification-alert","NotificationAlert");
+        Route::post("stop-alert","ResolveAlert");
+    });
 
     Route::middleware('auth')->group(function () {
 
@@ -74,9 +85,18 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{id}', 'Delete');
             });
 
+        Route::prefix("/prometheus")
+            ->controller(PrometheusController::class)
+            ->group(function () {
+                Route::get('/rules', 'Rules');
+                Route::get('/labels', 'Labels');
+                Route::get('/label-values/{label}', 'LabelValues');
+            });
+
         Route::prefix("/alert-rule-tag")
             ->controller(TagsController::class)
             ->group(function () {
+                Route::get('/', 'All');
                 Route::get('/{id}', 'Create');
                 Route::put('/{id}', 'Store');
             });
@@ -91,6 +111,14 @@ Route::prefix('v1')->group(function () {
 
                 Route::get('/batchAlert', 'CreateBatch');
                 Route::put('/batchAlert', 'StoreBatch');
+
+            });
+        Route::prefix("/alert-rule-user")
+            ->controller(AccessUserController::class)
+            ->group(function () {
+                Route::get('/{id}', 'CreateData');
+                Route::put('/{id}', 'Store');
+                Route::delete('/{alertId}/{userId}', 'Delete');
 
             });
 

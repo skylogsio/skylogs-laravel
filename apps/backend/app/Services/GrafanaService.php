@@ -6,7 +6,7 @@ use App\Helpers\Utilities;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\GrafanaWebhookAlert;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 
 class GrafanaService
 {
@@ -101,7 +101,7 @@ class GrafanaService
 
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "instance" => $alert['instance'],
-                        "alertname" => $alertRule->alertname,
+                        "alert_rule_name" => $alertRule->name,
                         "grafana_alertname" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],

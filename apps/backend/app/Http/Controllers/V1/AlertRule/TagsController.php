@@ -40,6 +40,7 @@ use App\Services\TagService;
 use Carbon\Carbon;
 use Excel;
 use Illuminate\Console\View\Components\Alert;
+use Illuminate\Container\Attributes\Tag;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +51,12 @@ use MongoDB\BSON\UTCDateTime;
 class TagsController extends Controller
 {
 
+
+    public function All()
+    {
+
+        return response()->json(TagService::All());
+    }
 
     public function Create(Request $request, $id)
     {
@@ -79,7 +86,7 @@ class TagsController extends Controller
 
         $alert->tags = $tags;
         $alert->save();
-
+        TagService::FlushCache();
 
         return response()->json(["status" => true,]);
 

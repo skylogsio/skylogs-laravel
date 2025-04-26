@@ -1,0 +1,24 @@
+###
+
+POST {{domain}}/fire-alert
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{alertToken}}
+
+{
+    "instance" : "test",
+    "description" : "myDes"
+}
+
+###
+
+POST {{domain}}/resolve-alert
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{alertToken}}
+
+{
+    "instance" : "test",
+    "description" : "myDes"
+}
+

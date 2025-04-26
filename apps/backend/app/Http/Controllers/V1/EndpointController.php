@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Endpoint;
+use App\Services\EndpointService;
 use Illuminate\Http\Request;
 
 
@@ -43,11 +44,12 @@ class EndpointController extends Controller
         $model = Endpoint::where('_id', $id);
         $isAdmin = auth()->user()->isAdmin();
 
-        if ($isAdmin) {
+        if (!$isAdmin) {
             $model = $model->where("user_id", auth()->id());
         }
         $model = $model->firstOrFail();
         $model->delete();
+        EndpointService::RefreshAlertRuleEndpoints($model);
         return response()->json($model);
     }
 
@@ -79,6 +81,8 @@ class EndpointController extends Controller
                     'value' => $value,
                 ]);
             }
+            EndpointService::FlushEndpointCache();
+
             return response()->json([
                 'status' => true,
                 "data" => $model
@@ -124,6 +128,8 @@ class EndpointController extends Controller
                     'value' => $value,
                 ]);
             }
+            EndpointService::FlushEndpointCache();
+
             return response()->json([
                 'status' => true,
                 'data' => $model,

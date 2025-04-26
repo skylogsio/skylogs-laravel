@@ -14,12 +14,12 @@ use App\Models\Notify;
 use App\Models\SentryWebhookAlert;
 use App\Models\SilentRule;
 use App\Models\ZabbixWebhookAlert;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\Email;
-use App\Utility\SMS;
-use App\Utility\Teams;
-use App\Utility\Telegram;
+use App\Helpers\Call;
+use App\Helpers\Constants;
+use App\Helpers\Email;
+use App\Helpers\SMS;
+use App\Helpers\Teams;
+use App\Helpers\Telegram;
 use Illuminate\Support\Collection;
 
 class SendNotifyService

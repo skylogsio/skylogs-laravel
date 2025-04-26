@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use http\Exception\BadQueryStringException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;

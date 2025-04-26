@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
+use App\Enums\AlertRuleType;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
 use App\Models\User;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Telegram;
+use App\Helpers\Call;
+use App\Helpers\Constants;
+use App\Helpers\SMS;
+use App\Helpers\Telegram;
+use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MongoDB\BSON\UTCDateTime;
@@ -446,12 +448,12 @@ class AlertRuleService
 
     public static function HasAdminAccessAlert(User $user, AlertRule $alert)
     {
-        if ($user->hasRole("admin")) return true;
+        if ($user->isAdmin()) return true;
         if ($user->_id == $alert->user_id) return true;
         return false;
     }
 
-    public static function HasUserAccessAlert(User $user, AlertRule $alert):bool
+    public static function HasUserAccessAlert(User $user, AlertRule $alert): bool
     {
         if (self::HasAdminAccessAlert($user, $alert)) return true;
         $userIds = $alert->user_ids ?? [];
@@ -459,5 +461,34 @@ class AlertRuleService
         return false;
     }
 
+    public static function GetAlerts(AlertRuleType $type = null)
+    {
+        $tagsArray = ['alert_rule'];
+        $keyName = 'alert_rule';
+        if ($type) {
+            $tagsArray[] = $type->value;
+            $keyName .= ':' . $type->value;
+        }
+
+        return Cache::tags($tagsArray)->rememberForever($keyName, function () use ($type) {
+            if ($type) {
+                return AlertRule::where('type', $type)->get();
+            } else
+                return AlertRule::get();
+        });
+    }
+
+    public static function GetAlertsDB(AlertRuleType $type = null)
+    {
+        if ($type) {
+            return AlertRule::where('type', $type)->get();
+        } else
+            return AlertRule::get();
+    }
+
+    public static function FlushAlertRuleCache(): void
+    {
+        Cache::tags(['alert_rule'])->flush();
+    }
 
 }
