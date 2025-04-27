@@ -41,7 +41,7 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
 //        echo "TEST";
         $check = HealthCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
                 "url" => $this->alert->url,
@@ -75,8 +75,8 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
                         SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check,$this->alert->_id);
                         HealthHistory::create(
                             [
-                                "alert_rule_id" => $this->alert->_id,
-                                "alert_rule_name" => $this->alert->alertname,
+                                "alertRuleId" => $this->alert->_id,
+                                "alertRuleName" => $this->alert->alertname,
                                 "url" => $this->alert->url,
                                 "threshold_down" => $this->alert->threshold_down,
                                 "threshold_up" => $this->alert->threshold_up,
@@ -109,8 +109,8 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
 
                     HealthHistory::create(
                         [
-                            "alert_rule_id" => $this->alert->_id,
-                            "alert_rule_name" => $this->alert->alertname,
+                            "alertRuleId" => $this->alert->_id,
+                            "alertRuleName" => $this->alert->alertname,
                             "url" => $this->alert->url,
                             "threshold_down" => $this->alert->threshold_down,
                             "threshold_up" => $this->alert->threshold_up,

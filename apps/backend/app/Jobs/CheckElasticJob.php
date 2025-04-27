@@ -42,7 +42,7 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
     {
         $check = ElasticCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
                 "dataview_name" => $this->alert->dataview_name,
@@ -74,8 +74,8 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
                 $check->save();
 
                 ElasticHistory::create([
-                    "alert_rule_id" => $this->alert->_id,
-                    "alert_rule_name" => $this->alert->alertname,
+                    "alertRuleId" => $this->alert->_id,
+                    "alertRuleName" => $this->alert->alertname,
                     "dataview_name" => $this->alert->dataview_name,
                     "dataview_title" => $this->alert->dataview_title,
                     "query_string" => $this->alert->query_string,
@@ -99,8 +99,8 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
                 $check->save();
 
                 ElasticHistory::create([
-                    "alert_rule_id" => $this->alert->_id,
-                    "alert_rule_name" => $this->alert->alertname,
+                    "alertRuleId" => $this->alert->_id,
+                    "alertRuleName" => $this->alert->alertname,
                     "dataview_name" => $this->alert->dataview_name,
                     "dataview_title" => $this->alert->dataview_title,
                     "query_string" => $this->alert->query_string,

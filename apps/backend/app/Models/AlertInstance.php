@@ -25,7 +25,7 @@ class AlertInstance extends Model implements Messageable
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "id");
     }
 
     public function history(): BelongsTo
@@ -41,8 +41,8 @@ class AlertInstance extends Model implements Messageable
     public function createHistory()
     {
         $model = new ApiAlertHistory();
-        $model->alert_rule_id = $this->alert_rule_id;
-        $model->alert_rule_name = $this->alert_rule_name;
+        $model->alertRuleId = $this->alertRuleId;
+        $model->alertRuleName = $this->alertRuleName;
         $model->instance = $this->instance;
         $model->description = $this->description;
         $model->summary = $this->summary;
@@ -51,7 +51,7 @@ class AlertInstance extends Model implements Messageable
 
         $model->save();
 
-        $this->history_id = $model->_id;
+        $this->historyId = $model->_id;
         $this->save();
 
         return $model;
@@ -60,7 +60,7 @@ class AlertInstance extends Model implements Messageable
     public function createStatusHistory($history)
     {
         $model = new ApiAlertStatusHistory();
-        $model->alert_rule_id = $this->alert_rule_id;
+        $model->alertRuleId = $this->alertRuleId;
         $model->instance = $this->instance;
         $model->description = $this->description;
         $model->summary = $this->summary;
@@ -81,13 +81,13 @@ class AlertInstance extends Model implements Messageable
             } else {
                 $model->state = self::FIRE;
                 $model->countAlerts = count($alertFireInstances);
-                $model->fired_instances = $alertFireInstances;
+                $model->firedInstances = $alertFireInstances;
             }
 
         } else
             $model->state = self::RESOLVED;
 
-        $model->alert_rule_id = $this->alert_rule_id;
+        $model->alertRuleId = $this->alertRuleId;
 
         $model->save();
 
@@ -95,7 +95,7 @@ class AlertInstance extends Model implements Messageable
 
     public function telegramMessage(): string
     {
-        $text = $this->alert_rule_name;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
@@ -118,7 +118,7 @@ class AlertInstance extends Model implements Messageable
 
     public function smsMessage(): string
     {
-        $text = $this->alert_rule_name;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
@@ -140,7 +140,7 @@ class AlertInstance extends Model implements Messageable
 
     public function callMessage(): string
     {
-        $text = $this->alert_rule_name;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nstate: Fire",
@@ -181,7 +181,7 @@ class AlertInstance extends Model implements Messageable
 
     public function emailMessage()
     {
-        $text = $this->alert_rule_name;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",

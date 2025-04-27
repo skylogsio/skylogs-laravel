@@ -52,8 +52,8 @@ class AlertingController extends Controller
 
         if (!$currentUser->isAdmin()) {
             $data = $data->where(function ($query) use ($request) {
-                return $query->where('user_id', \Auth::id())
-                    ->orWhereIn("user_ids", [\Auth::user()->_id]);
+                return $query->where('userId', \Auth::id())
+                    ->orWhereIn("userIds", [\Auth::user()->_id]);
             });
         }
 
@@ -79,7 +79,7 @@ class AlertingController extends Controller
         if ($request->has("endpointId") && !empty($request->endpointId)) {
             $endpointId = $request->endpointId;
 
-            $data = $data->whereIn("endpoint_ids", [$endpointId]);
+            $data = $data->whereIn("endpointIds", [$endpointId]);
 
         }
 
@@ -88,9 +88,13 @@ class AlertingController extends Controller
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
-            $alert->status_label = $alert->getStatus();
-            $alert->is_silent = $alert->isSilent();
-            $alert->count_endpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
+            $alert->statusLabel = $alert->getStatus();
+            $alert->status_label = $alert->statusLabel;
+            $isSilent = $alert->isSilent();
+            $alert->isSilent = $isSilent;
+            $alert->is_silent = $isSilent;
+            $alert->countEndpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
+            $alert->count_endpoints = $alert->countEndpoints;
         }
 
         return response()->json($data);
@@ -107,7 +111,7 @@ class AlertingController extends Controller
         if ($currentUser->isAdmin()) {
             $selectableEndpoints = Endpoint::get();
         } else {
-            $selectableEndpoints = Endpoint::whereIn("user_id", [$adminUserId, $currentUser->_id])->get();
+            $selectableEndpoints = Endpoint::whereIn("userId", [$adminUserId, $currentUser->_id])->get();
         }
 
         return response()->json($selectableEndpoints);
@@ -136,7 +140,7 @@ class AlertingController extends Controller
 
         $adminUserId = User::where('username', 'admin')->first()->_id;
 
-        $endpoints = Endpoint::whereIn("user_id", [$adminUserId, \Auth::user()->_id])->get();
+        $endpoints = Endpoint::whereIn("userId", [$adminUserId, \Auth::user()->_id])->get();
         $users = User::whereNotIn("_id", [$adminUserId, \Auth::id()])->get();
 
         return response()->json(
@@ -171,8 +175,11 @@ class AlertingController extends Controller
                 'type' => $request->type,
                 'tags' => $request->tags ?? [],
                 "user_id" => \Auth::id(),
+                "userId" => \Auth::id(),
                 "endpoint_ids" => [],
+                "endpointIds" => [],
                 "user_ids" => [],
+                "userIds" => [],
             ];
             switch ($alertType) {
                 case AlertRuleType::GRAFANA:
@@ -213,8 +220,8 @@ class AlertingController extends Controller
                     ]);
                     $alert->queryType = $request->prometheusQueryType;
                     if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                        $alert->data_source_ids = array_unique($request->dataSourceIds);
-                        $alert->prometheus_alertname = $request->prometheusAlert;
+                        $alert->dataSourceIds = array_unique($request->dataSourceIds);
+                        $alert->prometheusAlertname = $request->prometheusAlert;
                         $extraFields = [];
                         if ($request->has("extraField") && !empty($request->extraField))
                             foreach ($request->extraField as $value) {
@@ -225,8 +232,8 @@ class AlertingController extends Controller
                             }
                         $alert->extraField = $extraFields;
                     } else {
-                        $alert->prometheus_query = $request->prometheus_query;
-                        $alert->prometheus_query_object = $request->prometheus_query_object;
+                        $alert->prometheusQuery = $request->prometheusQuery;
+                        $alert->prometheusQueryObject = $request->prometheusQueryObject;
                     }
 //                    $alert->extraField = $extraFields;
                     $alert->save();
@@ -303,11 +310,13 @@ class AlertingController extends Controller
             if ($request->has("endpoints") && !empty($request->endpoints))
                 foreach ($request->endpoints as $end) {
                     $alert->push("endpoint_ids", $end, true);
+                    $alert->push("endpointIds", $end, true);
                 }
 
             if ($request->has("accessUsers") && !empty($request->accessUsers))
                 foreach ($request->accessUsers as $userId) {
                     $alert->push("user_ids", $userId, true);
+                    $alert->push("userIds", $userId, true);
                 }
 
 
@@ -323,10 +332,10 @@ class AlertingController extends Controller
     {
         $alert = AlertRule::where("_id", $id)->firstOrFail();
         $userIds = [];
-        if (!empty($alert->user_ids)) {
-            $userIds = $alert->user_ids;
+        if (!empty($alert->userIds)) {
+            $userIds = $alert->userIds;
         }
-        $userIds[] = $alert->user_id;
+        $userIds[] = $alert->userId;
 
         if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
             abort(403);
@@ -353,10 +362,10 @@ class AlertingController extends Controller
 
         $alert = AlertRule::where("_id", $id)->firstOrFail();
         $userIds = [];
-        if (!empty($alert->user_ids)) {
-            $userIds = $alert->user_ids;
+        if (!empty($alert->userIds)) {
+            $userIds = $alert->userIds;
         }
-        $userIds[] = $alert->user_id;
+        $userIds[] = $alert->userId;
 
         if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
             abort(403);
@@ -365,7 +374,7 @@ class AlertingController extends Controller
         switch ($alert->type) {
             case AlertRuleType::GRAFANA:
                 if ($request->ajax()) {
-                    $data = GrafanaWebhookAlert::where("alert_rule_id", $id)->latest();
+                    $data = GrafanaWebhookAlert::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -381,7 +390,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::PROMETHEUS:
                 if ($request->ajax()) {
-                    $data = PrometheusHistory::where("alert_rule_id", $id)->latest();
+                    $data = PrometheusHistory::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -397,7 +406,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::SENTRY:
                 if ($request->ajax()) {
-                    $data = SentryWebhookAlert::where("alert_rule_id", $id)->latest();
+                    $data = SentryWebhookAlert::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -413,7 +422,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::SPLUNK:
                 if ($request->ajax()) {
-                    $data = SplunkWebhookAlert::where("alert_rule_id", $id)->latest();
+                    $data = SplunkWebhookAlert::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -429,7 +438,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::METABASE:
                 if ($request->ajax()) {
-                    $data = MetabaseWebhookAlert::where("alert_rule_id", $id)->latest();
+                    $data = MetabaseWebhookAlert::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -445,7 +454,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::ZABBIX:
                 if ($request->ajax()) {
-                    $data = ZabbixWebhookAlert::where("alert_rule_id", $id)->latest();
+                    $data = ZabbixWebhookAlert::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -493,7 +502,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::HEALTH:
                 if ($request->ajax()) {
-                    $data = HealthHistory::where("alert_rule_id", $id)->latest();
+                    $data = HealthHistory::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -509,7 +518,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::ELASTIC:
                 if ($request->ajax()) {
-                    $data = ElasticHistory::where("alert_rule_id", $id)->latest();
+                    $data = ElasticHistory::where("alertRuleId", $id)->latest();
                     if ($request->has("from") && !empty($request->from)) {
                         $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                         $data = $data->where("created_at", ">=", $date->toDateTime());
@@ -561,7 +570,7 @@ class AlertingController extends Controller
                 $extraFields = [];
                 $model->queryType = $request->queryType;
                 if ($request->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $model->data_source_ids = array_unique($request->data_source_ids);
+                    $model->dataSourceIds = array_unique($request->dataSourceIds);
 
                     if ($request->has("extraField") && !empty($request->extraField))
                         foreach ($request->extraField as $value) {
@@ -572,8 +581,8 @@ class AlertingController extends Controller
                         }
                     $model->extraField = $extraFields;
                 } else {
-                    $model->prometheus_query = $request->prometheus_query;
-                    $model->prometheus_query_object = $request->prometheus_query_object;
+                    $model->prometheusQuery = $request->prometheusQuery;
+                    $model->prometheusQueryObject = $request->prometheusQueryObject;
                 }
                 $model->interval = ((int)$request->interval);
                 $model->state = null;
@@ -614,7 +623,7 @@ class AlertingController extends Controller
                 $model->minutes = ((int)$request->minutes);
                 $model->count_document = ((int)$request->count_document);
                 $model->save();
-                ElasticCheck::where("alert_rule_id", $model->_id)->delete();
+                ElasticCheck::where("alertRuleId", $model->_id)->delete();
                 break;
             case AlertRuleType::HEALTH:
                 $model->alertname = $request->alertname;
@@ -625,7 +634,7 @@ class AlertingController extends Controller
                 $model->basic_auth_username = $request->username;
                 $model->basic_auth_password = $request->password;
                 $model->save();
-                HealthCheck::where("alert_rule_id", $model->_id)->delete();
+                HealthCheck::where("alertRuleId", $model->_id)->delete();
                 break;
             case AlertRuleType::NOTIFICATION:
                 AlertInstance::where("alertname", $model->alertname)->update(['name' => $request->alertname]);
@@ -686,7 +695,7 @@ class AlertingController extends Controller
 
                     SentryWebhookAlert::create([
                         "alert_name" => $alert->name,
-                        "alert_rule_id" => $alert->_id,
+                        "alertRuleId" => $alert->_id,
                         "action" => "resolved",
                         "message" => "resolved manually.",
                         "description" => "resolved manually.",
@@ -701,7 +710,7 @@ class AlertingController extends Controller
                 }
                 break;
             case AlertRuleType::PROMETHEUS:
-                $prometheusAlert = PrometheusCheck::where("alert_rule_id", $alert->_id)->where("state", PrometheusCheck::FIRE)->first();
+                $prometheusAlert = PrometheusCheck::where("alertRuleId", $alert->_id)->where("state", PrometheusCheck::FIRE)->first();
                 if ($prometheusAlert && $prometheusAlert->state == PrometheusCheck::FIRE) {
                     $prometheusAlert->state = PrometheusCheck::RESOLVED;
                     $prometheusAlert->save();
@@ -710,7 +719,7 @@ class AlertingController extends Controller
                 }
                 break;
             case AlertRuleType::HEALTH:
-                $check = HealthCheck::where("alert_rule_id", $alert->_id)->where("state", HealthCheck::DOWN)->first();
+                $check = HealthCheck::where("alertRuleId", $alert->_id)->where("state", HealthCheck::DOWN)->first();
                 if ($check && $check->state == HealthCheck::DOWN) {
                     $check->state = HealthCheck::UP;
                     $check->counter = 0;
@@ -720,14 +729,14 @@ class AlertingController extends Controller
                 }
                 break;
             case AlertRuleType::ELASTIC:
-                $check = ElasticCheck::where("alert_rule_id", $alert->_id)->where("state", ElasticCheck::FIRE)->first();
+                $check = ElasticCheck::where("alertRuleId", $alert->_id)->where("state", ElasticCheck::FIRE)->first();
                 if ($check && $check->state == ElasticCheck::FIRE) {
                     $check->state = ElasticCheck::RESOLVED;
                     $check->save();
 
                     ElasticHistory::create([
-                        "alert_rule_id" => $alert->_id,
-                        "alert_rule_name" => $alert->name,
+                        "alertRuleId" => $alert->_id,
+                        "alertRuleName" => $alert->name,
                         "dataview_name" => $alert->dataview_name,
                         "dataview_title" => $alert->dataview_title,
                         "query_string" => $alert->query_string,
@@ -768,7 +777,7 @@ class AlertingController extends Controller
 
         $alert = AlertRule::where('_id', $request->id)->first();
         $userId = \Auth::user()->_id;
-        if ($alert->user_id == $userId || \Auth::user()->isAdmin()) {
+        if ($alert->userId == $userId || \Auth::user()->isAdmin()) {
             $alertRuleId = $alert->_id;
             $type = $alert->type;
             $alertname = $alert->alertname;
@@ -779,22 +788,23 @@ class AlertingController extends Controller
                     AlertInstance::where("alertname", $alertname)->delete();
                     break;
                 case AlertRuleType::PROMETHEUS:
-                    PrometheusCheck::where("alert_rule_id", $alertRuleId)->delete();
+                    PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
                     break;
                 case AlertRuleType::HEALTH:
-                    HealthCheck::where("alert_rule_id", $alertRuleId)->delete();
+                    HealthCheck::where("alertRuleId", $alertRuleId)->delete();
                     break;
                 case AlertRuleType::ELASTIC:
-                    ElasticCheck::where("alert_rule_id", $alertRuleId)->delete();
+                    ElasticCheck::where("alertRuleId", $alertRuleId)->delete();
                     break;
             }
 
         } else {
             $alert->pull("user_ids", $userId);
-            if (!empty($alert->endpoint_ids)) {
-                $data = Endpoint::whereIn("_id", $alert->endpoint_ids)->where('user_id', \Auth::user()->_id)->get();
+            $alert->pull("userIds", $userId);
+            if (!empty($alert->endpointIds)) {
+                $data = Endpoint::whereIn("_id", $alert->endpointIds)->where('userId', \Auth::user()->_id)->get();
                 foreach ($data as $endpoint) {
-                    $alert->pull("endpoint_ids", $endpoint->_id);
+                    $alert->pull("endpointIds", $endpoint->_id);
                 }
 
             }

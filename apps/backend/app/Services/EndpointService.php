@@ -50,7 +50,7 @@ class EndpointService
     public static function CountUserEndpointAlert(User $user, AlertRule $alert = null)
     {
         $selectableEndpoints = self::SelectableUserEndpoint($user, $alert);
-        $alertEndpoints = collect($alert->endpoint_ids);
+        $alertEndpoints = collect($alert->endpointIds);
         return $selectableEndpoints->pluck("id")->intersect($alertEndpoints)->count();
     }
 
@@ -58,6 +58,7 @@ class EndpointService
     {
         foreach (AlertRuleService::GetAlertsDB() as $alertRule) {
             $alertRule->pull('endpoint_ids',$endpoint->_id);
+            $alertRule->pull('endpointIds',$endpoint->_id);
         }
         EndpointService::FlushEndpointCache();
     }

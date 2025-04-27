@@ -132,7 +132,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -172,7 +172,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -212,7 +212,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -255,7 +255,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -299,7 +299,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -343,7 +343,7 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
@@ -463,8 +463,8 @@ class AlertRuleService
 
     public static function GetAlerts(AlertRuleType $type = null)
     {
-        $tagsArray = ['alert_rule'];
-        $keyName = 'alert_rule';
+        $tagsArray = ['alertRule'];
+        $keyName = 'alertRule';
         if ($type) {
             $tagsArray[] = $type->value;
             $keyName .= ':' . $type->value;
@@ -488,7 +488,7 @@ class AlertRuleService
 
     public static function FlushAlertRuleCache(): void
     {
-        Cache::tags(['alert_rule'])->flush();
+        Cache::tags(['alertRule'])->flush();
     }
 
 }

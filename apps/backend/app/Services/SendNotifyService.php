@@ -28,7 +28,7 @@ class SendNotifyService
     {
         $notify = new Notify();
         $notify->type = $type;
-        $notify->alert_rule_id = $alertRuleId;
+        $notify->alertRuleId = $alertRuleId;
 
         try {
             $notify->alert = $alert->toArray();
@@ -82,11 +82,11 @@ class SendNotifyService
 //        $endpointIds = GroupService::GetEndpointsByAlertId($notify->alertRule);
 
 
-        $endpointIds = $notify->alertRule->endpoint_ids ?? [];
-        $silentUserIds = $notify->alertRule->silent_user_ids ?? [];
+        $endpointIds = $notify->alertRule->endpointIds ?? [];
+        $silentUserIds = $notify->alertRule->silentUserIds ?? [];
 
 
-        $endpoints = Endpoint::whereIn("_id", $endpointIds)->whereNotIn("user_id", $silentUserIds)->get();
+        $endpoints = Endpoint::whereIn("_id", $endpointIds)->whereNotIn("userId", $silentUserIds)->get();
 //        ds($endpoints,);
         $phones = $endpoints->where("type", "sms")->pluck("value");
         $phonesCalls = $endpoints->where("type", "call")->pluck("value");

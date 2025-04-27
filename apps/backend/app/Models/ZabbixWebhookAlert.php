@@ -34,7 +34,7 @@ class ZabbixWebhookAlert extends Model implements Messageable
 
             $alert = AlertRule::where("alertname", $this->action_name)->first();
             if ($alert) {
-                $this->alert_rule_id = $alert->_id;
+                $this->alertRuleId = $alert->_id;
 //                $alert->state = $this->action;
                 $alert->notify_at = time();
                 $alert->save();

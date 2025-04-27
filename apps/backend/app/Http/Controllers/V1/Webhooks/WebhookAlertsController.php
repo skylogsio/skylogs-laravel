@@ -44,7 +44,7 @@ class WebhookAlertsController extends Controller
 
         if ($model->CustomSave($post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::SENTRY_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::SENTRY_WEBHOOK, $model, $model->alertRuleId);
 
             return [
                 "status" => true,
@@ -78,7 +78,7 @@ class WebhookAlertsController extends Controller
 
         if ($model->CustomSave($post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alertRuleId);
             return response()->json([
                 "status" => true,
             ]);
@@ -110,7 +110,7 @@ class WebhookAlertsController extends Controller
 
         if ($model->CustomSave($post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::METABASE_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::METABASE_WEBHOOK, $model, $model->alertRuleId);
 
             return [
                 "status" => true,

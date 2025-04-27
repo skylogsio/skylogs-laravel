@@ -41,7 +41,7 @@ class SentryWebhookAlert extends Model implements Messageable
                 $this->alert_name = $jsonWebhook['data']['metric_alert']['alert_rule']['name'] ?? "";
                 $alert = AlertRule::where("alertname",$this->alert_name)->first();
                 if($alert){
-                    $this->alert_rule_id = $alert->_id;
+                    $this->alertRuleId = $alert->_id;
                     $alert->state = $this->action;
                     $alert->notify_at = time();
                     $alert->save();
@@ -56,7 +56,7 @@ class SentryWebhookAlert extends Model implements Messageable
                 $this->alert_name = $jsonWebhook['data']['triggered_rule'] ?? "";
                 $alert = AlertRule::where("alertname",$this->alert_name)->first();
                 if($alert){
-                    $this->alert_rule_id = $alert->_id;
+                    $this->alertRuleId = $alert->_id;
                     $alert->state = $this->action;
                     $alert->notify_at = time();
                     $alert->save();

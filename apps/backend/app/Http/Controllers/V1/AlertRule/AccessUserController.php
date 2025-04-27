@@ -21,7 +21,7 @@ class AccessUserController extends Controller
         $currentUser = \Auth::user();
 
         $selectableUsers = [];
-        if ($currentUser->isAdmin() || $alert->user_id == $currentUser->_id) {
+        if ($currentUser->isAdmin() || $alert->userId == $currentUser->_id) {
             $selectableUsers = User::whereNotIn('_id',[$currentUser->id,])->get();
         } else {
             abort(403);
@@ -42,7 +42,7 @@ class AccessUserController extends Controller
         $isAdmin = $currentUser->isAdmin();
         $alert = AlertRule::where('_id', $id)->firstOrFail();
 
-        if(!$isAdmin && $alert->user_id != $currentUser->id){
+        if(!$isAdmin && $alert->userId != $currentUser->id){
             abort(403);
         }
         if ($request->has("user_ids") && !empty($request->post("user_ids"))) {
@@ -60,7 +60,7 @@ class AccessUserController extends Controller
     {
 
         $alert = AlertRule::where('_id', $alertId)->firstOrFail();
-        if(!Auth::user()->isAdmin() && $alert->user_id != Auth::user()->id){
+        if(!Auth::user()->isAdmin() && $alert->userId != Auth::user()->id){
             abort(403);
         }
 

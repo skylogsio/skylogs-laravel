@@ -44,7 +44,7 @@ class SilentRuleService
 
                         break;
                     case SilentRule::ALERTNAME:
-                        $alert_ids = $alert_ids->merge($silent->alert_rule_ids);
+                        $alert_ids = $alert_ids->merge($silent->alertRuleIds);
                         break;
                 }
             }

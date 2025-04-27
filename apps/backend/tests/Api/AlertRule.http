@@ -147,14 +147,14 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-PUT {{domain}}/alert-rule-notify/67cf5e9d60f5ce9d5f003b52
+PUT {{domain}}/alert-rule-notify/67fa77984372d3fb19053de2
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
     "endpoint_ids" : [
-        "67d8a6adfd871d06510fef62"
+        "680d668e20f7ecb5bc026722"
     ]
 }
 

@@ -22,7 +22,7 @@ class ApiService
             ];
         }
 
-        $alert = AlertInstance::where('alert_rule_id', $alertRule->id)
+        $alert = AlertInstance::where('alertRuleId', $alertRule->id)
             ->where('instance', $post['instance'])
             ->first();
 
@@ -65,9 +65,8 @@ class ApiService
         } else {
 
             $model = new AlertInstance();
-            $model->alertRule_id = $alertRule->_id;
-            $model->alert_rule_id = $alertRule->_id;
-            $model->alert_rule_name = $alertRule->name;
+            $model->alertRuleId = $alertRule->_id;
+            $model->alertRuleName = $alertRule->name;
             $model->instance = $post['instance'];
             $model->job = $post['job'] ?? "";
 
@@ -105,7 +104,7 @@ class ApiService
     {
         $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
 
-        $alert = AlertInstance::where('alert_rule_id', $alertRule['id'])
+        $alert = AlertInstance::where('alertRuleId', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -154,7 +153,7 @@ class ApiService
             ];
         }
 
-        $alert = AlertInstance::where('alert_rule_id', $alertRule['id'])
+        $alert = AlertInstance::where('alertRuleId', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -185,8 +184,8 @@ class ApiService
 
 
         $alert = AlertInstance::updateOrCreate([
-            "alert_rule_id" => $alertRule->_id,
-            "alert_rule_name" => $alertRule['name'],
+            "alertRuleId" => $alertRule->_id,
+            "alertRuleName" => $alertRule['name'],
             "instance" => $post['instance'],
         ], [
             "state" => AlertInstance::NOTIFICATION,
@@ -207,7 +206,7 @@ class ApiService
 
     public static function AlertRuleByToken($token)
     {
-        $alertRules = Cache::tags(['alert_rule','api'])->rememberForever("alert_rule:api", function () {
+        $alertRules = Cache::tags(['alertRule','api'])->rememberForever("alertRule:api", function () {
             return AlertRule::where("type", AlertRuleType::API)->get();
         });
 

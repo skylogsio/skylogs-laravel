@@ -65,7 +65,7 @@ class IntervalJob implements ShouldQueue
                             }
                             break;
                         case Constants::HEALTH:
-                            $check = HealthCheck::where("alert_rule_id", $alert->_id)->first();
+                            $check = HealthCheck::where("alertRuleId", $alert->_id)->first();
                             if (!empty($check) && $check->state == HealthCheck::DOWN) {
                                 if ($check->notify_at + (60 * $check->interval) < time()) {
                                     $check->notify_at = time();
@@ -86,7 +86,7 @@ class IntervalJob implements ShouldQueue
                         case Constants::ELASTIC:
                             if ($status == AlertRule::CRITICAL) {
                                 if ($alert->notify_at + (60 * $alert->interval) < time()) {
-                                    $check = ElasticCheck::where('alert_rule_id', $alert->_id)->first();
+                                    $check = ElasticCheck::where('alertRuleId', $alert->_id)->first();
                                     if (!empty($check)) {
                                         $alert->notify_at = time();
                                         $alert->save();

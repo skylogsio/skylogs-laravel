@@ -12,7 +12,7 @@ class TagService
 
     public static function All(): array
     {
-        return cache()->tags(['alert_rule','tags'])->rememberForever('alert_rule:tags', function () {
+        return cache()->tags(['alertRule','tags'])->rememberForever('alertRule:tags', function () {
 
             $array = AlertRule::select('tags')->distinct()->get()->toArray();
 
@@ -22,7 +22,7 @@ class TagService
     }
     public static function FlushCache():void
     {
-        cache()->tags(['alert_rule','tags'])->flush();
+        cache()->tags(['alertRule','tags'])->flush();
     }
 
 }

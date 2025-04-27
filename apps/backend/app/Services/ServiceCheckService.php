@@ -164,12 +164,12 @@ class ServiceCheckService
                     $check->state = ServiceCheck::UP;
                     $check->notify_at = time();
                     $check->save();
-                    SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alert_rule_id);
+                    SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alertRuleId);
 
                     /*        HealthHistory::create(
                         [
-                            "alert_rule_id" => $this->alert->_id,
-                            "alert_rule_name" => $this->alert->alertname,
+                            "alertRuleId" => $this->alert->_id,
+                            "alertRuleName" => $this->alert->alertname,
                             "url" => $this->alert->url,
                             "threshold_down" => $this->alert->threshold_down,
                             "threshold_up" => $this->alert->threshold_up,
@@ -192,12 +192,12 @@ class ServiceCheckService
                     $check->state = ServiceCheck::DOWN;
                     $check->notify_at = time();
                     $check->save();
-                    SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alert_rule_id);
+                    SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alertRuleId);
 
                     /*    HealthHistory::create(
                             [
-                                "alert_rule_id" => $this->alert->_id,
-                                "alert_rule_name" => $this->alert->alertname,
+                                "alertRuleId" => $this->alert->_id,
+                                "alertRuleName" => $this->alert->alertname,
                                 "url" => $this->alert->url,
                                 "threshold_down" => $this->alert->threshold_down,
                                 "threshold_up" => $this->alert->threshold_up,

@@ -48,14 +48,14 @@ class Grafana extends Model
 
     public function prometheusCheck()
     {
-        return $this->hasOne(PrometheusCheck::class, "alert_rule_id", "_id");
+        return $this->hasOne(PrometheusCheck::class, "alertRuleId", "_id");
     }
 
     public function grafanaWebhook()
     {
 
         if ($this->type == Constants::GRAFANA && $this->state == self::CRITICAL) {
-            return $this->hasOne(GrafanaWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(GrafanaWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
@@ -63,14 +63,14 @@ class Grafana extends Model
     public function sentryWebhook()
     {
         if ($this->type == Constants::SENTRY && $this->state == self::CRITICAL) {
-            return $this->hasOne(SentryWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(SentryWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
     public function metabaseWebhook()
     {
         if ($this->type == Constants::METABASE ) {
-            return $this->hasOne(MetabaseWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(MetabaseWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
@@ -99,20 +99,20 @@ class Grafana extends Model
 
     public function isSilent(): bool
     {
-        if (empty($this->silent_user_ids)) return false;
-        if (in_array(\Auth::user()->_id, $this->silent_user_ids)) return true;
+        if (empty($this->silentUserIds)) return false;
+        if (in_array(\Auth::user()->_id, $this->silentUserIds)) return true;
         return false;
     }
 
     public function silent()
     {
-        $this->push("silent_user_ids", \Auth::user()->_id, true);
+        $this->push("silentUserIds", \Auth::user()->_id, true);
         $this->save();
     }
 
     public function unSilent()
     {
-        $this->pull("silent_user_ids", \Auth::user()->_id);
+        $this->pull("silentUserIds", \Auth::user()->_id);
         $this->save();
     }
 
@@ -149,7 +149,7 @@ class Grafana extends Model
                 break;
 
             case Constants::PROMETHEUS:
-                $alert = PrometheusCheck::where('alert_rule_id', $this->_id)->first();
+                $alert = PrometheusCheck::where('alertRuleId', $this->_id)->first();
                 if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
                     return self::RESOlVED;
                 } else {
@@ -168,14 +168,14 @@ class Grafana extends Model
                 }
                 break;
             case Constants::HEALTH:
-                $check = HealthCheck::where('alert_rule_id', $this->_id)->first();
+                $check = HealthCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
                     return self::RESOlVED;
                 } else {
                     return self::CRITICAL;
                 }
             case Constants::ELASTIC:
-                $check = ElasticCheck::where('alert_rule_id', $this->_id)->first();
+                $check = ElasticCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
                     return self::RESOlVED;
                 } else {
@@ -185,7 +185,7 @@ class Grafana extends Model
             case Constants::NOTIFICATION:
                 return self::UNKNOWN;
             case Constants::SERVICE:
-                $check = ServiceCheck::where('alert_rule_id', $this->_id)->first();
+                $check = ServiceCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ServiceCheck::UP) {
                     return self::RESOlVED;
                 } else {

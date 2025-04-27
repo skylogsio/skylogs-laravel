@@ -35,14 +35,14 @@ class AlertRule extends Model implements Messageable
 
     public function prometheusCheck()
     {
-        return $this->hasOne(PrometheusCheck::class, "alert_rule_id", "_id");
+        return $this->hasOne(PrometheusCheck::class, "alertRuleId", "_id");
     }
 
     public function grafanaWebhook()
     {
 
         if ($this->type == AlertRuleType::GRAFANA && $this->state == self::CRITICAL) {
-            return $this->hasOne(GrafanaWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(GrafanaWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
@@ -50,7 +50,7 @@ class AlertRule extends Model implements Messageable
     public function sentryWebhook()
     {
         if ($this->type == AlertRuleType::SENTRY && $this->state == self::CRITICAL) {
-            return $this->hasOne(SentryWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(SentryWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
@@ -58,7 +58,7 @@ class AlertRule extends Model implements Messageable
     public function metabaseWebhook()
     {
         if ($this->type == AlertRuleType::METABASE) {
-            return $this->hasOne(MetabaseWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+            return $this->hasOne(MetabaseWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
@@ -87,18 +87,18 @@ class AlertRule extends Model implements Messageable
 
     public function isSilent(): bool
     {
-        return !empty($this->silent_user_ids) && in_array(\Auth::user()->_id, $this->silent_user_ids);
+        return !empty($this->silentUserIds) && in_array(\Auth::user()->_id, $this->silentUserIds);
     }
 
     public function silent()
     {
-        $this->push("silent_user_ids", \Auth::user()->_id, true);
+        $this->push("silentUserIds", \Auth::user()->_id, true);
         $this->save();
     }
 
     public function unSilent()
     {
-        $this->pull("silent_user_ids", \Auth::user()->_id);
+        $this->pull("silentUserIds", \Auth::user()->_id);
         $this->save();
     }
 
@@ -107,7 +107,7 @@ class AlertRule extends Model implements Messageable
 
         switch ($this->type) {
             case AlertRuleType::API:
-                $alertCount = AlertInstance::where('alert_rule_id', $this->id)
+                $alertCount = AlertInstance::where('alertRuleId', $this->id)
                     ->where("state", AlertInstance::FIRE)->count();
                 if ($alertCount == 0) {
                     return self::RESOlVED;
@@ -134,7 +134,7 @@ class AlertRule extends Model implements Messageable
                 }
 
             case AlertRuleType::PROMETHEUS:
-                $alert = PrometheusCheck::where('alert_rule_id', $this->_id)->first();
+                $alert = PrometheusCheck::where('alertRuleId', $this->_id)->first();
                 if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
                     return self::RESOlVED;
                 } else {
@@ -151,14 +151,14 @@ class AlertRule extends Model implements Messageable
                     return $this->state;
                 }
             case AlertRuleType::HEALTH:
-                $check = HealthCheck::where('alert_rule_id', $this->_id)->first();
+                $check = HealthCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
                     return self::RESOlVED;
                 } else {
                     return self::CRITICAL;
                 }
             case AlertRuleType::ELASTIC:
-                $check = ElasticCheck::where('alert_rule_id', $this->_id)->first();
+                $check = ElasticCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
                     return self::RESOlVED;
                 } else {

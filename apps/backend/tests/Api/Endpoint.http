@@ -35,7 +35,7 @@ Authorization: Bearer {{authToken}}
     "name": "test2",
     "type" : "telegram",
     "value" : "-100",
-    "threadId" : "1"
+    "threadId" : "11"
 }
 
 ###

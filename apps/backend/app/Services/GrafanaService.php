@@ -101,11 +101,11 @@ class GrafanaService
 
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "instance" => $alert['instance'],
-                        "alert_rule_name" => $alertRule->name,
+                        "alertRuleName" => $alertRule->name,
                         "grafana_alertname" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
-                        "alert_rule_id" => $alertRule->_id,
+                        "alertRuleId" => $alertRule->_id,
 //                        "state" => $status,
                     ];
 
@@ -124,7 +124,7 @@ class GrafanaService
             $model = new GrafanaWebhookAlert();
             $model->alerts = $alerts;
             $model->instance = $instance;
-            $model->alert_rule_id = $alertRuleId;
+            $model->alertRuleId = $alertRuleId;
             $model->status = $status;
 
             if(!empty($webhook['groupLabels'])){

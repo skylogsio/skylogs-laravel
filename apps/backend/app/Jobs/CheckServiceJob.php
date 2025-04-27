@@ -44,7 +44,7 @@ class CheckServiceJob implements ShouldQueue, ShouldBeUnique
 //        echo "TEST";
         $check = ServiceCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
                 "service_id" => $this->alert->service_id,

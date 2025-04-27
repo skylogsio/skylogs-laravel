@@ -59,9 +59,9 @@ class PrometheusService
                 $matchLabels = [];
                 $matchAnnotations = [];
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $alertRuleDataSourcesArray = is_array($alertRule['data_source_ids']) ? $alertRule['data_source_ids'] : [$alertRule['data_source_ids'],];
+                    $alertRuleDataSourcesArray = is_array($alertRule['dataSourceIds']) ? $alertRule['dataSourceIds'] : [$alertRule['data_source_ids'],];
 
-                    if ((empty($alertRule['data_source_ids']) || in_array($alert['data_source_id'], $alertRuleDataSourcesArray)) && $alert['labels']['alertname'] == $alertRule['prometheus_alertname']) {
+                    if ((empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) && $alert['labels']['alertname'] == $alertRule['prometheus_alertname']) {
 
                         if (!empty($alertRule->extraField))
                             foreach ($alertRule->extraField as $key => $patterns) {
@@ -102,11 +102,11 @@ class PrometheusService
 
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "data_source_id" => $alert['data_source_id'],
-                        "alert_rule_name" => $alertRule->name,
+                        "alertRuleName" => $alertRule->name,
                         "prometheus_alertname" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
-                        "alert_rule_id" => $alertRule->_id,
+                        "alertRuleId" => $alertRule->_id,
 //                        "state" => PrometheusCheck::FIRE,
                     ];
 
@@ -122,7 +122,7 @@ class PrometheusService
     {
         foreach ($alertRules as $alertRule) {
             $check = PrometheusCheck::firstOrCreate([
-                "alert_rule_id" => $alertRule->_id,
+                "alertRuleId" => $alertRule->_id,
             ], [
                 "alerts" => [],
                 "state" => PrometheusCheck::RESOLVED,

@@ -304,7 +304,7 @@ class SentryService
                         "prometheus_alertname" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
-                        "alert_rule_id" => $alertRule->_id,
+                        "alertRuleId" => $alertRule->_id,
 //                        "state" => PrometheusCheck::FIRE,
                     ];
 
@@ -320,7 +320,7 @@ class SentryService
     {
         foreach ($alertRules as $alertRule) {
             $check = PrometheusCheck::firstOrCreate([
-                "alert_rule_id" => $alertRule->_id,
+                "alertRuleId" => $alertRule->_id,
             ], [
                 "alerts" => [],
                 "state" => PrometheusCheck::RESOLVED,

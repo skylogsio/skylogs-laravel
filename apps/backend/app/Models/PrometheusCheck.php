@@ -26,7 +26,7 @@ class PrometheusCheck extends Model implements Messageable
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
 
@@ -52,7 +52,7 @@ class PrometheusCheck extends Model implements Messageable
 
         PrometheusHistory::create(
             [
-                "alert_rule_id" => $this->alert_rule_id,
+                "alertRuleId" => $this->alertRuleId,
                 "alerts" => $this->alerts,
                 "state" => $this->state,
             ]
@@ -69,7 +69,7 @@ class PrometheusCheck extends Model implements Messageable
         if ($diffs->isNotEmpty() || $diffs2->isNotEmpty()) {
             PrometheusHistory::create(
                 [
-                    "alert_rule_id" => $this->alert_rule_id,
+                    "alertRuleId" => $this->alertRuleId,
                     "alerts" => $this->alerts,
                     "state" => $this->state,
                 ]

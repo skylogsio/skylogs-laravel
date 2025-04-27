@@ -20,7 +20,7 @@ class EndpointController extends Controller
         $data = Endpoint::query();
         $isAdmin = auth()->user()->isAdmin();
         if ($isAdmin) {
-            $data = $data->where("user_id", auth()->id());
+            $data = $data->where("userId", auth()->id());
         }
 
         $data = $data->paginate($perPage);
@@ -33,7 +33,7 @@ class EndpointController extends Controller
         $model = Endpoint::where('_id', $id);
         $isAdmin = auth()->user()->isAdmin();
         if ($isAdmin) {
-            $model = $model->where("user_id", auth()->id());
+            $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
         return response()->json($model);
@@ -45,7 +45,7 @@ class EndpointController extends Controller
         $isAdmin = auth()->user()->isAdmin();
 
         if (!$isAdmin) {
-            $model = $model->where("user_id", auth()->id());
+            $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
         $model->delete();
@@ -68,6 +68,7 @@ class EndpointController extends Controller
             if ($request->type == "telegram") {
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
+                    'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
                     'chatId' => $value,
@@ -76,6 +77,7 @@ class EndpointController extends Controller
             } else {
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
+                    'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
                     'value' => $value,
@@ -99,7 +101,7 @@ class EndpointController extends Controller
         $model = Endpoint::where('_id', $id);
         $isAdmin = auth()->user()->isAdmin();
         if (!$isAdmin) {
-            $model = $model->where("user_id", auth()->id());
+            $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
 
