@@ -189,7 +189,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   }, [reset, data]);
 
   return (
-    <Stack component="form" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
+    <Stack component="form" height="100%" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
       <Grid container spacing={2} flex={1} alignContent="flex-start">
         <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
           {data === "NEW" ? "Create" : "Update"} Client API Alert
@@ -206,6 +206,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         <Grid size={6}>
           <TextField
             label="Endpoints"
+            id='endpoints'
             variant="filled"
             error={!!errors.endpoints}
             helperText={errors.endpoints?.message}
@@ -229,18 +230,19 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         <Grid size={6}>
           <TextField
             label="Users"
+            id="access-users"
             variant="filled"
             error={!!errors.accessUsers}
             helperText={errors.accessUsers?.message}
             {...register("accessUsers")}
             value={watch("accessUsers") ?? []}
+            select
             slotProps={{
               select: {
                 multiple: true,
                 renderValue: renderUsersChip
               }
             }}
-            select
           >
             {requiredData?.users.map((user) => (
               <MenuItem key={user.id} value={user.id}>
@@ -297,7 +299,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
             )}
           />
         </Grid>
-        <Grid size={12} marginTop="auto" flex={1}></Grid>
       </Grid>
       <Stack direction="row" justifyContent="flex-end" spacing={2}>
         <Button disabled={isCreating || isUpdating} variant="outlined" onClick={onClose}>
