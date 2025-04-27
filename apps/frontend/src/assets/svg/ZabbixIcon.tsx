@@ -5,12 +5,12 @@ export default function ZabbixIcon({ size }: { size: string | number }) {
       <text
         x="50%"
         y="50%"
-        font-family="Arial, sans-serif"
-        font-size="150"
-        font-weight="bold"
+        fontFamily="Arial, sans-serif"
+        fontSize="150"
+        fontWeight="bold"
         fill="white"
-        text-anchor="middle"
-        alignment-baseline="central"
+        textAnchor="middle"
+        alignmentBaseline="central"
       >
         Z
       </text>
