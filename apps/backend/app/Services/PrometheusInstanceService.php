@@ -183,7 +183,7 @@ class PrometheusInstanceService
                     if (!empty($pro->username) && !empty($pro->password)) {
                         $request = $request->withBasicAuth($pro->username, $pro->password);
                     }
-                    $result[] = $request->get($pro->promethusGetLabelsUrl(),);
+                    $result[] = $request->get($pro->prometheusGetLabelsUrl(),);
                 }
 
                 return $result;
