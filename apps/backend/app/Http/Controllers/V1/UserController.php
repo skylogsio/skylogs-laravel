@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
+use App\Models\Endpoint;
 use App\Models\User;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
@@ -48,6 +49,37 @@ class UserController extends Controller
         if ($model->hasRole(Constants::ROLE_OWNER) && !auth()->user()->hasRole(Constants::ROLE_OWNER)) {
             abort(403);
         }
+
+        $admin = User::where('username', "admin")->firstOrFail();
+        $adminId = $admin->_id;
+        $alertRules = AlertRule::get();
+        $modelUserEndpoints = Endpoint::where("userId", $model->_id)->get();
+
+        foreach ($modelUserEndpoints as $modelUserEndpoint) {
+            $modelUserEndpoint->userId = $adminId;
+            $modelUserEndpoint->save();
+        }
+
+        foreach ($alertRules as $rule) {
+            $ruleUserIds = $rule->user_ids ?? [];
+            $needToUpdate = false;
+
+
+            if (!empty($ruleUserIds) && in_array($model->_id, $ruleUserIds)) {
+                $rule->pull("userIds", $rule->_id);
+                $needToUpdate = true;
+            }
+            if ($rule->userId == $model->_id) {
+                $rule->userId = $adminId;
+                $needToUpdate = true;
+            }
+            if ($needToUpdate) {
+                $rule->save();
+            }
+        }
+
+
+
         $model->delete();
         return response()->json($model);
     }
