@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -7,23 +7,31 @@ import {
   Button,
   Chip,
   Grid2 as Grid,
-  IconButton,
   MenuItem,
   Stack,
   TextField,
   ToggleButton,
   Typography
 } from "@mui/material";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
-import { HiPlus, HiX } from "react-icons/hi";
+import { HiPlus } from "react-icons/hi";
+import { toast } from "react-toastify";
 import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { getAlertRuleTags } from "@/api/alertRule";
+import {
+  createAlertRule,
+  getAlertRuleTags,
+  getPrometheusAlertRuleName,
+  updateAlertRule
+} from "@/api/alertRule";
+import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
+
+const QUERY_TYPE = ["dynamic", "textQuery"] as const;
 
 const prometheusKeyValueSchema = z.object({
   key: z.string().refine((data) => data.trim() !== "", {
@@ -40,11 +48,18 @@ const prometheusSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  type: z.literal("api").default("api"),
+  type: z.literal("prometheus").default("prometheus"),
   endpoints: z.array(z.string()).optional().default([]),
   accessUsers: z.array(z.string()).optional().default([]),
-  keyPairs: z.array(prometheusKeyValueSchema).optional().default([]),
-  tags: z.array(z.string()).optional().default([])
+  extraField: z.array(prometheusKeyValueSchema).optional().default([]),
+  tags: z.array(z.string()).optional().default([]),
+  dataSourceIds: z.array(z.string()).min(1, "Select at least one Data Source."),
+  prometheusQueryType: z.enum(QUERY_TYPE),
+  prometheusAlert: z
+    .string({ required_error: "This Field is Required." })
+    .refine((data) => data.trim() !== "", {
+      message: "This field is Required."
+    })
 });
 
 type PrometheusType = z.infer<typeof prometheusSchema>;
@@ -57,14 +72,17 @@ const defaultKeyValue = { key: "", value: "" };
 
 const defaultValues: PrometheusType = {
   name: "",
-  type: "api",
+  type: "prometheus",
   accessUsers: [],
   endpoints: [],
-  keyPairs: [defaultKeyValue],
-  tags: []
+  extraField: [],
+  tags: [],
+  dataSourceIds: [],
+  prometheusAlert: "",
+  prometheusQueryType: "dynamic"
 };
 
-export default function PrometheusForm({ data }: PrometheusModalProps) {
+export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -83,20 +101,58 @@ export default function PrometheusForm({ data }: PrometheusModalProps) {
     remove: removeKeyPair
   } = useFieldArray({
     control,
-    name: "keyPairs"
+    name: "extraField"
   });
-
-  const [mode, setMode] = useState<"dynamic-inputs" | "text-box">("dynamic-inputs");
 
   const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
-  const { data: tagsList } = useQuery({
-    queryKey: ["all-alert-rule-tags"],
-    queryFn: () => getAlertRuleTags()
+  const [{ data: tagsList }, { data: prometheusAlertRuleNameList }] = useQueries({
+    queries: [
+      {
+        queryKey: ["all-alert-rule-tags"],
+        queryFn: () => getAlertRuleTags()
+      },
+      {
+        queryKey: ["all-prometheus-alert-rule-name"],
+        queryFn: () => getPrometheusAlertRuleName()
+      }
+    ]
+  });
+
+  const { mutate: createPrometheusMutation, isPending: isCreating } = useMutation({
+    mutationFn: (body: PrometheusType) => createAlertRule(body),
+    onSuccess: (data) => {
+      console.log(data);
+      if (data.status) {
+        toast.success("Prometheus Alert Rule Created Successfully.");
+        onSubmit();
+        onClose?.();
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  });
+
+  const { mutate: updatePrometheusMutation, isPending: isUpdating } = useMutation({
+    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: PrometheusType }) =>
+      updateAlertRule(id, body),
+    onSuccess: (data) => {
+      if (data.status) {
+        toast.success("Prometheus Alert Rule Created Successfully.");
+        onSubmit();
+        onClose?.();
+      }
+    }
   });
 
   function handleSubmitForm(values: PrometheusType) {
     console.log(values);
+    if (data === "NEW") {
+      createPrometheusMutation(values);
+    } else if (data) {
+      updatePrometheusMutation({ id: data.id, body: values });
+    }
   }
 
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
@@ -131,8 +187,24 @@ export default function PrometheusForm({ data }: PrometheusModalProps) {
     return <></>;
   }
 
+  function renderChip(selectedChipIds: unknown): ReactNode {
+    return (
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        {(selectedChipIds as string[]).map((value, index) => (
+          <Chip size="small" key={index} label={value} />
+        ))}
+      </Box>
+    );
+  }
+
   return (
-    <Stack component="form" onSubmit={handleSubmit(handleSubmitForm)} padding={2} flex={1}>
+    <Stack
+      component="form"
+      height="100%"
+      onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
+      padding={2}
+      flex={1}
+    >
       <Grid container spacing={2} flex={1} alignContent="flex-start">
         <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
           {data === "NEW" ? "Create" : "Update"} Prometheus Alert
@@ -193,52 +265,88 @@ export default function PrometheusForm({ data }: PrometheusModalProps) {
           </TextField>
         </Grid>
         <Grid size={12} display="flex" justifyContent="center">
-          <ToggleButtonGroup exclusive value={mode} onChange={(_, value) => setMode(value)}>
-            <ToggleButton value="dynamic-inputs">Dynamic Inputs</ToggleButton>
-            <ToggleButton value="text-box">Text Box</ToggleButton>
+          <ToggleButtonGroup
+            exclusive
+            value={watch("prometheusQueryType")}
+            onChange={(_, value) => value !== null && setValue("prometheusQueryType", value)}
+          >
+            {QUERY_TYPE.map((value) => (
+              <ToggleButton
+                key={value}
+                disabled={value === "textQuery"}
+                value={value}
+                sx={{ textTransform: "capitalize !important" }}
+              >
+                {value}
+              </ToggleButton>
+            ))}
           </ToggleButtonGroup>
         </Grid>
-        {mode === "dynamic-inputs" ? (
+        {watch("prometheusQueryType") === "dynamic" ? (
           <Grid container size={12}>
             <Grid size={6}>
               <TextField
                 label="Data Source"
                 variant="filled"
+                error={!!errors.dataSourceIds}
+                helperText={errors.dataSourceIds?.message}
+                {...register("dataSourceIds")}
+                value={watch("dataSourceIds") ?? []}
                 select
-                slotProps={{ select: { multiple: true } }}
-              />
+                slotProps={{ select: { multiple: true, renderValue: renderChip } }}
+              >
+                {requiredData?.prometheusDataSources.map((endpoint) => (
+                  <MenuItem key={endpoint} value={endpoint}>
+                    {endpoint}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid size={6}>
-              <TextField label="Alert Name" variant="filled" select />
+              <Autocomplete
+                id="prometheus-alert-rule-name"
+                options={prometheusAlertRuleNameList ?? []}
+                value={watch("prometheusAlert")}
+                onChange={(_, value) => setValue("prometheusAlert", value ?? "")}
+                renderTags={(value: readonly string[], getItemProps) =>
+                  value.map((option: string, index: number) => {
+                    const { key, ...itemProps } = getItemProps({ index });
+                    return <Chip variant="filled" label={option} key={key} {...itemProps} />;
+                  })
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    slotProps={{
+                      input: params.InputProps,
+                      inputLabel: params.InputLabelProps,
+                      htmlInput: params.inputProps
+                    }}
+                    error={!!errors.prometheusAlert}
+                    helperText={errors.prometheusAlert?.message}
+                    variant="filled"
+                    label="Prometheus Alert Name"
+                  />
+                )}
+              />
             </Grid>
             {fields.map((field, index) => (
-              <Grid container size={12} key={field.id}>
-                <Grid size={6}>
-                  <TextField
-                    label="Key"
-                    variant="filled"
-                    {...register(`keyPairs.${index}.key`)}
-                    error={!!errors.keyPairs?.[index]?.key}
-                    helperText={errors.keyPairs?.[index]?.key?.message}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <TextField
-                      label="Value"
-                      variant="filled"
-                      {...register(`keyPairs.${index}.value`)}
-                      error={!!errors.keyPairs?.[index]?.value}
-                      helperText={errors.keyPairs?.[index]?.value?.message}
-                    />
-                    {index > 0 && (
-                      <IconButton color="error" onClick={() => removeKeyPair(index)}>
-                        <HiX />
-                      </IconButton>
-                    )}
-                  </Stack>
-                </Grid>
-              </Grid>
+              <ExtraField
+                key={field.id}
+                keyTextFieldProps={{
+                  value: watch(`extraField.${index}.key`),
+                  onChange: (value) => setValue(`extraField.${index}.key`, value ?? ""),
+                  error: !!errors.extraField?.[index]?.key,
+                  helperText: errors.extraField?.[index]?.key?.message
+                }}
+                valueTextFieldProps={{
+                  value: watch(`extraField.${index}.value`),
+                  onChange: (value) => setValue(`extraField.${index}.value`, value ?? ""),
+                  error: !!errors.extraField?.[index]?.value,
+                  helperText: errors.extraField?.[index]?.value?.message
+                }}
+                onDelete={() => removeKeyPair(index)}
+              />
             ))}
             <Button
               startIcon={<HiPlus />}
@@ -258,7 +366,7 @@ export default function PrometheusForm({ data }: PrometheusModalProps) {
         <Grid size={12}>
           <Autocomplete
             multiple
-            id="api-alert-tags"
+            id="prometheus-alert-tags"
             options={tagsList ?? []}
             freeSolo
             value={watch("tags")}
@@ -284,6 +392,14 @@ export default function PrometheusForm({ data }: PrometheusModalProps) {
           />
         </Grid>
       </Grid>
+      <Stack direction="row" justifyContent="flex-end" spacing={2} paddingY={2}>
+        <Button variant="outlined" disabled={isCreating || isUpdating}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" disabled={isCreating || isUpdating}>
+          {data === "NEW" ? "Create" : "Update"}
+        </Button>
+      </Stack>
     </Stack>
   );
 }

@@ -14,6 +14,8 @@ const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
 const ALERT_RULE_USER_URL = "alert-rule-user";
 const ALERT_RULE_TAGS_URL = "alert-rule-tag";
 
+const ALERT_RULE_PROMETHEUS_URL = "prometheus";
+
 export async function createAlertRule(body: unknown) {
   return axios
     .post<ServerResponse<unknown>>(ALERT_RULE_URL, body)
@@ -102,4 +104,22 @@ export async function removeUserFromAlertRule(alertRuleId: unknown, userId: unkn
 
 export async function getAlertRuleTags() {
   return axios.get<string[]>(`${ALERT_RULE_TAGS_URL}`).then((response) => response.data);
+}
+
+export async function getPrometheusAlertRuleName() {
+  return axios
+    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/rules`)
+    .then((response) => response.data);
+}
+
+export async function getPrometheusLabels() {
+  return axios
+    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/labels`)
+    .then((response) => response.data);
+}
+
+export async function getPrometheusLabelValues(label: string) {
+  return axios
+    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/label-values/${label}`)
+    .then((response) => response.data);
 }
