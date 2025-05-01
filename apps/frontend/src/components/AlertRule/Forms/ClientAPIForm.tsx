@@ -206,7 +206,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         <Grid size={6}>
           <TextField
             label="Endpoints"
-            id='endpoints'
+            id="endpoints"
             variant="filled"
             error={!!errors.endpoints}
             helperText={errors.endpoints?.message}
@@ -300,7 +300,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
           />
         </Grid>
       </Grid>
-      <Stack direction="row" justifyContent="flex-end" spacing={2}>
+      <Stack direction="row" justifyContent="flex-end" spacing={2} marginTop={2}>
         <Button disabled={isCreating || isUpdating} variant="outlined" onClick={onClose}>
           Cancel
         </Button>
