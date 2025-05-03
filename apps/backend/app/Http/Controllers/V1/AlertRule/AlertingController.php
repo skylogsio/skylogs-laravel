@@ -5,8 +5,6 @@ namespace App\Http\Controllers\V1\AlertRule;
 
 use App\Enums\AlertRuleType;
 use App\Enums\DataSourceType;
-use Cache;
-use \Str;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
@@ -16,26 +14,22 @@ use App\Models\DataSource\DataSource;
 use App\Models\ElasticCheck;
 use App\Models\ElasticHistory;
 use App\Models\Endpoint;
-use App\Models\GrafanaInstance;
 use App\Models\GrafanaWebhookAlert;
 use App\Models\HealthCheck;
 use App\Models\HealthHistory;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\PrometheusCheck;
 use App\Models\PrometheusHistory;
-use App\Models\PrometheusInstance;
 use App\Models\SentryWebhookAlert;
 use App\Models\User;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\AlertRuleService;
 use App\Services\EndpointService;
-use App\Services\GrafanaInstanceService;
-use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Services\TagService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Str;
 
 class AlertingController extends Controller
 {

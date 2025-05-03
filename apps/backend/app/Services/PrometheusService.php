@@ -59,7 +59,7 @@ class PrometheusService
                 $matchLabels = [];
                 $matchAnnotations = [];
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $alertRuleDataSourcesArray = is_array($alertRule['dataSourceIds']) ? $alertRule['dataSourceIds'] : [$alertRule['data_source_ids'],];
+                    $alertRuleDataSourcesArray = is_array($alertRule['dataSourceIds']) ? $alertRule['dataSourceIds'] : [$alertRule['dataSourceIds'],];
 
                     if ((empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) && $alert['labels']['alertname'] == $alertRule['prometheus_alertname']) {
 

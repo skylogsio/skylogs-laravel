@@ -3,14 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\SendNotifyJob;
-use App\Models\AlertRulePrometheus;
-
-use App\Models\PrometheusInstance;
-
 use App\Models\ServiceCheck;
-use Illuminate\Http\Client\Pool;
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
 
 class ServiceCheckService
 {

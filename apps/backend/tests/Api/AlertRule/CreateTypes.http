@@ -1,0 +1,72 @@
+### Create Prometheus Alert Rule
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test1",
+    "type": "prometheus",
+    "prometheusQueryType": "dynamic",
+    "dataSourceIds": [],
+    "prometheusAlert": "prometheus_alert",
+    "extraField": [
+        {
+            "key" : "asd",
+            "value" : "adf"
+        },
+        {
+            "key" : "asd",
+            "value" : "adf"
+        }
+    ],
+    "prometheusQuery": "",
+    "prometheusQueryObject": "",
+    "endpoints": [
+        "a",
+        "b"
+    ],
+    "accessUsers": [
+        "a",
+        "b"
+    ],
+    "tags": []
+}
+
+### Create API Alert Rule
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test1",
+    "type" : "api",
+    "enableAutoResolve": true,
+    "autoResolveMinutes" : 5,
+    "endpoints": [
+        "a",
+        "b"
+    ],
+    "accessUsers": [
+        "a",
+        "b"
+    ],
+    "tags": []
+}
+
+### Create Notification Alert Rule
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test1",
+    "type" : "notification",
+    "endpoints": [
+    ],
+    "accessUsers": [
+    ],
+    "tags": []
+}

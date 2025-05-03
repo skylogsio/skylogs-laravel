@@ -16,6 +16,7 @@ use App\Models\Service;
 use App\Models\ServiceCheck;
 use App\Models\User;
 use App\Helpers\Constants;
+use Cache;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
