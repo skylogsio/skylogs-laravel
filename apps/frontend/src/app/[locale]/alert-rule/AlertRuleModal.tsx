@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { getAlertRuleCreateData } from "@/api/alertRule";
+import { getAlertRuleCreateData } from "@/api/alertRule/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
 import PrometheusForm from "@/components/AlertRule/Forms/PrometheusForm";
 import type { ModalContainerProps } from "@/components/Modal/types";

@@ -24,9 +24,9 @@ import type { CreateUpdateModal } from "@/@types/global";
 import {
   createAlertRule,
   getAlertRuleTags,
-  getPrometheusAlertRuleName,
   updateAlertRule
-} from "@/api/alertRule";
+} from "@/api/alertRule/alertRule";
+import { getPrometheusAlertRuleName } from "@/api/alertRule/prometheus";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";

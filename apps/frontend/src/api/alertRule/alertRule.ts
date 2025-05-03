@@ -14,12 +14,13 @@ const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
 const ALERT_RULE_USER_URL = "alert-rule-user";
 const ALERT_RULE_TAGS_URL = "alert-rule-tag";
 
-const ALERT_RULE_PROMETHEUS_URL = "prometheus";
-
-export async function createAlertRule(body: unknown) {
-  return axios
-    .post<ServerResponse<unknown>>(ALERT_RULE_URL, body)
-    .then((response) => response.data);
+export async function createAlertRule(body: unknown): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(ALERT_RULE_URL, body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function updateAlertRule(alertRuleId: unknown, body: unknown) {
@@ -106,20 +107,20 @@ export async function getAlertRuleTags() {
   return axios.get<string[]>(`${ALERT_RULE_TAGS_URL}`).then((response) => response.data);
 }
 
-export async function getPrometheusAlertRuleName() {
-  return axios
-    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/rules`)
-    .then((response) => response.data);
+export async function getPrometheusLabels(): Promise<string[]> {
+  try {
+    const response = await axios.get<string[]>(`${ALERT_RULE_URL}/labels`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getPrometheusLabels() {
-  return axios
-    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/labels`)
-    .then((response) => response.data);
-}
-
-export async function getPrometheusLabelValues(label: string) {
-  return axios
-    .get<string[]>(`${ALERT_RULE_PROMETHEUS_URL}/label-values/${label}`)
-    .then((response) => response.data);
+export async function getPrometheusLabelValues(label: string): Promise<string[]> {
+  try {
+    const response = await axios.get<string[]>(`${ALERT_RULE_URL}/label-values/${label}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }

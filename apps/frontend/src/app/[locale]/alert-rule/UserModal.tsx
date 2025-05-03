@@ -10,7 +10,7 @@ import {
   addUsersToAlertRule,
   getAlertRuleUsersList,
   removeUserFromAlertRule
-} from "@/api/alertRule";
+} from "@/api/alertRule/alertRule";
 import ModalContainer from "@/components/Modal";
 import DataTable from "@/components/Table/DataTable";
 

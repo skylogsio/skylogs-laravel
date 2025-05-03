@@ -20,7 +20,7 @@ import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule";
+import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const clientApiSchema = z

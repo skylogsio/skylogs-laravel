@@ -45,19 +45,19 @@ export const DATA_SOURCE_VARIANTS = [
     icon: <SiVictoriametrics size="1.2rem" />
   },
   {
-    value: "Percona",
+    value: "pmm",
     icon: <PerconaIcon size="1.2rem" />
   }
 ];
 
 export type DataSourceType =
-    | "prometheus"
-    | "notification"
-    | "sentry"
-    | "grafana"
-    | "metabase"
-    | "elastic"
-    | "zabbix"
-    | "splunk"
-    | "victoriametrics"
-    | "Percona"
+  | "prometheus"
+  | "notification"
+  | "sentry"
+  | "grafana"
+  | "metabase"
+  | "elastic"
+  | "zabbix"
+  | "splunk"
+  | "victoriametrics"
+  | "Percona";

@@ -6,7 +6,7 @@ import { FaFireExtinguisher } from "react-icons/fa6";
 import { toast } from "react-toastify";
 
 import { type AlertRuleStatus, IAlertRule } from "@/@types/alertRule";
-import { resolveFiredAlertRule } from "@/api/alertRule";
+import { resolveFiredAlertRule } from "@/api/alertRule/alertRule";
 
 interface AlertRuleStatusProps {
   status: AlertRuleStatus;

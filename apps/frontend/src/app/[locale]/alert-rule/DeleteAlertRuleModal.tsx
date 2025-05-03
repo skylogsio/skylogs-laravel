@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import type { IAlertRule } from "@/@types/alertRule";
-import { deleteAlertRule } from "@/api/alertRule";
+import { deleteAlertRule } from "@/api/alertRule/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";

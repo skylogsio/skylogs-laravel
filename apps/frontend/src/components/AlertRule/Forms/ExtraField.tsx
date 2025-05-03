@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { HiX } from "react-icons/hi";
 
-import { getPrometheusLabels, getPrometheusLabelValues } from "@/api/alertRule";
+import { getPrometheusLabels, getPrometheusLabelValues } from "@/api/alertRule/alertRule";
 
 interface ExtraFieldProps {
   keyTextFieldProps: { value: string; onChange: (selectedValue: string | null) => void } & Pick<
