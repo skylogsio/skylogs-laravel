@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { HiX } from "react-icons/hi";
 
-import { getPrometheusLabels, getPrometheusLabelValues } from "@/api/alertRule/alertRule";
+import { getAlertRuleLabels, getAlertRuleLabelValues } from "@/api/alertRule/alertRule";
 
 interface ExtraFieldProps {
   keyTextFieldProps: { value: string; onChange: (selectedValue: string | null) => void } & Pick<
@@ -34,12 +34,12 @@ export default function ExtraField({
   const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
   const { data: prometheusLabels } = useQuery({
     queryKey: ["prometheus-label"],
-    queryFn: () => getPrometheusLabels()
+    queryFn: () => getAlertRuleLabels()
   });
 
   const { data: prometheusLabelValues } = useQuery({
     queryKey: ["prometheus-label-value", selectedLabel],
-    queryFn: () => getPrometheusLabelValues(selectedLabel as string),
+    queryFn: () => getAlertRuleLabelValues(selectedLabel as string),
     enabled: !!selectedLabel
   });
 

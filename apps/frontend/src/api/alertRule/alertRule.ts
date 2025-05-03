@@ -23,91 +23,169 @@ export async function createAlertRule(body: unknown): Promise<ServerResponse<unk
   }
 }
 
-export async function updateAlertRule(alertRuleId: unknown, body: unknown) {
-  return axios
-    .put<ServerResponse<unknown>>(`${ALERT_RULE_URL}/${alertRuleId}`, body)
-    .then((response) => response.data);
+export async function updateAlertRule(
+  alertRuleId: string,
+  body: unknown
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.put<ServerResponse<unknown>>(
+      `${ALERT_RULE_URL}/${alertRuleId}`,
+      body
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function deleteAlertRule(alertRuleId: unknown) {
-  return axios
-    .delete<ServerResponse<unknown>>(`${ALERT_RULE_URL}/${alertRuleId}`)
-    .then((response) => response.data);
+export async function deleteAlertRule(alertRuleId: string): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.delete<ServerResponse<unknown>>(
+      `${ALERT_RULE_URL}/${alertRuleId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getAlertRuleCreateData() {
-  return axios
-    .get<IAlertRuleCreateData>(`${ALERT_RULE_URL}/create-data`)
-    .then((response) => response.data);
+export async function getAlertRuleCreateData(): Promise<IAlertRuleCreateData> {
+  try {
+    const response = await axios.get<IAlertRuleCreateData>(`${ALERT_RULE_URL}/create-data`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function testAlertRule(id: unknown) {
-  return axios
-    .post<ServerResponse<unknown>>(`${ALERT_RULE_NOTIFY_URL}/test/${id}`)
-    .then((response) => response.data);
+export async function testAlertRule(id: string): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_NOTIFY_URL}/test/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function silenceAlertRule(id: unknown) {
-  return axios
-    .post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/silent/${id}`)
-    .then((response) => response.data);
+export async function silenceAlertRule(id: string): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/silent/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getAlertFilterEndpointList() {
-  return axios
-    .get<Array<IEndpoint>>(`${ALERT_RULE_URL}/filter-endpoints`)
-    .then((response) => response.data);
+export async function getAlertFilterEndpointList(): Promise<IEndpoint[]> {
+  try {
+    const response = await axios.get<Array<IEndpoint>>(`${ALERT_RULE_URL}/filter-endpoints`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function resolveFiredAlertRule(alertRuleId: unknown) {
-  return axios
-    .post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/resolve/${alertRuleId}`)
-    .then((response) => response.data);
+export async function resolveFiredAlertRule(alertRuleId: string): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_URL}/resolve/${alertRuleId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getAlertRuleEndpointsList(alertRuleId: unknown) {
-  return axios
-    .get<IAlertRuleEndpoints>(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`)
-    .then((response) => response.data);
+export async function getAlertRuleEndpointsList(alertRuleId: string): Promise<IAlertRuleEndpoints> {
+  try {
+    const response = await axios.get<IAlertRuleEndpoints>(
+      `${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function addEndpointToAlertRule(alertRuleId: unknown, endpointIds: string[]) {
-  return axios
-    .put<
-      ServerResponse<unknown>
-    >(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`, { endpoint_ids: endpointIds })
-    .then((response) => response.data);
+export async function addEndpointToAlertRule(
+  alertRuleId: string,
+  endpointIds: string[]
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.put<ServerResponse<unknown>>(
+      `${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`,
+      { endpoint_ids: endpointIds }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function removeEndpointFromAlertRule(alertRuleId: unknown, endpointId: unknown) {
-  return axios
-    .delete<ServerResponse<unknown>>(`${ALERT_RULE_NOTIFY_URL}/${alertRuleId}/${endpointId}`)
-    .then((response) => response.data);
+export async function removeEndpointFromAlertRule(
+  alertRuleId: string,
+  endpointId: string
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.delete<ServerResponse<unknown>>(
+      `${ALERT_RULE_NOTIFY_URL}/${alertRuleId}/${endpointId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getAlertRuleUsersList(alertRuleId: unknown) {
-  return axios
-    .get<IAlertRuleUsers>(`${ALERT_RULE_USER_URL}/${alertRuleId}`)
-    .then((response) => response.data);
+export async function getAlertRuleUsersList(alertRuleId: string): Promise<IAlertRuleUsers> {
+  try {
+    const response = await axios.get<IAlertRuleUsers>(`${ALERT_RULE_USER_URL}/${alertRuleId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function addUsersToAlertRule(alertRuleId: unknown, userIds: string[]) {
-  return axios
-    .put<ServerResponse<unknown>>(`${ALERT_RULE_USER_URL}/${alertRuleId}`, { user_ids: userIds })
-    .then((response) => response.data);
+export async function addUsersToAlertRule(
+  alertRuleId: string,
+  userIds: string[]
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.put<ServerResponse<unknown>>(
+      `${ALERT_RULE_USER_URL}/${alertRuleId}`,
+      { user_ids: userIds }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function removeUserFromAlertRule(alertRuleId: unknown, userId: unknown) {
-  return axios
-    .delete<ServerResponse<unknown>>(`${ALERT_RULE_USER_URL}/${alertRuleId}/${userId}`)
-    .then((response) => response.data);
+export async function removeUserFromAlertRule(
+  alertRuleId: string,
+  userId: string
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.delete<ServerResponse<unknown>>(
+      `${ALERT_RULE_USER_URL}/${alertRuleId}/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getAlertRuleTags() {
-  return axios.get<string[]>(`${ALERT_RULE_TAGS_URL}`).then((response) => response.data);
+export async function getAlertRuleTags(): Promise<string[]> {
+  try {
+    const response = await axios.get<string[]>(`${ALERT_RULE_TAGS_URL}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function getPrometheusLabels(): Promise<string[]> {
+export async function getAlertRuleLabels(): Promise<string[]> {
   try {
     const response = await axios.get<string[]>(`${ALERT_RULE_URL}/labels`);
     return response.data;
@@ -116,7 +194,7 @@ export async function getPrometheusLabels(): Promise<string[]> {
   }
 }
 
-export async function getPrometheusLabelValues(label: string): Promise<string[]> {
+export async function getAlertRuleLabelValues(label: string): Promise<string[]> {
   try {
     const response = await axios.get<string[]>(`${ALERT_RULE_URL}/label-values/${label}`);
     return response.data;

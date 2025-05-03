@@ -1,3 +1,5 @@
+"use server";
+
 import axios from "@/lib/axios";
 
 const ALERT_RULE_PROMETHEUS_URL = "prometheus";
@@ -10,4 +12,3 @@ export async function getPrometheusAlertRuleName(): Promise<string[]> {
     throw error;
   }
 }
-
