@@ -4,6 +4,7 @@ use App\Enums\Constants;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
+use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
 use App\Http\Controllers\V1\AuthController;
@@ -20,11 +21,11 @@ Route::prefix('v1')->group(function () {
     Route::post("auth/login", [AuthController::class, "login"]);
 
     Route::middleware("api_auth")->controller(ApiAlertController::class)->group(function () {
-        Route::post("fire-alert","FireAlert");
-        Route::post("resolve-alert","ResolveAlert");
-        Route::post("status-alert","StatusAlert");
-        Route::post("notification-alert","NotificationAlert");
-        Route::post("stop-alert","ResolveAlert");
+        Route::post("fire-alert", "FireAlert");
+        Route::post("resolve-alert", "ResolveAlert");
+        Route::post("status-alert", "StatusAlert");
+        Route::post("notification-alert", "NotificationAlert");
+        Route::post("stop-alert", "ResolveAlert");
     });
 
     Route::middleware('auth')->group(function () {
@@ -60,7 +61,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix("/data-source")
             ->controller(DataSourceController::class)
-            ->middleware("role:".Constants::ROLE_OWNER->value."|".Constants::ROLE_MANAGER->value)
+            ->middleware("role:" . Constants::ROLE_OWNER->value . "|" . Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
@@ -76,7 +77,16 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
                 Route::get('/filter-endpoints', 'FilterEndpoints');
-                Route::get('/create-data', 'CreateData');
+
+                Route::prefix("/create-data")
+                    ->controller(CreateDataController::class)
+                    ->group(function () {
+                        Route::get('/', 'CreateData');
+                        Route::get('/rules', 'Rules');
+                        Route::get('/labels', 'Labels');
+                        Route::get('/label-values/{label}', 'LabelValues');
+                    });
+
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Store');
                 Route::post('/silent/{id}', 'Silent');

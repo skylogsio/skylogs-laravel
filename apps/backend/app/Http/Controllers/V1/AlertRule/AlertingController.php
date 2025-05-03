@@ -125,29 +125,6 @@ class AlertingController extends Controller
         return ['status' => true];
     }
 
-    public function CreateData(Request $request)
-    {
-
-        $prometheusDataSources = DataSource::where("type", DataSourceType::PROMETHEUS)->get()->pluck("name");
-        $grafanaDataSources = DataSource::where("type", DataSourceType::GRAFANA)->get()->pluck("name");
-        $splunkDataSources = DataSource::where("type", DataSourceType::SPLUNK)->get()->pluck("name");
-
-        $adminUserId = User::where('username', 'admin')->first()->_id;
-
-        $endpoints = Endpoint::whereIn("userId", [$adminUserId, \Auth::user()->_id])->get();
-        $users = User::whereNotIn("_id", [$adminUserId, \Auth::id()])->get();
-
-        return response()->json(
-            compact(
-                "prometheusDataSources",
-                "grafanaDataSources",
-                "endpoints",
-                'splunkDataSources',
-                "users"
-            )
-        );
-
-    }
 
     public function Store(Request $request)
     {
