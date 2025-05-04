@@ -36,8 +36,8 @@ const clientApiSchema = z
       required_error: "This field is Required.",
       invalid_type_error: "This field is Required."
     }),
-    endpoints: z.array(z.string()).optional().default([]),
-    accessUsers: z.array(z.string()).optional().default([]),
+    endpointIds: z.array(z.string()).optional().default([]),
+    userIds: z.array(z.string()).optional().default([]),
     tags: z.array(z.string()).optional().default([])
   })
   .superRefine((data, ctx) => {
@@ -67,8 +67,8 @@ type ClientAPIModalProps = Pick<ModalContainerProps, "onClose"> & {
 const defaultValues: ClientAPIFormType = {
   name: "",
   type: "api",
-  accessUsers: [],
-  endpoints: [],
+  userIds: [],
+  endpointIds: [],
   enableAutoResolve: false,
   autoResolveMinutes: 0,
   tags: []
@@ -176,15 +176,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      reset({
-        name: data.name,
-        type: "api",
-        accessUsers: data.user_ids,
-        endpoints: data.endpoint_ids,
-        enableAutoResolve: data.enableAutoResolve,
-        autoResolveMinutes: data.autoResolveMinutes,
-        tags: data.tags
-      });
+      reset(data as unknown as ClientAPIFormType);
     }
   }, [reset, data]);
 
@@ -208,10 +200,10 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
             label="Endpoints"
             id="endpoints"
             variant="filled"
-            error={!!errors.endpoints}
-            helperText={errors.endpoints?.message}
-            {...register("endpoints")}
-            value={watch("endpoints") ?? []}
+            error={!!errors.endpointIds}
+            helperText={errors.endpointIds?.message}
+            {...register("endpointIds")}
+            value={watch("endpointIds") ?? []}
             slotProps={{
               select: {
                 multiple: true,
@@ -232,10 +224,10 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
             label="Users"
             id="access-users"
             variant="filled"
-            error={!!errors.accessUsers}
-            helperText={errors.accessUsers?.message}
-            {...register("accessUsers")}
-            value={watch("accessUsers") ?? []}
+            error={!!errors.userIds}
+            helperText={errors.userIds?.message}
+            {...register("userIds")}
+            value={watch("userIds") ?? []}
             select
             slotProps={{
               select: {
