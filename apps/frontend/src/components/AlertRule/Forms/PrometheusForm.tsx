@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -21,11 +21,7 @@ import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import {
-  createAlertRule,
-  getAlertRuleTags,
-  updateAlertRule
-} from "@/api/alertRule/alertRule";
+import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule/alertRule";
 import { getPrometheusAlertRuleName } from "@/api/alertRule/prometheus";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
@@ -49,13 +45,13 @@ const prometheusSchema = z.object({
       message: "This field is Required."
     }),
   type: z.literal("prometheus").default("prometheus"),
-  endpoints: z.array(z.string()).optional().default([]),
-  accessUsers: z.array(z.string()).optional().default([]),
+  endpointIds: z.array(z.string()).optional().default([]),
+  userIds: z.array(z.string()).optional().default([]),
   extraField: z.array(prometheusKeyValueSchema).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
   dataSourceIds: z.array(z.string()).min(1, "Select at least one Data Source."),
-  prometheusQueryType: z.enum(QUERY_TYPE),
-  prometheusAlert: z
+  queryType: z.enum(QUERY_TYPE),
+  prometheusAlertName: z
     .string({ required_error: "This Field is Required." })
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
@@ -73,13 +69,13 @@ const defaultKeyValue = { key: "", value: "" };
 const defaultValues: PrometheusType = {
   name: "",
   type: "prometheus",
-  accessUsers: [],
-  endpoints: [],
+  userIds: [],
+  endpointIds: [],
   extraField: [],
   tags: [],
   dataSourceIds: [],
-  prometheusAlert: "",
-  prometheusQueryType: "dynamic"
+  prometheusAlertName: "",
+  queryType: "dynamic"
 };
 
 export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusModalProps) {
@@ -89,6 +85,7 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
     handleSubmit,
     watch,
     setValue,
+    reset,
     control,
     formState: { errors }
   } = useForm<PrometheusType>({
@@ -147,7 +144,6 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
   });
 
   function handleSubmitForm(values: PrometheusType) {
-    console.log(values);
     if (data === "NEW") {
       createPrometheusMutation(values);
     } else if (data) {
@@ -197,6 +193,15 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
     );
   }
 
+  useEffect(() => {
+    if (data === "NEW") {
+      reset(defaultValues);
+    } else if (data) {
+      console.log(data);
+      reset(data as unknown as PrometheusType);
+    }
+  }, [reset, data]);
+
   return (
     <Stack
       component="form"
@@ -222,10 +227,10 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
           <TextField
             label="Endpoints"
             variant="filled"
-            error={!!errors.endpoints}
-            helperText={errors.endpoints?.message}
-            {...register("endpoints")}
-            value={watch("endpoints") ?? []}
+            error={!!errors.endpointIds}
+            helperText={errors.endpointIds?.message}
+            {...register("endpointIds")}
+            value={watch("endpointIds") ?? []}
             slotProps={{
               select: {
                 multiple: true,
@@ -245,10 +250,10 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
           <TextField
             label="Users"
             variant="filled"
-            error={!!errors.accessUsers}
-            helperText={errors.accessUsers?.message}
-            {...register("accessUsers")}
-            value={watch("accessUsers") ?? []}
+            error={!!errors.userIds}
+            helperText={errors.userIds?.message}
+            {...register("userIds")}
+            value={watch("userIds") ?? []}
             slotProps={{
               select: {
                 multiple: true,
@@ -267,8 +272,8 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
         <Grid size={12} display="flex" justifyContent="center">
           <ToggleButtonGroup
             exclusive
-            value={watch("prometheusQueryType")}
-            onChange={(_, value) => value !== null && setValue("prometheusQueryType", value)}
+            value={watch("queryType")}
+            onChange={(_, value) => value !== null && setValue("queryType", value)}
           >
             {QUERY_TYPE.map((value) => (
               <ToggleButton
@@ -282,7 +287,7 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
             ))}
           </ToggleButtonGroup>
         </Grid>
-        {watch("prometheusQueryType") === "dynamic" ? (
+        {watch("queryType") === "dynamic" ? (
           <Grid container size={12}>
             <Grid size={6}>
               <TextField
@@ -306,8 +311,8 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
               <Autocomplete
                 id="prometheus-alert-rule-name"
                 options={prometheusAlertRuleNameList ?? []}
-                value={watch("prometheusAlert")}
-                onChange={(_, value) => setValue("prometheusAlert", value ?? "")}
+                value={watch("prometheusAlertName")}
+                onChange={(_, value) => setValue("prometheusAlertName", value ?? "")}
                 renderTags={(value: readonly string[], getItemProps) =>
                   value.map((option: string, index: number) => {
                     const { key, ...itemProps } = getItemProps({ index });
@@ -322,8 +327,8 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
                       inputLabel: params.InputLabelProps,
                       htmlInput: params.inputProps
                     }}
-                    error={!!errors.prometheusAlert}
-                    helperText={errors.prometheusAlert?.message}
+                    error={!!errors.prometheusAlertName}
+                    helperText={errors.prometheusAlertName?.message}
                     variant="filled"
                     label="Prometheus Alert Name"
                   />
@@ -393,7 +398,7 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
         </Grid>
       </Grid>
       <Stack direction="row" justifyContent="flex-end" spacing={2} paddingY={2}>
-        <Button variant="outlined" disabled={isCreating || isUpdating}>
+        <Button variant="outlined" disabled={isCreating || isUpdating} onClick={onClose}>
           Cancel
         </Button>
         <Button type="submit" variant="contained" disabled={isCreating || isUpdating}>

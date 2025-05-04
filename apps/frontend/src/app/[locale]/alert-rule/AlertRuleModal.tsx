@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   backdropClasses,
@@ -55,6 +55,12 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
         );
     }
   }
+
+  useEffect(() => {
+    if (data !== "NEW") {
+      setSelectedDataSource(data.type);
+    }
+  }, [data]);
 
   return (
     <Modal
