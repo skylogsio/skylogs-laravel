@@ -59,7 +59,11 @@ export default function AlertRule() {
           {
             header: "Status",
             cell: ({ row }) => (
-              <AlertRuleStatus id={row.original.id} status={row.original.status_label} />
+              <AlertRuleStatus
+                id={row.original.id}
+                status={row.original.status_label}
+                onAfterResolve={handleRefreshData}
+              />
             )
           },
           {

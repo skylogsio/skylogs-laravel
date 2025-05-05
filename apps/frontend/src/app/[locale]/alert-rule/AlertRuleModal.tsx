@@ -17,9 +17,10 @@ import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
+import NotificationForm from "@/components/AlertRule/Forms/NotificationForm";
 import PrometheusForm from "@/components/AlertRule/Forms/PrometheusForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
-import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
+import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
 type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
   data: CreateUpdateModal<unknown>;
@@ -28,7 +29,9 @@ type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
 
 export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertRuleModalProps) {
   const { palette } = useTheme();
-  const [selectedDataSource, setSelectedDataSource] = useState(ALERT_RULE_VARIANTS[0].value);
+  const [selectedDataSource, setSelectedDataSource] = useState<AlertRuleType>(
+    ALERT_RULE_VARIANTS[0].value
+  );
 
   useQuery({
     queryKey: ["alert-rule-create-data"],
@@ -53,12 +56,20 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
             onClose={onClose}
           />
         );
+      case "notification":
+        return (
+          <NotificationForm
+            data={data as CreateUpdateModal<IAlertRule>}
+            onSubmit={onSubmit}
+            onClose={onClose}
+          />
+        );
     }
   }
 
   useEffect(() => {
     if (data !== "NEW") {
-      setSelectedDataSource(data.type);
+      setSelectedDataSource((data as { type: AlertRuleType }).type);
     }
   }, [data]);
 
@@ -136,7 +147,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
                 </Button>
               ))}
             </ButtonGroup>
-            <Box maxHeight="90vh" overflow="auto">
+            <Box maxHeight="90vh" overflow="auto" flex={1}>
               {handleShowForm()}
             </Box>
           </Paper>
