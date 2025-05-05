@@ -1,3 +1,5 @@
+import { type ReactNode } from "react";
+
 import { blue, grey, orange, red, yellow } from "@mui/material/colors";
 import { FaBell } from "react-icons/fa";
 import { SiGrafana, SiMetabase, SiPrometheus, SiSentry, SiVictoriametrics } from "react-icons/si";
@@ -7,7 +9,19 @@ import PerconaIcon from "@/assets/svg/PerconaIcon";
 import SplunkIcon from "@/assets/svg/SplunkIcon";
 import ZabbixIcon from "@/assets/svg/ZabbixIcon";
 
-export const DATA_SOURCE_VARIANTS = [
+export type DataSourceType =
+  | "prometheus"
+  | "notification"
+  | "sentry"
+  | "grafana"
+  | "metabase"
+  | "elastic"
+  | "zabbix"
+  | "splunk"
+  | "victoriametrics"
+  | "pmm";
+
+export const DATA_SOURCE_VARIANTS: Array<{ value: DataSourceType; icon: ReactNode }> = [
   {
     value: "prometheus",
     icon: <SiPrometheus color={red[500]} size="1.2rem" />
@@ -49,15 +63,3 @@ export const DATA_SOURCE_VARIANTS = [
     icon: <PerconaIcon size="1.2rem" />
   }
 ];
-
-export type DataSourceType =
-  | "prometheus"
-  | "notification"
-  | "sentry"
-  | "grafana"
-  | "metabase"
-  | "elastic"
-  | "zabbix"
-  | "splunk"
-  | "victoriametrics"
-  | "Percona";

@@ -9,7 +9,7 @@ export interface IAlertRuleCreateData {
   users: IUser[];
 }
 
-export type AlertRuleStatus = "resolved" | "warning" | "fire";
+export type AlertRuleStatus = "resolved" | "warning" | "critical" | "triggered" | "unknown";
 
 export interface IAlertRule {
   name: string;
