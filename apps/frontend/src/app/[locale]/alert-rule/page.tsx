@@ -70,6 +70,7 @@ export default function AlertRule() {
             header: "Action",
             cell: ({ row }) => (
               <AlertRuleActionColumn
+                isSilent={row.original.is_silent}
                 rowId={row.original.id}
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}

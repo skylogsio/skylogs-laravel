@@ -13,7 +13,7 @@ import AlertRuleUserModal from "./UserModal";
 
 interface AlertRuleActionColumnProps extends ActionColumnProps {
   rowId: string;
-  isSilent?: boolean;
+  isSilent: boolean;
 }
 
 export default function AlertRuleActionColumn({
