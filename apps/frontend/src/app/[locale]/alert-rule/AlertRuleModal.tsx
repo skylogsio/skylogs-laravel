@@ -88,7 +88,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
       <Fade in={open}>
         <Box
           width="100%"
-          maxWidth="1000px"
+          maxWidth={data === "NEW" ? "1000px" : "800px"}
           maxHeight="90vh"
           sx={{
             position: "absolute",
@@ -100,53 +100,55 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
           <Paper
             sx={{ borderRadius: "0.7rem", boxShadow: "none", overflow: "hidden", display: "flex" }}
           >
-            <ButtonGroup
-              variant="text"
-              orientation="vertical"
-              sx={{ paddingX: "1rem", paddingY: 1, borderRight: `1px solid ${palette.divider}` }}
-            >
-              {ALERT_RULE_VARIANTS.map((item, index) => (
-                <Button
-                  startIcon={item.icon}
-                  key={index}
-                  onClick={() => setSelectedDataSource(item.value)}
-                  sx={{
-                    paddingX: 3,
-                    paddingY: 1.7,
-                    justifyContent: "flex-start",
-                    textTransform: "capitalize",
-                    borderColor: `${palette.divider} !important`,
-                    color:
-                      item.value === selectedDataSource
-                        ? palette.primary.main
-                        : palette.secondary.dark,
-                    fontSize: "1rem",
-                    [`& .${buttonClasses.icon}`]: {
-                      width: 24,
-                      height: 24,
-                      marginRight: 2,
-                      "& svg": {
-                        width: "inherit",
-                        height: "inherit"
+            {data === "NEW" && (
+              <ButtonGroup
+                variant="text"
+                orientation="vertical"
+                sx={{ paddingX: "1rem", paddingY: 1, borderRight: `1px solid ${palette.divider}` }}
+              >
+                {ALERT_RULE_VARIANTS.map((item, index) => (
+                  <Button
+                    startIcon={item.icon}
+                    key={index}
+                    onClick={() => setSelectedDataSource(item.value)}
+                    sx={{
+                      paddingX: 3,
+                      paddingY: 1.7,
+                      justifyContent: "flex-start",
+                      textTransform: "capitalize",
+                      borderColor: `${palette.divider} !important`,
+                      color:
+                        item.value === selectedDataSource
+                          ? palette.primary.main
+                          : palette.secondary.dark,
+                      fontSize: "1rem",
+                      [`& .${buttonClasses.icon}`]: {
+                        width: 24,
+                        height: 24,
+                        marginRight: 2,
+                        "& svg": {
+                          width: "inherit",
+                          height: "inherit"
+                        }
+                      },
+                      "&::before": {
+                        content: "''",
+                        display: item.value === selectedDataSource ? "initial" : "none",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "10px",
+                        height: "100%",
+                        transform: "translateX(-1rem)",
+                        backgroundColor: palette.primary.main
                       }
-                    },
-                    "&::before": {
-                      content: "''",
-                      display: item.value === selectedDataSource ? "initial" : "none",
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "10px",
-                      height: "100%",
-                      transform: "translateX(-1rem)",
-                      backgroundColor: palette.primary.main
-                    }
-                  }}
-                >
-                  {item.value}
-                </Button>
-              ))}
-            </ButtonGroup>
+                    }}
+                  >
+                    {item.value}
+                  </Button>
+                ))}
+              </ButtonGroup>
+            )}
             <Box maxHeight="90vh" overflow="auto" flex={1}>
               {handleShowForm()}
             </Box>
