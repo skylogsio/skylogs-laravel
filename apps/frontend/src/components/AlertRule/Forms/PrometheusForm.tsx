@@ -300,9 +300,9 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
                 select
                 slotProps={{ select: { multiple: true, renderValue: renderChip } }}
               >
-                {requiredData?.prometheusDataSources.map((endpoint) => (
-                  <MenuItem key={endpoint} value={endpoint}>
-                    {endpoint}
+                {requiredData?.prometheusDataSources.map((dataSource) => (
+                  <MenuItem key={dataSource} value={dataSource}>
+                    {dataSource}
                   </MenuItem>
                 ))}
               </TextField>
