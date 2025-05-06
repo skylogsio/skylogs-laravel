@@ -14,6 +14,7 @@ const ALERT_RULE_URL = "alert-rule";
 const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
 const ALERT_RULE_USER_URL = "alert-rule-user";
 const ALERT_RULE_TAGS_URL = "alert-rule-tag";
+const ALERT_RULE_CREATE_DATA_URL = `${ALERT_RULE_URL}/create-data`;
 
 export async function createAlertRule(body: unknown): Promise<ServerResponse<unknown>> {
   try {
@@ -44,15 +45,6 @@ export async function deleteAlertRule(alertRuleId: string): Promise<ServerRespon
     const response = await axios.delete<ServerResponse<unknown>>(
       `${ALERT_RULE_URL}/${alertRuleId}`
     );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-export async function getAlertRuleCreateData(): Promise<IAlertRuleCreateData> {
-  try {
-    const response = await axios.get<IAlertRuleCreateData>(`${ALERT_RULE_URL}/create-data`);
     return response.data;
   } catch (error) {
     throw error;
@@ -204,13 +196,31 @@ export async function getAlertRuleLabelValues(label: string): Promise<string[]> 
   }
 }
 
+export async function getAlertRuleCreateData(): Promise<IAlertRuleCreateData> {
+  try {
+    const response = await axios.get<IAlertRuleCreateData>(ALERT_RULE_CREATE_DATA_URL);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getAlertRuleDataSourcesByAlertType(
   type: DataSourceType
 ): Promise<ServerSelectableDataType> {
   try {
     const response = await axios.get<ServerSelectableDataType>(
-      `${ALERT_RULE_URL}/create-data/data-source/${type}`
+      `${ALERT_RULE_CREATE_DATA_URL}/data-source/${type}`
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getDataSourceAlertName(type: DataSourceType) {
+  try {
+    const response = await axios.get(`${ALERT_RULE_CREATE_DATA_URL}/rules?type=${type}`);
     return response.data;
   } catch (error) {
     throw error;

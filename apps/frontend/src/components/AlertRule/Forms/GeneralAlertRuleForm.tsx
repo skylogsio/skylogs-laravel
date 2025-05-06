@@ -25,17 +25,19 @@ import {
   createAlertRule,
   getAlertRuleDataSourcesByAlertType,
   getAlertRuleTags,
+  getDataSourceAlertName,
   updateAlertRule
 } from "@/api/alertRule/alertRule";
-import { getPrometheusAlertRuleName } from "@/api/alertRule/prometheus";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
-import { DataSourceType } from "@/utils/dataSourceUtils";
+import { type DataSourceType } from "@/utils/dataSourceUtils";
+import { capitalizeFirstLetter } from "@/utils/general";
 
 const QUERY_TYPE = ["dynamic", "textQuery"] as const;
+const ALERT_RULE_TYPES = ["prometheus", "pmm"] as const;
 
-const prometheusKeyValueSchema = z.object({
+const extraFieldSchema = z.object({
   key: z.string().refine((data) => data.trim() !== "", {
     message: "This field is Required."
   }),
@@ -44,28 +46,28 @@ const prometheusKeyValueSchema = z.object({
   })
 });
 
-const prometheusSchema = z.object({
+const generalAlertRuleSchema = z.object({
   name: z
     .string({ required_error: "This field is Required." })
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  type: z.literal("prometheus").default("prometheus"),
+  type: z.enum(ALERT_RULE_TYPES),
   endpointIds: z.array(z.string()).optional().default([]),
   userIds: z.array(z.string()).optional().default([]),
-  extraField: z.array(prometheusKeyValueSchema).optional().default([]),
+  extraField: z.array(extraFieldSchema).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
   dataSourceIds: z.array(z.string()).min(1, "Select at least one Data Source."),
   queryType: z.enum(QUERY_TYPE),
-  prometheusAlertName: z
+  dataSourceAlertName: z
     .string({ required_error: "This Field is Required." })
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     })
 });
 
-type PrometheusType = z.infer<typeof prometheusSchema>;
-type PrometheusModalProps = Pick<ModalContainerProps, "onClose"> & {
+type GeneralAlertRuleType = z.infer<typeof generalAlertRuleSchema>;
+type GeneralAlertRuleModalProps = Pick<ModalContainerProps, "onClose"> & {
   data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
   type: DataSourceType;
@@ -73,7 +75,7 @@ type PrometheusModalProps = Pick<ModalContainerProps, "onClose"> & {
 
 const defaultKeyValue = { key: "", value: "" };
 
-const defaultValues: PrometheusType = {
+const defaultValues: GeneralAlertRuleType = {
   name: "",
   type: "prometheus",
   userIds: [],
@@ -81,11 +83,16 @@ const defaultValues: PrometheusType = {
   extraField: [],
   tags: [],
   dataSourceIds: [],
-  prometheusAlertName: "",
+  dataSourceAlertName: "",
   queryType: "dynamic"
 };
 
-export default function PrometheusForm({ data, onSubmit, onClose, type }: PrometheusModalProps) {
+export default function GeneralAlertRuleForm({
+  data,
+  onSubmit,
+  onClose,
+  type
+}: GeneralAlertRuleModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -95,8 +102,8 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
     reset,
     control,
     formState: { errors }
-  } = useForm<PrometheusType>({
-    resolver: zodResolver(prometheusSchema),
+  } = useForm<GeneralAlertRuleType>({
+    resolver: zodResolver(generalAlertRuleSchema),
     defaultValues
   });
   const {
@@ -110,30 +117,28 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
 
   const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
-  const [{ data: tagsList }, { data: prometheusAlertRuleNameList }, { data: dataSourceList }] =
-    useQueries({
-      queries: [
-        {
-          queryKey: ["all-alert-rule-tags"],
-          queryFn: () => getAlertRuleTags()
-        },
-        {
-          queryKey: ["all-prometheus-alert-rule-name"],
-          queryFn: () => getPrometheusAlertRuleName()
-        },
-        {
-          queryKey: ["alert-rule-data-source", type],
-          queryFn: () => getAlertRuleDataSourcesByAlertType(type)
-        }
-      ]
-    });
+  const [{ data: tagsList }, { data: alertRuleNameList }, { data: dataSourceList }] = useQueries({
+    queries: [
+      {
+        queryKey: ["all-alert-rule-tags"],
+        queryFn: () => getAlertRuleTags()
+      },
+      {
+        queryKey: ["all-alert-rule-names", type],
+        queryFn: () => getDataSourceAlertName(type)
+      },
+      {
+        queryKey: ["alert-rule-data-source", type],
+        queryFn: () => getAlertRuleDataSourcesByAlertType(type)
+      }
+    ]
+  });
 
   const { mutate: createPrometheusMutation, isPending: isCreating } = useMutation({
-    mutationFn: (body: PrometheusType) => createAlertRule(body),
+    mutationFn: (body: GeneralAlertRuleType) => createAlertRule(body),
     onSuccess: (data) => {
-      console.log(data);
       if (data.status) {
-        toast.success("Prometheus Alert Rule Created Successfully.");
+        toast.success(`${capitalizeFirstLetter(type)} Alert Rule Created Successfully.`);
         onSubmit();
         onClose?.();
       }
@@ -144,18 +149,18 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
   });
 
   const { mutate: updatePrometheusMutation, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: PrometheusType }) =>
+    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: GeneralAlertRuleType }) =>
       updateAlertRule(id, body),
     onSuccess: (data) => {
       if (data.status) {
-        toast.success("Prometheus Alert Rule Updated Successfully.");
+        toast.success(`${capitalizeFirstLetter(type)} Alert Rule Updated Successfully.`);
         onSubmit();
         onClose?.();
       }
     }
   });
 
-  function handleSubmitForm(values: PrometheusType) {
+  function handleSubmitForm(values: GeneralAlertRuleType) {
     if (data === "NEW") {
       createPrometheusMutation(values);
     } else if (data) {
@@ -213,9 +218,15 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      reset(data as unknown as PrometheusType);
+      reset(data as unknown as GeneralAlertRuleType);
     }
   }, [reset, data]);
+
+  useEffect(() => {
+    if (type === "prometheus" || type === "pmm") {
+      setValue("type", type);
+    }
+  }, [setValue, type]);
 
   return (
     <Stack
@@ -226,8 +237,14 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
       flex={1}
     >
       <Grid container spacing={2} flex={1} alignContent="flex-start">
-        <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
-          {data === "NEW" ? "Create" : "Update"} Prometheus Alert
+        <Typography
+          variant="h6"
+          color="textPrimary"
+          textTransform="capitalize"
+          fontWeight="bold"
+          component="div"
+        >
+          {data === "NEW" ? "Create" : "Update"} {type} Alert
         </Typography>
         <Grid size={12}>
           <TextField
@@ -324,10 +341,11 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
             </Grid>
             <Grid size={6}>
               <Autocomplete
-                id="prometheus-alert-rule-name"
-                options={prometheusAlertRuleNameList ?? []}
-                value={watch("prometheusAlertName")}
-                onChange={(_, value) => setValue("prometheusAlertName", value ?? "")}
+                id="data-source-alert-rule-name"
+                options={alertRuleNameList ?? []}
+                freeSolo={type === "pmm"}
+                value={watch("dataSourceAlertName")}
+                onChange={(_, value) => setValue("dataSourceAlertName", value ?? "")}
                 renderTags={(value: readonly string[], getItemProps) =>
                   value.map((option: string, index: number) => {
                     const { key, ...itemProps } = getItemProps({ index });
@@ -342,10 +360,10 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
                       inputLabel: params.InputLabelProps,
                       htmlInput: params.inputProps
                     }}
-                    error={!!errors.prometheusAlertName}
-                    helperText={errors.prometheusAlertName?.message}
+                    error={!!errors.dataSourceAlertName}
+                    helperText={errors.dataSourceAlertName?.message}
                     variant="filled"
-                    label="Prometheus Alert Name"
+                    label="DataSource Alert Name"
                   />
                 )}
               />
@@ -386,7 +404,7 @@ export default function PrometheusForm({ data, onSubmit, onClose, type }: Promet
         <Grid size={12}>
           <Autocomplete
             multiple
-            id="prometheus-alert-tags"
+            id="alert-tags"
             options={tagsList ?? []}
             freeSolo
             value={watch("tags")}

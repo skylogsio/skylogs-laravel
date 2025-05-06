@@ -17,8 +17,8 @@ import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { getAlertRuleCreateData } from "@/api/alertRule/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
+import GeneralAlertRuleForm from "@/components/AlertRule/Forms/GeneralAlertRuleForm";
 import NotificationForm from "@/components/AlertRule/Forms/NotificationForm";
-import PrometheusForm from "@/components/AlertRule/Forms/PrometheusForm";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
@@ -48,9 +48,10 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
             onSubmit={onSubmit}
           />
         );
+      case "pmm":
       case "prometheus":
         return (
-          <PrometheusForm
+          <GeneralAlertRuleForm
             data={data as CreateUpdateModal<IAlertRule>}
             onSubmit={onSubmit}
             onClose={onClose}
