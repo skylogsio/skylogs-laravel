@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\AlertRule;
 use App\Models\DataSource\DataSource;
+use App\Models\Endpoint;
+use App\Observers\AlertRuleObserver;
 use App\Observers\DataSourceObserver;
+use App\Observers\EndpointObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         DataSource::observe(DataSourceObserver::class);
+        Endpoint::observe(EndpointObserver::class);
+        AlertRule::observe(AlertRuleObserver::class);
     }
 }

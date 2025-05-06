@@ -34,7 +34,7 @@ class SentryService
                 foreach ($sentryAll as $sentry) {
 
                     $request = $pool->as($sentry['_id'])->acceptJson();
-                    $request->withToken($sentry['api_token']);
+                    $request->withToken($sentry['apiToken']);
                     $result[$sentry['_id']] = $request->get($sentry['url'] . $urlEndpoint,);
                 }
 
@@ -259,7 +259,7 @@ class SentryService
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
                     $alertRuleInstanceArray = is_array($alertRule['instance']) ? $alertRule['instance'] : [$alertRule['instance'],];
 
-                    if (in_array($alert['instance'], $alertRuleInstanceArray) && $alert['labels']['alertname'] == $alertRule['prometheus_alertname']) {
+                    if (in_array($alert['instance'], $alertRuleInstanceArray) && $alert['labels']['alertname'] == $alertRule['dataSourceAlertName']) {
 
                         if (!empty($alertRule->extraField))
                             foreach ($alertRule->extraField as $key => $patterns) {
@@ -301,7 +301,7 @@ class SentryService
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "instance" => $alert['instance'],
                         "alertname" => $alertRule->alertname,
-                        "prometheus_alertname" => $alert['labels']['alertname'],
+                        "dataSourceAlertName" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
                         "alertRuleId" => $alertRule->_id,
@@ -370,22 +370,22 @@ class SentryService
 //            $updatedAlertsArray = $commonAlertsArray->clone();
 
             foreach ($commonAlertsArray as $commonAlert) {
-                $commonAlert['skylogs_status'] = empty($commonAlert['skylogs_status']) ? PrometheusCheck::FIRE : $commonAlert['skylogs_status'];
+                $commonAlert['skylogsStatus'] = empty($commonAlert['skylogsStatus']) ? PrometheusCheck::FIRE : $commonAlert['skylogsStatus'];
                 $updatedAlertsArray->add($commonAlert);
             }
 
             foreach ($newFiredAlertsArray as $newFiredAlert) {
-                $newFiredAlert['skylogs_status'] = PrometheusCheck::FIRE;
+                $newFiredAlert['skylogsStatus'] = PrometheusCheck::FIRE;
                 $updatedAlertsArray->add($newFiredAlert);
             }
 
             foreach ($resolvedAlertsArray as $resolvedAlert) {
-                $resolvedAlert['skylogs_status'] = PrometheusCheck::RESOLVED;
+                $resolvedAlert['skylogsStatus'] = PrometheusCheck::RESOLVED;
                 $updatedAlertsArray->add($resolvedAlert);
             }
 
             $firedAlerts = $updatedAlertsArray->filter(function ($alert) {
-                return empty($alert['skylogs_status']) || $alert['skylogs_status'] == PrometheusCheck::FIRE;
+                return empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == PrometheusCheck::FIRE;
             });
 
             if ($updatedAlertsArray->isEmpty()) continue;
@@ -430,7 +430,7 @@ class SentryService
         foreach ($checks as $check) {
             $alerts = collect($check->alerts);
             $alerts = $alerts->filter(function ($alert) {
-                return empty($alert["skylogs_status"]) || $alert["skylogs_status"] == PrometheusCheck::FIRE;
+                return empty($alert["skylogsStatus"]) || $alert["skylogsStatus"] == PrometheusCheck::FIRE;
             });
             $check->alerts = $alerts->toArray();
             $check->save();

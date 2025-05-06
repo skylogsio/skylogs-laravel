@@ -32,7 +32,7 @@ class PrometheusCheck extends Model implements Messageable
 
     public function dataSource(): BelongsTo
     {
-        return $this->belongsTo(DataSource::class, "data_source_id", "_id");
+        return $this->belongsTo(DataSource::class, "dataSourceId", "_id");
     }
 
     public function getAlertRulePrometheus(): ?AlertRulePrometheus
@@ -107,14 +107,14 @@ class PrometheusCheck extends Model implements Messageable
 //        }
 
         if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
+            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
 
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
@@ -165,13 +165,13 @@ class PrometheusCheck extends Model implements Messageable
 
 
         if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
+            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts) ) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
@@ -221,13 +221,13 @@ class PrometheusCheck extends Model implements Messageable
 
 
         if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
+            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts) ) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
@@ -278,13 +278,13 @@ class PrometheusCheck extends Model implements Messageable
 
 
         if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
+            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
@@ -334,13 +334,13 @@ class PrometheusCheck extends Model implements Messageable
         }
 
         if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
+            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";

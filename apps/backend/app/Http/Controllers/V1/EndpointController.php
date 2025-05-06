@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Endpoint;
+use App\Models\EndpointOTP;
 use App\Services\EndpointService;
 use Illuminate\Http\Request;
 
@@ -49,7 +50,6 @@ class EndpointController extends Controller
         }
         $model = $model->firstOrFail();
         $model->delete();
-        EndpointService::RefreshAlertRuleEndpoints($model);
         return response()->json($model);
     }
 
@@ -82,8 +82,11 @@ class EndpointController extends Controller
                     'type' => $request->type,
                     'value' => $value,
                 ]);
+                if ($model->isVerifiedRequired()){
+                    $model->generateOtpCode();
+                    $model->save();
+                }
             }
-            EndpointService::FlushEndpointCache();
 
             return response()->json([
                 'status' => true,
@@ -94,6 +97,21 @@ class EndpointController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+    public function SendOTPCode(Request $request)
+    {
+
+        EndpointOTP::updateOrCreate([
+            'type' => $request->type,
+            'value' => $request->value,
+        ],[
+
+        ]);
+    }
+    public function ConfirmOTPCode(Request $request)
+    {
+
     }
 
     public function Update(Request $request, $id)
@@ -130,7 +148,6 @@ class EndpointController extends Controller
                     'value' => $value,
                 ]);
             }
-            EndpointService::FlushEndpointCache();
 
             return response()->json([
                 'status' => true,

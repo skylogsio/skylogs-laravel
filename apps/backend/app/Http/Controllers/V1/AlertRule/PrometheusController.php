@@ -40,5 +40,14 @@ class PrometheusController extends Controller
 
     }
 
+    public function Triggered()
+    {
+        $prometheusAlerts = cache()->tags(['prometheus','triggered'])->remember("prometheusTriggered",5, function () {
+            return PrometheusInstanceService::GetTriggered();
+        });
+        return response()->json($prometheusAlerts);
+
+    }
+
 
 }

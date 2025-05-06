@@ -57,12 +57,12 @@ class AlertingController extends Controller
         }
 
         if ($request->has("types") && !empty($request->types)) {
-            $types = explode(',',$request->types);
+            $types = explode(',', $request->types);
             $data = $data->whereIn("type", $types);
         }
 
         if ($request->has("tags") && !empty($request->tags)) {
-            $tags = explode(',',$request->tags);
+            $tags = explode(',', $request->tags);
             $data = $data->whereIn("tags", $tags);
         }
         if ($request->has("silentStatus") && !empty($request->silentStatus)) {
@@ -82,7 +82,9 @@ class AlertingController extends Controller
         foreach ($data as &$alert) {
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
-            $alert->statusLabel = $alert->getStatus();
+            [$alertStatus, $alertStatusCount] = $alert->getStatus();
+            $alert->statusLabel = $alertStatus;
+            $alert->statusCount = $alertStatusCount;
             $alert->status_label = $alert->statusLabel;
             $isSilent = $alert->isSilent();
             $alert->isSilent = $isSilent;
@@ -96,7 +98,8 @@ class AlertingController extends Controller
 
     }
 
-    public function FilterEndpoints(Request $request){
+    public function FilterEndpoints(Request $request)
+    {
 
         $adminUserId = User::where('username', 'admin')->first()->_id;
 
@@ -110,9 +113,12 @@ class AlertingController extends Controller
 
         return response()->json($selectableEndpoints);
     }
-    public function GetTypes(Request $request){
+
+    public function GetTypes(Request $request)
+    {
         return response()->json(AlertRuleType::GetTypes());
     }
+
     public function Silent(Request $request, $id)
     {
         $alert = AlertRule::where("_id", $id)->first();
@@ -145,54 +151,22 @@ class AlertingController extends Controller
                 'name' => $request->name,
                 'type' => $request->type,
                 'tags' => $request->tags ?? [],
-                "user_id" => \Auth::id(),
                 "userId" => \Auth::id(),
-                "endpoint_ids" => [],
                 "endpointIds" => [],
-                "user_ids" => [],
                 "userIds" => [],
             ];
             switch ($alertType) {
                 case AlertRuleType::GRAFANA:
-
-                    $alert = AlertRule::create([
-//                        'instance' => $request->grafana_instance,
-//                        'grafana_alertname' => $request->grafana_alert,
-                        ...$commonFields,
-                        'interval' => ((int)$request->interval),
-                    ]);
-                    $alert->queryType = $request->grafanaQueryType;
-
-                    if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                        $alert->instance = empty($request->grafana_instance) ? [] : array_unique($request->grafana_instance);
-                        $alert->grafana_alertname = $request->grafana_alert;
-                        $extraFields = [];
-                        if ($request->has("extraField") && !empty($request->extraField))
-                            foreach ($request->extraField as $value) {
-                                if (!empty($value)) {
-                                    if (!empty($value["key"]) && !empty($value["value"]))
-                                        $extraFields[$value["key"]] = $value['value'];
-                                }
-                            }
-                        $alert->extraField = $extraFields;
-                    } else {
-                        $alert->prometheus_query = $request->prometheus_query;
-                        $alert->prometheus_query_object = $request->prometheus_query_object;
-                    }
-                    $alert->save();
-
-                    break;
+                case AlertRuleType::PMM:
                 case AlertRuleType::PROMETHEUS:
                     $alert = AlertRule::create([
-//                        'instance' => $request->prometheus_instance,
                         ...$commonFields,
                         'interval' => ((int)$request->interval),
-//                        'prometheus_alertname' => $request->prometheus_alert,
                     ]);
-                    $alert->queryType = $request->prometheusQueryType;
+                    $alert->queryType = $request->queryType;
                     if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
                         $alert->dataSourceIds = array_unique($request->dataSourceIds);
-                        $alert->prometheusAlertname = $request->prometheusAlert;
+                        $alert->dataSourceAlertName = $request->dataSourceAlertName;
                         $extraFields = [];
                         if ($request->has("extraField") && !empty($request->extraField))
                             foreach ($request->extraField as $value) {
@@ -206,7 +180,7 @@ class AlertingController extends Controller
                         $alert->prometheusQuery = $request->prometheusQuery;
                         $alert->prometheusQueryObject = $request->prometheusQueryObject;
                     }
-//                    $alert->extraField = $extraFields;
+
                     $alert->save();
 
                     break;
@@ -230,7 +204,7 @@ class AlertingController extends Controller
 
                     $alert = AlertRule::create([
                         ...$commonFields,
-                        "api_token" => Str::random(60),
+                        "apiToken" => Str::random(60),
                     ]);
                     break;
                 case AlertRuleType::API:
@@ -245,19 +219,7 @@ class AlertingController extends Controller
                         ...$commonFields,
                         "enableAutoResolve" => $enableAutoResolve,
                         "autoResolveMinutes" => $autoResolveMinutes,
-                        "api_token" => Str::random(60),
-                    ]);
-                    break;
-                case AlertRuleType::HEALTH:
-
-                    $alert = AlertRule::create([
-                        ...$commonFields,
-                        'interval' => ((int)$request->interval),
-                        "url" => $request->url,
-                        "threshold_down" => ((int)$request->threshold_down),
-                        "threshold_up" => ((int)$request->threshold_up),
-                        "basic_auth_username" => $request->username ?? "",
-                        "basic_auth_password" => $request->password ?? "",
+                        "apiToken" => Str::random(60),
                     ]);
                     break;
                 case AlertRuleType::ELASTIC:
@@ -278,24 +240,22 @@ class AlertingController extends Controller
 
             $alert->save();
 
-            if ($request->has("endpoints") && !empty($request->endpoints))
-                foreach ($request->endpoints as $end) {
+            if ($request->has("endpointIds") && !empty($request->endpointIds))
+                foreach ($request->endpointIds as $end) {
                     $alert->push("endpoint_ids", $end, true);
                     $alert->push("endpointIds", $end, true);
                 }
 
-            if ($request->has("accessUsers") && !empty($request->accessUsers))
-                foreach ($request->accessUsers as $userId) {
+            if ($request->has("userIds") && !empty($request->userIds))
+                foreach ($request->userIds as $userId) {
                     $alert->push("user_ids", $userId, true);
                     $alert->push("userIds", $userId, true);
                 }
 
 
-            AlertRuleService::FlushAlertRuleCache();
-
             return ['status' => true];
         } else {
-            return ['status' => false,"message" => $va->messages()];
+            return ['status' => false, "message" => $va->messages()[0] ?? "Error"];
         }
     }
 
@@ -515,33 +475,13 @@ class AlertingController extends Controller
 
         switch ($model->type) {
             case AlertRuleType::GRAFANA:
-                $extraFields = [];
-                $model->queryType = $request->queryType;
-                if ($request->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $model->instance = array_unique($request->prometheus_instance);
-                    if ($request->has("extraField") && !empty($request->extraField))
-                        foreach ($request->extraField as $value) {
-                            if (!empty($value)) {
-                                if (!empty($value["key"]) && !empty($value["value"]))
-                                    $extraFields[$value["key"]] = $value['value'];
-                            }
-                        }
-                    $model->extraField = $extraFields;
-                } else {
-                    $model->prometheus_query = $request->prometheus_query;
-                    $model->prometheus_query_object = $request->prometheus_query_object;
-                }
-
-                $model->interval = ((int)$request->interval);
-                $model->state = null;
-                $model->save();
-                break;
+            case AlertRuleType::PMM:
             case AlertRuleType::PROMETHEUS:
-
                 $extraFields = [];
                 $model->queryType = $request->queryType;
                 if ($request->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
                     $model->dataSourceIds = array_unique($request->dataSourceIds);
+                    $model->dataSourceAlertName = $request->dataSourceAlertName;
 
                     if ($request->has("extraField") && !empty($request->extraField))
                         foreach ($request->extraField as $value) {
@@ -555,7 +495,6 @@ class AlertingController extends Controller
                     $model->prometheusQuery = $request->prometheusQuery;
                     $model->prometheusQueryObject = $request->prometheusQueryObject;
                 }
-                $model->interval = ((int)$request->interval);
                 $model->state = null;
                 $model->save();
                 break;
@@ -608,14 +547,12 @@ class AlertingController extends Controller
                 HealthCheck::where("alertRuleId", $model->_id)->delete();
                 break;
             case AlertRuleType::NOTIFICATION:
-                AlertInstance::where("alertname", $model->alertname)->update(['name' => $request->alertname]);
-                $model->alertname = $request->alertname;
-                $model->interval = ((int)$request->interval);
-                $model->public = $request->public;
+                AlertInstance::where("alertRuleId", $model->id)->update(['alertRuleName' => $request->name]);
+                $model->name = $request->name;
                 $model->save();
                 break;
             case AlertRuleType::API:
-                AlertInstance::where("alertname", $model->alertname)->update(['name' => $request->alertname]);
+                AlertInstance::where("alertRuleId", $model->id)->update(['alertRuleName' => $request->name]);
                 $autoResolveMinutes = 0;
                 $enableAutoResolve = !empty($request->enableAutoResolve) && $request->enableAutoResolve;
                 if ($enableAutoResolve) {
@@ -627,8 +564,8 @@ class AlertingController extends Controller
                 $model->save();
                 break;
         }
-        AlertRuleService::FlushAlertRuleCache();
-        return response()->json(['status'=>true]);
+
+        return response()->json(['status' => true]);
 
     }
 
@@ -644,13 +581,13 @@ class AlertingController extends Controller
 
         switch ($alert->type) {
             case AlertRuleType::API:
-                $apiAlerts = AlertInstance::where("alertname", $alert->alertname)->where("state", AlertInstance::FIRE)->get();
+                $apiAlerts = AlertInstance::where("alertRuleId", $alert->id)
+                    ->where("state", AlertInstance::FIRE)
+                    ->get();
                 if ($apiAlerts->isNotEmpty()) {
                     $sendResolve = true;
                     foreach ($apiAlerts as $apiAlert) {
                         $apiAlert->description = "";
-                        $apiAlert->file = "";
-                        $apiAlert->fileName = "";
                         $apiAlert->state = AlertInstance::RESOLVED;
                         $apiAlert->save();
                         $apiHistory = $apiAlert->createHistory();
@@ -751,12 +688,11 @@ class AlertingController extends Controller
         if ($alert->userId == $userId || \Auth::user()->isAdmin()) {
             $alertRuleId = $alert->_id;
             $type = $alert->type;
-            $alertname = $alert->alertname;
             $alert->delete();
             switch ($type) {
                 case AlertRuleType::API:
                 case AlertRuleType::NOTIFICATION:
-                    AlertInstance::where("alertname", $alertname)->delete();
+                    AlertInstance::where("alertRuleId", $alertRuleId)->delete();
                     break;
                 case AlertRuleType::PROMETHEUS:
                     PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
@@ -770,7 +706,6 @@ class AlertingController extends Controller
             }
 
         } else {
-            $alert->pull("user_ids", $userId);
             $alert->pull("userIds", $userId);
             if (!empty($alert->endpointIds)) {
                 $data = Endpoint::whereIn("_id", $alert->endpointIds)->where('userId', \Auth::user()->_id)->get();
@@ -781,7 +716,6 @@ class AlertingController extends Controller
             }
 
         }
-        AlertRuleService::FlushAlertRuleCache();
 
         return response()->json(['status' => true]);
 //        return redirect()->route('role.index');

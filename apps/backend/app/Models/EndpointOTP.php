@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class Endpoint extends Model
+class EndpointOTP extends Model
 {
 
     public $timestamps = true;
     public static $title = "Endpoint";
     public static $KEY = "endpoint";
+    private $collection = "endpoint_otp";
 
     public const EMAIL ="email";
     public const SMS ="sms";

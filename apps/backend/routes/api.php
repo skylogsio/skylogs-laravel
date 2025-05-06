@@ -82,6 +82,7 @@ Route::prefix('v1')->group(function () {
                     ->controller(CreateDataController::class)
                     ->group(function () {
                         Route::get('/', 'CreateData');
+                        Route::get('/data-source/{type}', 'DataSources');
                         Route::get('/rules', 'Rules');
                         Route::get('/labels', 'Labels');
                         Route::get('/label-values/{label}', 'LabelValues');
@@ -100,6 +101,7 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/rules', 'Rules');
                 Route::get('/labels', 'Labels');
+                Route::get('/triggered', 'Triggered');
                 Route::get('/label-values/{label}', 'LabelValues');
             });
 

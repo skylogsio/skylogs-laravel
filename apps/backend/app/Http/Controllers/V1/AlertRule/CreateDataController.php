@@ -39,6 +39,23 @@ class CreateDataController extends Controller
 
     }
 
+    public function DataSources(Request $request,$type)
+    {
+        $type = DataSourceType::tryFrom($type);
+        $dataSources = DataSource::where("type", $type)->get();
+
+        $result = [];
+        foreach ($dataSources as $dataSource) {
+            $result[] = [
+                "name" => $dataSource->name,
+                'id' => $dataSource->id,
+            ];
+        }
+
+        return response()->json($result);
+
+    }
+
     public function Rules(Request $request)
     {
         return response()->json(PrometheusInstanceService::getRules($request->data_source_id));

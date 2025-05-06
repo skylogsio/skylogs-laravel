@@ -486,7 +486,7 @@ class AlertRuleService
             return AlertRule::get();
     }
 
-    public static function FlushAlertRuleCache(): void
+    public static function FlushCache(): void
     {
         Cache::tags(['alertRule'])->flush();
     }

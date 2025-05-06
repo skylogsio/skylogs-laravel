@@ -9,7 +9,7 @@ Authorization: Bearer {{authToken}}
     "type": "prometheus",
     "prometheusQueryType": "dynamic",
     "dataSourceIds": [],
-    "prometheusAlert": "prometheus_alert",
+    "dataSourceAlertName": "prometheusAlertNAme",
     "extraField": [
         {
             "key" : "asd",

@@ -331,7 +331,6 @@ class PrometheusInstanceService
                 $arr = $response['data']['alerts'];
 
                 foreach ($arr as &$alert) {
-                    $alert['data_source_id'] = $id;
                     $alert['dataSourceId'] = $id;
 
                     if ($alert['state'] == PrometheusInstance::STATE_FIRING) {

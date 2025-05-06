@@ -30,7 +30,7 @@ class AlertInstance extends Model implements Messageable
 
     public function history(): BelongsTo
     {
-        return $this->belongsTo(ApiAlertHistory::class, "history_id");
+        return $this->belongsTo(ApiAlertHistory::class, "historyId");
     }
 
     public function UpdatedAtString()

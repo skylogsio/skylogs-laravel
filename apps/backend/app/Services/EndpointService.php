@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 class EndpointService
 {
 
+
     public static function SelectableUserEndpoint(User $user, AlertRule $alert = null)
     {
         $adminUserId = User::where('username', 'admin')->first()->_id;
@@ -29,13 +30,13 @@ class EndpointService
         }
 
         if ($alert) {
-            $alertUserIds = $alert->user_ids ?? [];
+            $alertUserIds = $alert->userIds ?? [];
         } else {
             return Cache::tags(['endpoint', $user->id])
                 ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::whereIn("user_id", [$adminUserId, $user->_id])->get());
         }
 
-        if ($alert->user_id == $user->_id) {
+        if ($alert->userId == $user->_id) {
             return Cache::tags(['endpoint', $user->id])
                 ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::whereIn("user_id", [$adminUserId, $user->_id])->get());
         } elseif (in_array($user->_id, $alertUserIds)) {
@@ -57,12 +58,10 @@ class EndpointService
     public static function RefreshAlertRuleEndpoints(Endpoint $endpoint) :void
     {
         foreach (AlertRuleService::GetAlertsDB() as $alertRule) {
-            $alertRule->pull('endpoint_ids',$endpoint->_id);
             $alertRule->pull('endpointIds',$endpoint->_id);
         }
-        EndpointService::FlushEndpointCache();
     }
-    public static function FlushEndpointCache(): void
+    public static function FlushCache(): void
     {
         Cache::tags(['endpoint'])->flush();
     }

@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 
 use App\interfaces\Messageable;
+use App\Models\Endpoint;
 use Illuminate\Mail\Message;
 use Mail;
 use Str;
@@ -19,11 +20,6 @@ class Email
 
         if (!empty($users))
             Mail::raw($alert->emailMessage(), function (Message $message) use ($users) {
-                ds($users == ['amirmasoud.asadi@gmail.com']);
-                ds(Str::length('amirmasoud.asadi@gmail.com'));
-                ds(Str::length($users[0]));
-                ds(filter_var($users[0], FILTER_VALIDATE_EMAIL) );
-//                dd($users);
                 $message->bcc($users)
                     ->subject('Skylogs Alert');
             });
@@ -32,4 +28,11 @@ class Email
 
     }
 
+    public static function sendOTP(Endpoint $endpoint)
+    {
+        Mail::raw($endpoint->generateOTPMessage(), function (Message $message) use ($endpoint) {
+            $message->to($endpoint->value)
+                ->subject('Skylogs Endpoint Verification');
+        });
+    }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ElasticCheck;
 use App\Models\HealthCheck;
 use App\Models\Log;
+use App\Services\AlertRuleService;
 use App\Services\ApiService;
 use App\Services\ElasticService;
 use App\Services\PrometheusInstanceService;
@@ -36,12 +38,11 @@ class AutoResolveApiAlertsJob implements ShouldQueue
      */
     public function handle()
     {
-        $alerts = AlertRule::where("type", Constants::API)
-            ->where("enableAutoResolve", true)
-            ->get();
+        $alerts = AlertRuleService::GetAlerts(AlertRuleType::API);
         $now = time();
         if ($alerts->isNotEmpty()) {
             foreach ($alerts as $alert) {
+                if (!$alert['enableAutoResolve']) continue;
                 $minutes = $alert->autoResolveMinutes;
                 $instances = $alert->apiInstances();
                 if (!empty($instances) && $instances->isNotEmpty()) {
@@ -50,7 +51,7 @@ class AutoResolveApiAlertsJob implements ShouldQueue
                         $lastUpdate = $instance->updated_at->getTimeStamp();
                         if (($lastUpdate + ($minutes * 60)) < $now) {
                             $post = [
-                                "alertname" => $instance->alertname,
+                                "apiToken" => $alert->apiToken,
                                 "instance" => $instance->instance,
                                 "description" => "Alert Resolved Automatically"
                             ];
