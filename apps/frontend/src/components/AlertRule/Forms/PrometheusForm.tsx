@@ -21,11 +21,17 @@ import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule/alertRule";
+import {
+  createAlertRule,
+  getAlertRuleDataSourcesByAlertType,
+  getAlertRuleTags,
+  updateAlertRule
+} from "@/api/alertRule/alertRule";
 import { getPrometheusAlertRuleName } from "@/api/alertRule/prometheus";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
+import { DataSourceType } from "@/utils/dataSourceUtils";
 
 const QUERY_TYPE = ["dynamic", "textQuery"] as const;
 
@@ -62,6 +68,7 @@ type PrometheusType = z.infer<typeof prometheusSchema>;
 type PrometheusModalProps = Pick<ModalContainerProps, "onClose"> & {
   data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
+  type: DataSourceType;
 };
 
 const defaultKeyValue = { key: "", value: "" };
@@ -78,7 +85,7 @@ const defaultValues: PrometheusType = {
   queryType: "dynamic"
 };
 
-export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusModalProps) {
+export default function PrometheusForm({ data, onSubmit, onClose, type }: PrometheusModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -103,18 +110,23 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
 
   const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
-  const [{ data: tagsList }, { data: prometheusAlertRuleNameList }] = useQueries({
-    queries: [
-      {
-        queryKey: ["all-alert-rule-tags"],
-        queryFn: () => getAlertRuleTags()
-      },
-      {
-        queryKey: ["all-prometheus-alert-rule-name"],
-        queryFn: () => getPrometheusAlertRuleName()
-      }
-    ]
-  });
+  const [{ data: tagsList }, { data: prometheusAlertRuleNameList }, { data: dataSourceList }] =
+    useQueries({
+      queries: [
+        {
+          queryKey: ["all-alert-rule-tags"],
+          queryFn: () => getAlertRuleTags()
+        },
+        {
+          queryKey: ["all-prometheus-alert-rule-name"],
+          queryFn: () => getPrometheusAlertRuleName()
+        },
+        {
+          queryKey: ["alert-rule-data-source", type],
+          queryFn: () => getAlertRuleDataSourcesByAlertType(type)
+        }
+      ]
+    });
 
   const { mutate: createPrometheusMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: PrometheusType) => createAlertRule(body),
@@ -136,7 +148,7 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
       updateAlertRule(id, body),
     onSuccess: (data) => {
       if (data.status) {
-        toast.success("Prometheus Alert Rule Created Successfully.");
+        toast.success("Prometheus Alert Rule Updated Successfully.");
         onSubmit();
         onClose?.();
       }
@@ -183,10 +195,14 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
     return <></>;
   }
 
-  function renderChip(selectedChipIds: unknown): ReactNode {
+  function renderDataSourceChip(selectedDataSourceIds: unknown): ReactNode {
+    const selectedDataSources = dataSourceList?.filter((dataSource) =>
+      (selectedDataSourceIds as string[]).includes(dataSource.id)
+    );
+    const selectedDataSourceNames = selectedDataSources?.map((dataSource) => dataSource.name) ?? [];
     return (
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-        {(selectedChipIds as string[]).map((value, index) => (
+        {selectedDataSourceNames.map((value, index) => (
           <Chip size="small" key={index} label={value} />
         ))}
       </Box>
@@ -197,7 +213,6 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      console.log(data);
       reset(data as unknown as PrometheusType);
     }
   }, [reset, data]);
@@ -298,11 +313,11 @@ export default function PrometheusForm({ data, onSubmit, onClose }: PrometheusMo
                 {...register("dataSourceIds")}
                 value={watch("dataSourceIds") ?? []}
                 select
-                slotProps={{ select: { multiple: true, renderValue: renderChip } }}
+                slotProps={{ select: { multiple: true, renderValue: renderDataSourceChip } }}
               >
-                {requiredData?.prometheusDataSources.map((dataSource) => (
-                  <MenuItem key={dataSource} value={dataSource}>
-                    {dataSource}
+                {dataSourceList?.map((dataSource) => (
+                  <MenuItem key={dataSource.id} value={dataSource.id}>
+                    {dataSource.name}
                   </MenuItem>
                 ))}
               </TextField>

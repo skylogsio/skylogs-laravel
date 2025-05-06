@@ -6,8 +6,9 @@ import type {
   IAlertRuleUsers
 } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
-import type { ServerResponse } from "@/@types/global";
+import type { ServerResponse, ServerSelectableDataType } from "@/@types/global";
 import axios from "@/lib/axios";
+import { DataSourceType } from "@/utils/dataSourceUtils";
 
 const ALERT_RULE_URL = "alert-rule";
 const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
@@ -197,6 +198,19 @@ export async function getAlertRuleLabels(): Promise<string[]> {
 export async function getAlertRuleLabelValues(label: string): Promise<string[]> {
   try {
     const response = await axios.get<string[]>(`${ALERT_RULE_URL}/label-values/${label}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getAlertRuleDataSourcesByAlertType(
+  type: DataSourceType
+): Promise<ServerSelectableDataType> {
+  try {
+    const response = await axios.get<ServerSelectableDataType>(
+      `${ALERT_RULE_URL}/create-data/data-source/${type}`
+    );
     return response.data;
   } catch (error) {
     throw error;

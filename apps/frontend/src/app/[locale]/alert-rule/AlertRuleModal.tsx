@@ -29,7 +29,7 @@ type AlertRuleModalProps = Pick<ModalContainerProps, "open" | "onClose"> & {
 
 export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertRuleModalProps) {
   const { palette } = useTheme();
-  const [selectedDataSource, setSelectedDataSource] = useState<AlertRuleType>(
+  const [selectedAlertRuleType, setSelectedAlertRuleType] = useState<AlertRuleType>(
     ALERT_RULE_VARIANTS[0].value
   );
 
@@ -39,7 +39,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
   });
 
   function handleShowForm() {
-    switch (selectedDataSource) {
+    switch (selectedAlertRuleType) {
       case "api":
         return (
           <ClientAPIForm
@@ -54,6 +54,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
             data={data as CreateUpdateModal<IAlertRule>}
             onSubmit={onSubmit}
             onClose={onClose}
+            type={selectedAlertRuleType}
           />
         );
       case "notification":
@@ -69,7 +70,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
 
   useEffect(() => {
     if (data !== "NEW") {
-      setSelectedDataSource((data as { type: AlertRuleType }).type);
+      setSelectedAlertRuleType((data as { type: AlertRuleType }).type);
     }
   }, [data]);
 
@@ -110,7 +111,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
                   <Button
                     startIcon={item.icon}
                     key={index}
-                    onClick={() => setSelectedDataSource(item.value)}
+                    onClick={() => setSelectedAlertRuleType(item.value)}
                     sx={{
                       paddingX: 3,
                       paddingY: 1.7,
@@ -118,7 +119,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
                       textTransform: "capitalize",
                       borderColor: `${palette.divider} !important`,
                       color:
-                        item.value === selectedDataSource
+                        item.value === selectedAlertRuleType
                           ? palette.primary.main
                           : palette.secondary.dark,
                       fontSize: "1rem",
@@ -133,7 +134,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
                       },
                       "&::before": {
                         content: "''",
-                        display: item.value === selectedDataSource ? "initial" : "none",
+                        display: item.value === selectedAlertRuleType ? "initial" : "none",
                         position: "absolute",
                         top: 0,
                         left: 0,
