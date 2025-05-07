@@ -420,23 +420,18 @@ class AlertRuleService
                 return $collection->aggregate($aggregationArray);
             });
             $result = collect($query)->toArray()[0];
-//            ds(json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]);
             $data = json_decode(json_encode(iterator_to_array($result['data'])), TRUE);
-//            ds($data);
             if (!empty($data)) {
                 $isEnd = json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]['totalCount'] <= $perPage * $page;
-//            ds(\Arr::dot($data[0]['created_at']));
                 $data = collect($data)->map(function ($array) {
                     $array["id"] = $array['_id']['$oid'];
                     $array['created_at'] = Carbon::createFromTimestampMs($array['created_at']['$date']['$numberLong'])->format("Y-m-d H:i:s");
-//                ds($array);
                     return $array;
                 });
                 return view("content.pages.alerts.all_history_ajax", compact("data", "isEnd", "page"));
             } else {
                 return "";
             }
-//            ds(\Arr::dot($data[0]));
         } else {
             $from = $request->from ? Carbon::createFromTimestamp($request->from)->format("Y-m-d H:i") : "";
             $to = $request->to ? Carbon::createFromTimestamp($request->to)->format("Y-m-d H:i") : "";

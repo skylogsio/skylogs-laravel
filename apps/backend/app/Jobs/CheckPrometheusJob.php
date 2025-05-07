@@ -36,15 +36,9 @@ class CheckPrometheusJob implements ShouldQueue,ShouldBeUnique
     {
 
         $alertRules = AlertRule::where('type', AlertRuleType::PROMETHEUS)->get();
-//        $alerts = PrometheusInstanceService::getTriggered();
-        $alerts = cache()->tags(['prometheus','triggered'])->remember("prometheusTriggered",3600, function () {
-            return PrometheusInstanceService::GetTriggered();
-        });
-        ds($alerts)->label("all Alerts");
-//        $alerts = collect($alerts)->filter(function ($alertRule) {return $alertRule['labels']['alertname'] == "KubeAPIDown";})->toArray();
-//        ds($alerts)->label("alerts");
+        $alerts = PrometheusInstanceService::GetTriggered();
+
         $fireAlertsByRule = PrometheusService::CheckPrometheusFiredAlerts($alerts,$alertRules);
-        ds($fireAlertsByRule)->label("fireAlertsByRule");
         PrometheusService::CheckAlerts($alertRules,$fireAlertsByRule);
 
 

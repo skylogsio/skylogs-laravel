@@ -102,6 +102,7 @@ class PrometheusService
 
                     $fireAlertsByRule[$alertRule->_id][] = [
                         "dataSourceId" => $alert['dataSourceId'],
+                        "dataSourceName" => $alert['dataSourceName'],
                         "alertRuleName" => $alertRule->name,
                         "dataSourceAlertName" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],

@@ -35,17 +35,7 @@ class PrometheusCheck extends Model implements Messageable
         return $this->belongsTo(DataSource::class, "dataSourceId", "_id");
     }
 
-    public function getAlertRulePrometheus(): ?AlertRulePrometheus
-    {
 
-        $alertRulePrometheus = AlertRulePrometheus::where("name", $this['instance'] . "-" . $this['labels']['alertname'])->first();
-
-        if ($alertRulePrometheus) {
-            return $alertRulePrometheus;
-        } else {
-            return null;
-        }
-    }
 
     public function createHistory()
     {
@@ -121,7 +111,7 @@ class PrometheusCheck extends Model implements Messageable
 
                 }
 
-                $text .= "Data Source: " . $this->dataSource->name . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -178,7 +168,7 @@ class PrometheusCheck extends Model implements Messageable
 
                 }
 
-                $text .= "Data Source: " . $this->dataSource->name . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -234,7 +224,7 @@ class PrometheusCheck extends Model implements Messageable
 
                 }
 
-                $text .= "Data Source: " . $this->dataSource->name . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -291,7 +281,7 @@ class PrometheusCheck extends Model implements Messageable
 
                 }
 
-                $text .= "Data Source: " . $this->dataSource->name . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -347,7 +337,7 @@ class PrometheusCheck extends Model implements Messageable
 
                 }
 
-                $text .= "Data Source: " . $this->dataSource->name . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -369,26 +359,6 @@ class PrometheusCheck extends Model implements Messageable
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
-    }
-
-    public function isPrometheusInstanceOk()
-    {
-        // TODO new approach (multi instance) may not first instance
-        try {
-            if (!empty($this->alerts)) {
-                $proInstance = PrometheusInstance::where("name", $this->alerts[0]["instance"])->first();
-            } elseif (!empty($this->instance)) {
-                $proInstance = PrometheusInstance::where("name", $this->instance)->first();
-            }
-            if ($proInstance)
-                return $proInstance->isOk();
-            else
-                return true;
-
-        } catch (\Exception $e) {
-            return false;
-        }
-
     }
 
 }

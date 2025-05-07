@@ -42,8 +42,8 @@ class PrometheusInstanceService
             foreach ($responses as $name => $response) {
 
                 try {
-//                    ds($response::class);
-//                    ds($response->ok());
+
+
                     if (!($response instanceof Response && $response->ok())) continue;
 
                     $response = $response->json();
@@ -92,8 +92,8 @@ class PrometheusInstanceService
             foreach ($responses as $name => $response) {
 
                 try {
-//                    ds($response::class);
-//                    ds($response->ok());
+
+
                     if (!($response instanceof Response && $response->ok())) continue;
 
                     $response = $response->json();
@@ -142,8 +142,8 @@ class PrometheusInstanceService
             foreach ($responses as $name => $response) {
 
                 try {
-//                    ds($response::class);
-//                    ds($response->ok());
+
+
                     if (!($response instanceof Response && $response->ok())) continue;
 
                     $response = $response->json();
@@ -221,13 +221,12 @@ class PrometheusInstanceService
 
                 return $result;
             });
-//            ds($responses);
+
 
             foreach ($responses as $id => $response) {
 
                 try {
-//                    ds($response::class);
-//                    ds($response->ok());
+
                     if (!($response instanceof Response && $response->ok())) continue;
 
                     $response = $response->json();
@@ -277,7 +276,6 @@ class PrometheusInstanceService
 
             $ruleArr = $response['data']['groups'];
             foreach ($ruleArr as $group) {
-//                ds($group);
 
                 foreach ($group['rules'] as $rule) {
                     $model = new AlertRulePrometheus();
@@ -332,6 +330,7 @@ class PrometheusInstanceService
 
                 foreach ($arr as &$alert) {
                     $alert['dataSourceId'] = $id;
+                    $alert['dataSourceName'] = $prometheusAll[$id]['name'] ?? "";
 
                     if ($alert['state'] == PrometheusInstance::STATE_FIRING) {
                         $alerts[] = $alert;
