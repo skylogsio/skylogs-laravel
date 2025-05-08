@@ -6,6 +6,7 @@ namespace App\Http\Controllers\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Endpoint;
 use App\Models\EndpointOTP;
+use App\Models\User;
 use App\Services\EndpointService;
 use Illuminate\Http\Request;
 
@@ -65,12 +66,15 @@ class EndpointController extends Controller
         if ($va->passes()) {
             $value = trim($request->value);
 
+            $isPublic = $request->boolean('isPublic', false);
             if ($request->type == "telegram") {
+
                 $model = Endpoint::create([
                     'user_id' => \Auth::id(),
                     'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
+                    'isPublic' => $isPublic,
                     'chatId' => $value,
                     'threadId' => $request->threadId,
                 ]);
@@ -80,12 +84,10 @@ class EndpointController extends Controller
                     'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
+                    'isPublic' => $isPublic,
                     'value' => $value,
                 ]);
-                if ($model->isVerifiedRequired()){
-                    $model->generateOtpCode();
-                    $model->save();
-                }
+
             }
 
             return response()->json([
@@ -105,10 +107,11 @@ class EndpointController extends Controller
         EndpointOTP::updateOrCreate([
             'type' => $request->type,
             'value' => $request->value,
-        ],[
+        ], [
 
         ]);
     }
+
     public function ConfirmOTPCode(Request $request)
     {
 
@@ -158,6 +161,30 @@ class EndpointController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+
+    public function ChangeOwner(Request $request, $id)
+    {
+        $endpoint = Endpoint::where('_id', $id);
+        $isAdmin = auth()->user()->isAdmin();
+
+        if (!$isAdmin) {
+            $endpoint = $endpoint->where("userId", auth()->id());
+        }
+
+        $endpoint = $endpoint->firstOrFail();
+
+        $toUser = User::where('id', $request->user_id)->firstOrFail();
+
+        $endpoint->userId = $toUser->id;
+        $endpoint->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Successfully change owner'
+        ]);
+
     }
 
 

@@ -56,6 +56,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
+                Route::post('/changeOwner/{id}', 'ChangeOwner');
                 Route::delete('/{id}', 'Delete');
             });
 

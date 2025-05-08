@@ -53,6 +53,17 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+POST {{domain}}/endpoint/changeOwner/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "userId": "userId"
+}
+
+
+###
 DELETE {{domain}}/endpoint/67ab9d887ad723b5b807db12
 Content-Type: application/json
 Accept: application/json
