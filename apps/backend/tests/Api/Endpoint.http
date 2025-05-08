@@ -21,7 +21,8 @@ Authorization: Bearer {{authToken}}
 {
     "name": "test1",
     "type" : "sms",
-    "value" : "09000000000"
+    "value" : "09000000000",
+    "isPublic" : false
 }
 
 ###
@@ -35,7 +36,8 @@ Authorization: Bearer {{authToken}}
     "name": "test2",
     "type" : "telegram",
     "value" : "-100",
-    "threadId" : "11"
+    "threadId" : "11",
+    "isPublic" : false
 }
 
 ###
@@ -48,7 +50,8 @@ Authorization: Bearer {{authToken}}
     "name": "test2",
     "type" : "telegram",
     "chatId" : "-100",
-    "threadId" : "2"
+    "threadId" : "2",
+    "isPublic" : true
 }
 
 

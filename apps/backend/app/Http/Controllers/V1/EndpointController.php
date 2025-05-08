@@ -65,8 +65,8 @@ class EndpointController extends Controller
         );
         if ($va->passes()) {
             $value = trim($request->value);
-
             $isPublic = $request->boolean('isPublic', false);
+
             if ($request->type == "telegram") {
 
                 $model = Endpoint::create([
@@ -74,9 +74,9 @@ class EndpointController extends Controller
                     'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
-                    'isPublic' => $isPublic,
                     'chatId' => $value,
                     'threadId' => $request->threadId,
+                    'isPublic' => $isPublic,
                 ]);
             } else {
                 $model = Endpoint::create([
@@ -84,8 +84,8 @@ class EndpointController extends Controller
                     'userId' => \Auth::id(),
                     'name' => $request->name,
                     'type' => $request->type,
-                    'isPublic' => $isPublic,
                     'value' => $value,
+                    'isPublic' => $isPublic,
                 ]);
 
             }
@@ -136,6 +136,7 @@ class EndpointController extends Controller
         );
         if ($va->passes()) {
             $value = trim($request->value);
+            $isPublic = $request->boolean('isPublic', false);
 
             if ($request->type == "telegram") {
                 $model->update([
@@ -143,12 +144,14 @@ class EndpointController extends Controller
                     'type' => $request->type,
                     'chatId' => $value,
                     'threadId' => $request->threadId,
+                    "isPublic" => $isPublic,
                 ]);
             } else {
                 $model->update([
                     'name' => $request->name,
                     'type' => $request->type,
                     'value' => $value,
+                    'isPublic' => $isPublic,
                 ]);
             }
 
