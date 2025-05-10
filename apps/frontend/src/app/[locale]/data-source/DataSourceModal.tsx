@@ -154,15 +154,6 @@ export default function DataSourceModal({ open, onClose, data, onSubmit }: DataS
             select
           >
             {renderDataSourceList()}
-            {/*{Object.entries(DATA_SOURCE_VARIANTS).map(([key, value]) => ())}*/}
-            {/*{DATA_SOURCE_VARIANTS.map((item) => (*/}
-            {/*  <MenuItem key={item.value} value={item.value} sx={{ textTransform: "capitalize" }}>*/}
-            {/*    <Stack direction="row" alignItems="center" spacing={1}>*/}
-            {/*      {item.icon}*/}
-            {/*      <Typography component="span">{item.value}</Typography>*/}
-            {/*    </Stack>*/}
-            {/*  </MenuItem>*/}
-            {/*))}*/}
           </TextField>
         </Grid>
         <Grid size={6}>
