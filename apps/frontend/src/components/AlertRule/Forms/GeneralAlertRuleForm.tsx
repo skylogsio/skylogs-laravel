@@ -35,7 +35,7 @@ import { type DataSourceType } from "@/utils/dataSourceUtils";
 import { capitalizeFirstLetter } from "@/utils/general";
 
 const QUERY_TYPE = ["dynamic", "textQuery"] as const;
-const ALERT_RULE_TYPES = ["prometheus", "pmm"] as const;
+const ALERT_RULE_TYPES = ["prometheus", "pmm", "grafana"] as const;
 
 const extraFieldSchema = z.object({
   key: z.string().refine((data) => data.trim() !== "", {
@@ -70,7 +70,7 @@ type GeneralAlertRuleType = z.infer<typeof generalAlertRuleSchema>;
 type GeneralAlertRuleModalProps = Pick<ModalContainerProps, "onClose"> & {
   data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
-  type: DataSourceType;
+  type: Extract<DataSourceType, "prometheus" | "pmm" | "grafana">;
 };
 
 const defaultKeyValue = { key: "", value: "" };
@@ -223,7 +223,7 @@ export default function GeneralAlertRuleForm({
   }, [reset, data]);
 
   useEffect(() => {
-    if (type === "prometheus" || type === "pmm") {
+    if (ALERT_RULE_TYPES.includes(type)) {
       setValue("type", type);
     }
   }, [setValue, type]);
@@ -343,10 +343,10 @@ export default function GeneralAlertRuleForm({
               <Autocomplete
                 id="data-source-alert-rule-name"
                 options={alertRuleNameList ?? []}
-                freeSolo={type === "pmm"}
+                freeSolo={type !== "prometheus"}
                 value={watch("dataSourceAlertName")}
                 onChange={(_, value) => setValue("dataSourceAlertName", value ?? "")}
-                autoSelect={type === "pmm"}
+                autoSelect={type !== "prometheus"}
                 renderTags={(value: readonly string[], getItemProps) =>
                   value.map((option: string, index: number) => {
                     const { key, ...itemProps } = getItemProps({ index });

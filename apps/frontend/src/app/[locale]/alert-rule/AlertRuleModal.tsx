@@ -49,6 +49,7 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
           />
         );
       case "pmm":
+      case "grafana":
       case "prometheus":
         return (
           <GeneralAlertRuleForm
