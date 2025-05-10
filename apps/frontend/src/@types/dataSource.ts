@@ -1,7 +1,8 @@
-import type{ConnectionStatusType} from "@/@types/global";
+import type { ConnectionStatusType } from "@/@types/global";
+import { type DataSourceType } from "@/utils/dataSourceUtils";
 
 export interface IDataSource {
-  type: string;
+  type: DataSourceType;
   name: string;
   url: string;
   username: string;
@@ -9,5 +10,5 @@ export interface IDataSource {
   updated_at: string;
   created_at: string;
   id: string;
-  status:ConnectionStatusType
+  status: ConnectionStatusType;
 }
