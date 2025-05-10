@@ -1,5 +1,6 @@
 import type { IEndpoint } from "@/@types/endpoint";
 import type { IUser } from "@/@types/user";
+import { type AlertRuleType } from "@/utils/alertRuleUtils";
 
 export interface IAlertRuleCreateData {
   endpoints: IEndpoint[];
@@ -10,7 +11,7 @@ export type AlertRuleStatus = "resolved" | "warning" | "critical" | "triggered" 
 
 export interface IAlertRule {
   name: string;
-  type: "api" | "manual" | string;
+  type: AlertRuleType;
   user_id: string;
   enableAutoResolve: boolean;
   autoResolveMinutes: number;
