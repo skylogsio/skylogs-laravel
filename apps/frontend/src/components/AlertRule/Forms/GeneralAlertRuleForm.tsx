@@ -346,6 +346,7 @@ export default function GeneralAlertRuleForm({
                 freeSolo={type === "pmm"}
                 value={watch("dataSourceAlertName")}
                 onChange={(_, value) => setValue("dataSourceAlertName", value ?? "")}
+                autoSelect={type === "pmm"}
                 renderTags={(value: readonly string[], getItemProps) =>
                   value.map((option: string, index: number) => {
                     const { key, ...itemProps } = getItemProps({ index });
