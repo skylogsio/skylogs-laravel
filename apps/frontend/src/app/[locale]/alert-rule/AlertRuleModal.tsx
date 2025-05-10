@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { getAlertRuleCreateData } from "@/api/alertRule/alertRule";
+import { getAlertRuleCreateData } from "@/api/alertRule";
 import ClientAPIForm from "@/components/AlertRule/Forms/ClientAPIForm";
 import GeneralAlertRuleForm from "@/components/AlertRule/Forms/GeneralAlertRuleForm";
 import NotificationForm from "@/components/AlertRule/Forms/NotificationForm";

@@ -16,7 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { FaCheck } from "react-icons/fa6";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 
-import { getAlertFilterEndpointList } from "@/api/alertRule/alertRule";
+import { getAlertFilterEndpointList } from "@/api/alertRule";
 import type { TableFilterComponentProps } from "@/components/Table/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 

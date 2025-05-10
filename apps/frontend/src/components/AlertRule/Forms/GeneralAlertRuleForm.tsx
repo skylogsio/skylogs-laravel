@@ -27,7 +27,7 @@ import {
   getAlertRuleTags,
   getDataSourceAlertName,
   updateAlertRule
-} from "@/api/alertRule/alertRule";
+} from "@/api/alertRule";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";

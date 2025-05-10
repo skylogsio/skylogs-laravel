@@ -9,7 +9,7 @@ import {
   addEndpointToAlertRule,
   getAlertRuleEndpointsList,
   removeEndpointFromAlertRule
-} from "@/api/alertRule/alertRule";
+} from "@/api/alertRule";
 import ModalContainer from "@/components/Modal";
 import DataTable from "@/components/Table/DataTable";
 import { renderEndPointChip } from "@/utils/endpointVariants";

@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { HiX } from "react-icons/hi";
 
-import { getAlertRuleLabels, getAlertRuleLabelValues } from "@/api/alertRule/alertRule";
+import { getAlertRuleLabels, getAlertRuleLabelValues } from "@/api/alertRule";
 
 interface ExtraFieldProps {
   keyTextFieldProps: { value: string; onChange: (selectedValue: string | null) => void } & Pick<

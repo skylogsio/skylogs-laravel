@@ -6,7 +6,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { RiTestTubeFill } from "react-icons/ri";
 
-import { silenceAlertRule, testAlertRule } from "@/api/alertRule/alertRule";
+import { silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import ActionColumn, { ActionColumnProps } from "@/components/ActionColumn";
 
 import AlertRuleUserModal from "./UserModal";
