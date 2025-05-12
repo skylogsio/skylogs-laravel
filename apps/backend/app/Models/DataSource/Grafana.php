@@ -4,6 +4,7 @@ namespace App\Models\DataSource;
 
 use App\Interfaces\Messageable;
 use App\Models\AlertInstance;
+use App\Models\BaseModel;
 use App\Models\ElasticCheck;
 use App\Models\Endpoint;
 use App\Models\GrafanaWebhookAlert;
@@ -23,7 +24,7 @@ use MongoDB\Laravel\Relations\HasMany;
 use function Symfony\Component\String\b;
 use function Symfony\Component\Translation\t;
 
-class Grafana extends Model
+class Grafana extends BaseModel
 {
 
     public const UNKNOWN = "unknown";

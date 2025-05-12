@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class GrafanaWebhookAlert extends Model implements Messageable
+class GrafanaWebhookAlert extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

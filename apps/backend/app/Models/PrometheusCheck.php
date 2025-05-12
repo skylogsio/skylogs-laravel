@@ -10,7 +10,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class PrometheusCheck extends Model implements Messageable
+class PrometheusCheck extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

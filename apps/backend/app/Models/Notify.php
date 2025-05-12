@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class Notify extends Model implements Messageable
+class Notify extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

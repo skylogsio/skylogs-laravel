@@ -19,7 +19,7 @@ class DataSourceController extends Controller
     {
         $perPage = $request->per_page ?? 25;
 
-        $data = DataSource::query();
+        $data = DataSource::latest();
 
         $data = $data->paginate($perPage);
 

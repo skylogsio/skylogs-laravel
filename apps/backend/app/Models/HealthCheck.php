@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class HealthCheck extends Model implements Messageable
+class HealthCheck extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

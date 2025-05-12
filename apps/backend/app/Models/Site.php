@@ -15,8 +15,8 @@ class Site {
 
     public static $labels = [
 
-        "created_at"    => "تاریخ ایجاد",
-        "updated_at"    => "تاریخ بروزرسانی",
+        "createdAt"    => "تاریخ ایجاد",
+        "updatedAt"    => "تاریخ بروزرسانی",
         "deleted_at"    => "تاریخ حذف",
         "created_by"    => "ایجاد توسط",
         "updated_by"    => "بروزرسانی توسط",

@@ -22,7 +22,6 @@ class EndpointService
 
     public static function SelectableUserEndpoint(User $user, AlertRule $alert = null)
     {
-        $adminUserId = User::where('username', 'admin')->first()->_id;
 
         if ($user->isAdmin()) {
             return Cache::tags(['endpoint', 'admin'])
@@ -33,15 +32,15 @@ class EndpointService
             $alertUserIds = $alert->userIds ?? [];
         } else {
             return Cache::tags(['endpoint', $user->id])
-                ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::whereIn("user_id", [$adminUserId, $user->_id])->get());
+                ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::where("userId",  $user->_id)->orWhere('isPublic',true)->get());
         }
 
         if ($alert->userId == $user->_id) {
             return Cache::tags(['endpoint', $user->id])
-                ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::whereIn("user_id", [$adminUserId, $user->_id])->get());
+                ->rememberForever("endpoint:global:$user->id",  fn() => Endpoint::where("userId",  $user->_id)->orWhere('isPublic',true)->get());
         } elseif (in_array($user->_id, $alertUserIds)) {
             return Cache::tags(['endpoint', $user->id])
-                ->rememberForever("endpoint:user:$user->id",  fn() => Endpoint::where("user_id", $user->_id)->get());
+                ->rememberForever("endpoint:user:$user->id",  fn() => Endpoint::where("userId", $user->_id)->get());
         }
 
         return collect();

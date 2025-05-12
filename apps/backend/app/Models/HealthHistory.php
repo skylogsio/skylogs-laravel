@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class HealthHistory extends Model
+class HealthHistory extends BaseModel
 {
 
     public $timestamps = true;

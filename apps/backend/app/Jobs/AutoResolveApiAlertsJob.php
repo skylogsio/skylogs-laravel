@@ -48,7 +48,7 @@ class AutoResolveApiAlertsJob implements ShouldQueue
                 if (!empty($instances) && $instances->isNotEmpty()) {
                     $fireInstances = $instances->where("state", AlertInstance::FIRE);
                     foreach ($fireInstances as $instance) {
-                        $lastUpdate = $instance->updated_at->getTimeStamp();
+                        $lastUpdate = $instance->updatedAt->getTimeStamp();
                         if (($lastUpdate + ($minutes * 60)) < $now) {
                             $post = [
                                 "apiToken" => $alert->apiToken,

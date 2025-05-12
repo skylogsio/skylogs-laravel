@@ -11,7 +11,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class SkylogsInstance extends Model
+class SkylogsInstance extends BaseModel
 {
 
     public $timestamps = true;

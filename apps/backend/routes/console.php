@@ -1,20 +1,23 @@
 <?php
 
+use App\Enums\AlertRuleType;
 use App\Jobs\AddChecksJob;
 use App\Jobs\AutoResolveApiAlertsJob;
 use App\Jobs\CheckPrometheusJob;
+use App\Models\AlertRule;
 
 
 Artisan::command('app:test', function () {
-    $this->comment("Test job");
-     CheckPrometheusJob::dispatch();
+    if (config('app.env') === 'local') {
+//    $alerts = AlertRule::where("type", \App\Enums\AlertRuleType::API)->get();
+    }
 })->purpose('Run Code');
 
 if (config('app.env') === 'production') {
     Schedule::job(new CheckPrometheusJob)->everyFiveSeconds();
     Schedule::job(new AddChecksJob)->everyFiveSeconds();
     Schedule::job(new AutoResolveApiAlertsJob)->everyFiveSeconds();
-}else{
+} else {
     Schedule::job(new CheckPrometheusJob)->everyThirtySeconds();
     Schedule::job(new AddChecksJob)->everyThirtySeconds();
 }

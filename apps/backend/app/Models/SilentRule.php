@@ -12,7 +12,7 @@ use MongoDB\Laravel\Relations\HasMany;
 use function Symfony\Component\String\b;
 use function Symfony\Component\Translation\t;
 
-class SilentRule extends Model
+class SilentRule extends BaseModel
 {
 
     public const ALERTNAME = "alertname";

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use MongoDB\Laravel\Eloquent\Model;
 
-class Status extends Model
+class Status extends BaseModel
 {
 
     public $timestamps = true;

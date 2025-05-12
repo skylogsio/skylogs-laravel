@@ -7,7 +7,7 @@ use App\Interfaces\Messageable;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class AlertRule extends Model implements Messageable
+class AlertRule extends BaseModel implements Messageable
 {
 
     public const UNKNOWN = "unknown";

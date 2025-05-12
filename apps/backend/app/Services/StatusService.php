@@ -28,7 +28,7 @@ class StatusService
         foreach ($alerts as $alert){
             switch ($alert->type){
                 case Constants::API:
-                    ApiAlertHistory::whereBetween("created_at", [$fromDate->toDateTime(),$toDate->toDateTime()])
+                    ApiAlertHistory::whereBetween("createdAt", [$fromDate->toDateTime(),$toDate->toDateTime()])
                         ->get();
                     break;
             }
