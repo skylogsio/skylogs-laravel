@@ -56,23 +56,84 @@ class CreateDataController extends Controller
     {
 
         $type = AlertRuleType::tryFrom($request->input("type"));
-        switch ($type) {
-            case AlertRuleType::PROMETHEUS:
-            default:
-                $rules = PrometheusInstanceService::getRules($request->dataSourceId);
-                break;
-        }
+//        switch ($type) {
+//            case AlertRuleType::PROMETHEUS:
+//            default:
+//                $rules = PrometheusInstanceService::getRules($request->dataSourceId);
+//                break;
+//        }
+        $rules = [
+            "rule_1",
+            "rule_2",
+            "rule_3",
+            "rule_4",
+            "rule_5",
+            "rule_6",
+            "rule_7",
+            "rule_8",
+            "rule_9",
+            "rule_10",
+        ];
         return response()->json($rules);
     }
 
     public function Labels(Request $request)
     {
-        return response()->json(PrometheusInstanceService::getLabels());
+//        $labels = PrometheusInstanceService::getLabels();
+        $labels = [
+          "label_1",
+            "label_2",
+            "label_3",
+            "label_4",
+            "label_5",
+            "label_6",
+        ];
+        return response()->json($labels);
     }
 
     public function LabelValues(Request $request, $label)
     {
-        return response()->json(PrometheusInstanceService::getLabelValues($label));
+//        $labelValues = PrometheusInstanceService::getLabelValues($label);
+        $labels = [
+            "label_1"=>[
+                "label_1_val_1",
+                "label_1_val_2",
+                "label_1_val_3",
+                "label_1_val_4",
+            ],
+            "label_2"=>[
+                "label_2_val_1",
+                "label_2_val_2",
+                "label_2_val_3",
+                "label_2_val_4",
+
+            ],
+            "label_3"=>[
+                "label_3_val_1",
+                "label_3_val_2",
+                "label_3_val_3",
+                "label_3_val_4",
+            ],
+            "label_4"=>[
+                "label_4_val_1",
+                "label_4_val_2",
+                "label_4_val_3",
+                "label_4_val_4",
+            ],
+            "label_5"=>[
+                "label_5_val_1",
+                "label_5_val_2",
+                "label_5_val_3",
+                "label_5_val_4",
+            ],
+            "label_6"=>[
+                "label_6_val_1",
+                "label_6_val_2",
+                "label_6_val_3",
+                "label_6_val_4",
+            ],
+        ];
+        return response()->json($labels[$label] ?? []);
     }
 
 
