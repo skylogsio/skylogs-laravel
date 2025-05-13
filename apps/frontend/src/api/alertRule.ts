@@ -1,6 +1,7 @@
 "use server";
 
 import type {
+  IAlertRule,
   IAlertRuleCreateData,
   IAlertRuleEndpoints,
   IAlertRuleUsers
@@ -34,6 +35,15 @@ export async function updateAlertRule(
       `${ALERT_RULE_URL}/${alertRuleId}`,
       body
     );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getAlertRuleById(alertId: string) {
+  try {
+    const response = await axios.get<IAlertRule>(`${ALERT_RULE_URL}/${alertId}`);
     return response.data;
   } catch (error) {
     throw error;

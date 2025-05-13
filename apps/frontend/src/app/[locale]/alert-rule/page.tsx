@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 
 import type { IAlertRule } from "@/@types/alertRule";
@@ -17,6 +19,7 @@ import NotifyModal from "./NotifyModal";
 
 export default function AlertRule() {
   const tableRef = useRef<TableComponentRef>(null);
+  const pathname = usePathname();
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
   const [deleteModalData, setDeleteModalData] = useState<IAlertRule | null>(null);
 
@@ -41,7 +44,12 @@ export default function AlertRule() {
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
-          { header: "Name", accessorKey: "name" },
+          {
+            header: "Name",
+            cell: ({ row }) => (
+              <Link href={`${pathname}/${row.original.id}`}>{row.original.name}</Link>
+            )
+          },
           {
             header: "Type",
             cell: ({ row }) => <AlertRuleType type={row.original.type} />
