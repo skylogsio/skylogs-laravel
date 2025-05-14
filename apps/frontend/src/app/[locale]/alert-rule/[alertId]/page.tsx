@@ -5,9 +5,10 @@ import { useState } from "react";
 
 import { alpha, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { HiTrash } from "react-icons/hi";
+import { HiPencil, HiTrash } from "react-icons/hi";
 
 import { getAlertRuleById } from "@/api/alertRule";
+import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
@@ -16,21 +17,28 @@ export default function ViewAlertRule() {
   const { alertId } = useParams<{ alertId: string }>();
   const router = useRouter();
   const { palette } = useTheme();
-  const [currentOpenModal, setCurrentOpenModal] = useState<"DELETE" | null>(null);
+  const [currentOpenModal, setCurrentOpenModal] = useState<"DELETE" | "EDIT" | null>(null);
 
   function handleAfterDelete() {
     router.push("/alert-rule");
   }
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["view-alert-rule", alertId],
     queryFn: () => getAlertRuleById(alertId),
     enabled: Boolean(alertId)
   });
+
   if (!data) {
     return null;
   }
+
+  function handleRefreshData() {
+    refetch();
+  }
+
   console.log(data);
+
   const { Icon, defaultColor } = ALERT_RULE_VARIANTS[data.type];
 
   return (
@@ -44,17 +52,32 @@ export default function ViewAlertRule() {
               <AlertRuleStatus status={data.status_label} />
             </Stack>
           </Stack>
-          <Stack direction="row">
+          <Stack direction="row-reverse" spacing={2}>
             <Button
               startIcon={<HiTrash />}
               onClick={() => setCurrentOpenModal("DELETE")}
               sx={{
-                color: palette.error.light,
+                flex: 1,
                 textTransform: "capitalize !important",
-                backgroundColor: alpha(palette.error.light, 0.05)
+                color: palette.error.light,
+                backgroundColor: alpha(palette.error.light, 0.05),
+                paddingX: 2
               }}
             >
               Delete
+            </Button>
+            <Button
+              startIcon={<HiPencil />}
+              onClick={() => setCurrentOpenModal("EDIT")}
+              sx={{
+                flex: 1,
+                textTransform: "capitalize !important",
+                color: palette.info.light,
+                backgroundColor: alpha(palette.info.light, 0.05),
+                paddingX: 2
+              }}
+            >
+              Edit
             </Button>
           </Stack>
         </Stack>
@@ -65,6 +88,14 @@ export default function ViewAlertRule() {
           onClose={() => setCurrentOpenModal(null)}
           onAfterDelete={handleAfterDelete}
           data={data}
+        />
+      )}
+      {currentOpenModal === "EDIT" && (
+        <AlertRuleModal
+          open={currentOpenModal === "EDIT"}
+          onClose={() => setCurrentOpenModal(null)}
+          data={data}
+          onSubmit={handleRefreshData}
         />
       )}
     </>
