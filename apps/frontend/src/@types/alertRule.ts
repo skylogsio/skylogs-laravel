@@ -1,19 +1,17 @@
 import type { IEndpoint } from "@/@types/endpoint";
 import type { IUser } from "@/@types/user";
+import { type AlertRuleType } from "@/utils/alertRuleUtils";
 
 export interface IAlertRuleCreateData {
-  prometheusDataSources: string[];
-  grafanaDataSources: string[];
-  splunkDataSources: string[];
   endpoints: IEndpoint[];
   users: IUser[];
 }
 
-export type AlertRuleStatus = "resolved" | "warning" | "fire";
+export type AlertRuleStatus = "resolved" | "warning" | "critical" | "triggered" | "unknown";
 
 export interface IAlertRule {
   name: string;
-  type: "api" | "manual" | string;
+  type: AlertRuleType;
   user_id: string;
   enableAutoResolve: boolean;
   autoResolveMinutes: number;
@@ -26,6 +24,7 @@ export interface IAlertRule {
   status_label: AlertRuleStatus;
   is_silent: boolean;
   count_endpoints: number;
+  tags: string[];
 }
 
 export interface IAlertRuleEndpoints {

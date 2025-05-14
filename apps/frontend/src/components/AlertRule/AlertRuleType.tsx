@@ -1,17 +1,17 @@
 import { Stack, Typography } from "@mui/material";
 
-import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
+import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
-export default function AlertRuleType({ type }: { type: string }) {
-  const alertRuleType = ALERT_RULE_VARIANTS.find((item) => item.value === type);
+export default function AlertRuleType({ type }: { type: AlertRuleType }) {
+  const alertRuleType = ALERT_RULE_VARIANTS[type];
 
   if (!alertRuleType) return;
 
   return (
     <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
-      {alertRuleType?.icon}
+      <alertRuleType.Icon size={alertRuleType.defaultSize} color={alertRuleType.defaultColor} />
       <Typography component="div" textTransform="capitalize">
-        {alertRuleType?.value}
+        {alertRuleType.label}
       </Typography>
     </Stack>
   );

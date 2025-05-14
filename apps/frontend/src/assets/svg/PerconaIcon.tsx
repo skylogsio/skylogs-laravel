@@ -12,8 +12,8 @@ export default function PerconaIcon({ size }: { size: string | number }) {
           gradientTransform="translate(0 237.3) scale(1 -1)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stop-color="#fc3519" />
-          <stop offset="1" stop-color="#f0d136" />
+          <stop offset="0" stopColor="#fc3519" />
+          <stop offset="1" stopColor="#f0d136" />
         </linearGradient>
       </defs>
       <path

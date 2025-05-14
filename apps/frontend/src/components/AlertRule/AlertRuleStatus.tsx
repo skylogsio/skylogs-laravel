@@ -18,7 +18,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
   const { palette } = useTheme();
 
   const { mutate: resolveAlertRule, isPending } = useMutation({
-    mutationFn: () => resolveFiredAlertRule(id),
+    mutationFn: () => resolveFiredAlertRule(id!),
     onSuccess: (data) => {
       if (data.status) {
         onAfterResolve?.();
@@ -27,17 +27,18 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
     }
   });
 
-  const color: Record<AlertRuleStatus, string> = useMemo(
+  const color: Record<Exclude<AlertRuleStatus, "unknown">, string> = useMemo(
     () => ({
       resolved: palette.success.main,
-      fire: palette.error.main,
-      warning: palette.warning.main
+      critical: palette.error.main,
+      warning: palette.warning.main,
+      triggered: palette.grey[100]
     }),
     [palette]
   );
 
-  if (!status) {
-    return null;
+  if (!status || status === "unknown") {
+    return "-";
   }
 
   return (
@@ -50,7 +51,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
           backgroundColor: alpha(color[status], 0.07)
         }}
       />
-      {status === "fire" && (
+      {status === "critical" && (
         <IconButton
           disabled={isPending}
           size="small"
@@ -61,7 +62,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
           }}
           onClick={() => resolveAlertRule()}
         >
-          {isPending ? <CircularProgress size={16} color="inherit" /> : <FaFireExtinguisher />}
+          {isPending ? <CircularProgress size={17} color="inherit" /> : <FaFireExtinguisher />}
         </IconButton>
       )}
     </Stack>

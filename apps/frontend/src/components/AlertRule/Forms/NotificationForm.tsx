@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -9,7 +9,6 @@ import {
   Grid2 as Grid,
   MenuItem,
   Stack,
-  Switch,
   TextField,
   Typography
 } from "@mui/material";
@@ -23,58 +22,33 @@ import type { CreateUpdateModal } from "@/@types/global";
 import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
-const clientApiSchema = z
-  .object({
-    name: z
-      .string({ required_error: "This field is Required." })
-      .refine((data) => data.trim() !== "", {
-        message: "This field is Required."
-      }),
-    type: z.literal("api").default("api"),
-    enableAutoResolve: z.boolean().default(false),
-    autoResolveMinutes: z.number({
-      required_error: "This field is Required.",
-      invalid_type_error: "This field is Required."
+const clientApiSchema = z.object({
+  name: z
+    .string({ required_error: "This field is Required." })
+    .refine((data) => data.trim() !== "", {
+      message: "This field is Required."
     }),
-    endpointIds: z.array(z.string()).optional().default([]),
-    userIds: z.array(z.string()).optional().default([]),
-    tags: z.array(z.string()).optional().default([])
-  })
-  .superRefine((data, ctx) => {
-    if (data.enableAutoResolve) {
-      if (data.autoResolveMinutes === undefined) {
-        ctx.addIssue({
-          path: ["autoResolveMinutes"],
-          message: "This field is Required.",
-          code: "custom"
-        });
-      } else if (!Number.isInteger(data.autoResolveMinutes) || data.autoResolveMinutes <= 0) {
-        ctx.addIssue({
-          path: ["autoResolveMinutes"],
-          message: "Must be a positive integer.",
-          code: "custom"
-        });
-      }
-    }
-  });
+  type: z.literal("notification").default("notification"),
+  endpointIds: z.array(z.string()).optional().default([]),
+  userIds: z.array(z.string()).optional().default([]),
+  tags: z.array(z.string()).optional().default([])
+});
 
-type ClientAPIFormType = z.infer<typeof clientApiSchema>;
-type ClientAPIModalProps = Pick<ModalContainerProps, "onClose"> & {
+type NotificationFormType = z.infer<typeof clientApiSchema>;
+type NotificationModalProps = Pick<ModalContainerProps, "onClose"> & {
   data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
 };
 
-const defaultValues: ClientAPIFormType = {
+const defaultValues: NotificationFormType = {
   name: "",
-  type: "api",
+  type: "notification",
   userIds: [],
   endpointIds: [],
-  enableAutoResolve: false,
-  autoResolveMinutes: 0,
   tags: []
 };
 
-export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModalProps) {
+export default function NotificationForm({ onClose, onSubmit, data }: NotificationModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
@@ -82,21 +56,19 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     watch,
     setValue,
     reset,
-    clearErrors,
     formState: { errors }
-  } = useForm<ClientAPIFormType>({
+  } = useForm<NotificationFormType>({
     resolver: zodResolver(clientApiSchema),
     defaultValues
   });
 
   const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
-  const { mutate: createClientAPIMutation, isPending: isCreating } = useMutation({
-    mutationFn: (body: ClientAPIFormType) => createAlertRule(body),
+  const { mutate: createNotificationMutation, isPending: isCreating } = useMutation({
+    mutationFn: (body: NotificationFormType) => createAlertRule(body),
     onSuccess: (data) => {
-      console.log(data);
       if (data.status) {
-        toast.success("Client Api Alert Rule Created Successfully.");
+        toast.success("Notification Alert Rule Created Successfully.");
         onSubmit();
         onClose?.();
       }
@@ -107,7 +79,7 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   });
 
   const { mutate: updateClientAPIMutation, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: ClientAPIFormType }) =>
+    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: NotificationFormType }) =>
       updateAlertRule(id, body),
     onSuccess: (data) => {
       if (data.status) {
@@ -123,18 +95,10 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     queryFn: () => getAlertRuleTags()
   });
 
-  function handleAutoResolve(event: React.ChangeEvent<HTMLInputElement>) {
-    if (!event.target.checked) {
-      clearErrors("autoResolveMinutes");
-      setValue("autoResolveMinutes", 0);
-    }
-    setValue("enableAutoResolve", event.target.checked);
-  }
-
-  function handleSubmitForm(values: ClientAPIFormType) {
+  function handleSubmitForm(values: NotificationFormType) {
     console.log(values);
     if (data === "NEW") {
-      createClientAPIMutation(values);
+      createNotificationMutation(values);
     } else if (data) {
       updateClientAPIMutation({ id: data.id, body: values });
     }
@@ -176,15 +140,21 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      reset(data as unknown as ClientAPIFormType);
+      reset(data as unknown as NotificationFormType);
     }
   }, [reset, data]);
 
   return (
-    <Stack component="form" height="100%" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
+    <Stack
+      component="form"
+      width="100%"
+      height="100%"
+      onSubmit={handleSubmit(handleSubmitForm)}
+      padding={2}
+    >
       <Grid container spacing={2} flex={1} alignContent="flex-start">
         <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
-          {data === "NEW" ? "Create" : "Update"} Client API Alert
+          {data === "NEW" ? "Create" : "Update"} Notification Alert
         </Typography>
         <Grid size={12}>
           <TextField
@@ -242,26 +212,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
               </MenuItem>
             ))}
           </TextField>
-        </Grid>
-        <Grid size={6}>
-          <Stack height="100%" direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Typography>Auto Resolve</Typography>
-            <Switch checked={watch("enableAutoResolve")} onChange={handleAutoResolve} />
-          </Stack>
-        </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Auto Resolve After (Minutes)"
-            variant="filled"
-            type="number"
-            disabled={!watch("enableAutoResolve")}
-            error={!!errors.autoResolveMinutes}
-            helperText={errors.autoResolveMinutes?.message}
-            {...register("autoResolveMinutes", {
-              valueAsNumber: true,
-              setValueAs: (value) => parseInt(value)
-            })}
-          />
         </Grid>
         <Grid size={12}>
           <Autocomplete
