@@ -11,7 +11,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class SentryWebhookAlert extends Model implements Messageable
+class SentryWebhookAlert extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

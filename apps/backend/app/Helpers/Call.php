@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\interfaces\Messageable;
+use App\Models\Endpoint;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\Response;
@@ -18,11 +19,12 @@ class Call
         return "https://api.kavenegar.com/v1". '/' . self::Token() . "/call/maketts.json";
     }
 
+
     private static function SenderNumber()
     {
-
-        return "10007891";
+        return config("variables.kavenegarSenderNumber");
     }
+
 
     private static function Token()
     {
@@ -67,6 +69,15 @@ class Call
         return $resultJson;
 
 
+    }
+
+    public static function sendOTP(Endpoint $endpoint)
+    {
+        Http::post(self::Url(), [
+            "sender" => self::SenderNumber(),
+            "receptor" => $endpoint->value,
+            'message' => $endpoint->generateOTPMessage().$endpoint->generateOTPMessage(),
+        ]);
     }
 
 }

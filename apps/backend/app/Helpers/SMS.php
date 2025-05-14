@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\interfaces\Messageable;
 
+use App\Models\Endpoint;
 use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Pool;
@@ -23,8 +24,7 @@ class SMS
 
     private static function SenderNumber()
     {
-
-        return "10007891";
+        return config("variables.kavenegarSenderNumber");
     }
 
     private static function Token()
@@ -71,5 +71,13 @@ class SMS
 
     }
 
+    public static function sendOTP(Endpoint $endpoint)
+    {
+        Http::post(self::Url(), [
+            "sender" => self::SenderNumber(),
+            "receptor" => $endpoint->value,
+            'message' => $endpoint->generateOTPMessage(),
+        ]);
+    }
 
 }

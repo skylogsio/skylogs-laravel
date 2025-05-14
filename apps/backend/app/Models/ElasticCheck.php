@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class ElasticCheck extends Model implements Messageable
+class ElasticCheck extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

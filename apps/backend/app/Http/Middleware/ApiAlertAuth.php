@@ -20,7 +20,7 @@ class ApiAlertAuth
         $bearerToken = $request->bearerToken();
         $alert = ApiService::AlertRuleByToken($bearerToken);
         if ($alert) {
-            return $next($request->merge(['alert' => $alert, "api_token" => $bearerToken]));
+            return $next($request->merge(['alert' => $alert, "apiToken" => $bearerToken]));
         }
         abort(Response::HTTP_UNAUTHORIZED);
     }

@@ -3,23 +3,11 @@
 namespace App\Models\DataSource;
 
 use App\Enums\DataSourceType;
-use App\Interfaces\Messageable;
-use App\Models\AlertInstance;
-use App\Models\ElasticCheck;
-use App\Models\Endpoint;
-use App\Models\GrafanaWebhookAlert;
-use App\Models\HealthCheck;
-use App\Models\MetabaseWebhookAlert;
-use App\Models\PrometheusCheck;
-use App\Models\SentryWebhookAlert;
-use App\Models\Service;
-use App\Models\ServiceCheck;
+use App\Models\BaseModel;
 use App\Models\User;
-use App\Helpers\Constants;
-use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class DataSource extends Model
+class DataSource extends BaseModel
 {
 
     protected $casts = [

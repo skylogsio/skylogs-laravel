@@ -13,7 +13,7 @@ class ApiService
 
     public static function FireAlert($post): array
     {
-        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
         if (!$alertRule) {
             return [
@@ -102,7 +102,7 @@ class ApiService
 
     public static function ResolveAlert(mixed $post)
     {
-        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
         $alert = AlertInstance::where('alertRuleId', $alertRule['id'])
             ->where('instance', $post['instance'])
@@ -143,7 +143,7 @@ class ApiService
 
     public static function StatusAlert(mixed $post)
     {
-        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
 
         if (!$alertRule) {
@@ -173,7 +173,7 @@ class ApiService
     public static function NotificationAlert(mixed $post)
     {
 
-        $alertRule = AlertRule::firstWhere('api_token', $post['api_token']);
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
         if (!$alertRule) {
             return [
@@ -210,7 +210,7 @@ class ApiService
             return AlertRule::where("type", AlertRuleType::API)->get();
         });
 
-        $alert = $alertRules->where("api_token", $token)->first();
+        $alert = $alertRules->where("apiToken", $token)->first();
 
         if ($alert) {
             return $alert;

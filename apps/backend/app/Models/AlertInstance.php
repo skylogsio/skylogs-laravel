@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class AlertInstance extends Model implements Messageable
+class AlertInstance extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -17,6 +17,7 @@ class AlertInstance extends Model implements Messageable
     public static $KEY = "alerts";
 
     protected $guarded = ['id', '_id',];
+
 
     public const RESOLVED = 1;
     public const FIRE = 2;
@@ -30,12 +31,12 @@ class AlertInstance extends Model implements Messageable
 
     public function history(): BelongsTo
     {
-        return $this->belongsTo(ApiAlertHistory::class, "history_id");
+        return $this->belongsTo(ApiAlertHistory::class, "historyId");
     }
 
     public function UpdatedAtString()
     {
-        return Jalalian::fromCarbon($this->updated_at)->format('Y/m/d H:i:s');
+        return Jalalian::fromCarbon($this->updatedAt)->format('Y/m/d H:i:s');
     }
 
     public function createHistory()

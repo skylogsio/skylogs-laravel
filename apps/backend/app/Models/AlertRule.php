@@ -7,7 +7,7 @@ use App\Interfaces\Messageable;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class AlertRule extends Model implements Messageable
+class AlertRule extends BaseModel implements Messageable
 {
 
     public const UNKNOWN = "unknown";
@@ -66,7 +66,7 @@ class AlertRule extends Model implements Messageable
     public function apiInstances()
     {
         if ($this->type == AlertRuleType::API) {
-            $instances = AlertInstance::where('alertname', $this->alertname)->orderByDesc("state")->orderByDesc("_id")->get();
+            $instances = AlertInstance::where('alertRuleId', $this->_id)->orderByDesc("state")->orderByDesc("_id")->get();
             return $instances;
         }
         return null;
@@ -76,7 +76,7 @@ class AlertRule extends Model implements Messageable
     public function notificationInstances()
     {
         if ($this->type == AlertRuleType::NOTIFICATION) {
-            $instances = AlertInstance::where('alertname', $this->alertname)
+            $instances = AlertInstance::where('alertRuleId', $this->_id)
                 ->where("state", AlertInstance::NOTIFICATION)
                 ->orderByDesc("_id")->limit(10)->get();
             return $instances;
@@ -102,79 +102,69 @@ class AlertRule extends Model implements Messageable
         $this->save();
     }
 
-    public function getStatus(): string|int
+    public function getStatus(): array
     {
-
+        $alertCount = 0;
+        $alertState = self::UNKNOWN;
         switch ($this->type) {
             case AlertRuleType::API:
                 $alertCount = AlertInstance::where('alertRuleId', $this->id)
                     ->where("state", AlertInstance::FIRE)->count();
                 if ($alertCount == 0) {
-                    return self::RESOlVED;
+                    $alertState =  self::RESOlVED;
+                }else{
+                    $alertState =  self::CRITICAL;
                 }
-                return $alertCount;
-            case AlertRuleType::SENTRY:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-
-            case AlertRuleType::METABASE:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-            case AlertRuleType::ZABBIX:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-
+                break;
             case AlertRuleType::PROMETHEUS:
                 $alert = PrometheusCheck::where('alertRuleId', $this->_id)->first();
                 if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
-                    return self::RESOlVED;
+                    $alertState = self::RESOlVED;
                 } else {
-                    if (!empty($alert->alerts))
-                        return count($alert->alerts);
-                    else {
-                        return self::CRITICAL;
+                    if (!empty($alert->alerts)){
+                        $alertState =  self::CRITICAL;
+                        $alertCount = count($alert->alerts);
+                    } else {
+                        $alertState =  self::CRITICAL;
                     }
                 }
+                break;
             case AlertRuleType::GRAFANA:
+            case AlertRuleType::SENTRY:
+            case AlertRuleType::METABASE:
+            case AlertRuleType::ZABBIX:
                 if (empty($this->state)) {
-                    return self::UNKNOWN;
+                    $alertState =  self::UNKNOWN;
                 } else {
-                    return $this->state;
+                    $alertState =  $this->state;
                 }
+            break;
             case AlertRuleType::HEALTH:
                 $check = HealthCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
-                    return self::RESOlVED;
+                    $alertState =  self::RESOlVED;
                 } else {
-                    return self::CRITICAL;
+                    $alertState =  self::CRITICAL;
                 }
+                break;
+
             case AlertRuleType::ELASTIC:
                 $check = ElasticCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
-                    return self::RESOlVED;
+                    $alertState =  self::RESOlVED;
                 } else {
-                    return self::CRITICAL;
+                    $alertState =  self::CRITICAL;
                 }
+                break;
             case AlertRuleType::NOTIFICATION:
-                return self::UNKNOWN;
             case AlertRuleType::PMM:
                 // TODO
-                return self::UNKNOWN;
             case AlertRuleType::SPLUNK:
                 // TODO
-                return self::UNKNOWN;
+            break;
 
         }
-        return self::UNKNOWN;
+        return [$alertState, $alertCount];
     }
 
     public function accessUsers()

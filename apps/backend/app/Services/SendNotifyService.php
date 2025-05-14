@@ -2,25 +2,15 @@
 
 namespace App\Services;
 
-use App\Interfaces\Messageable;
-use App\Jobs\SendNotifyJob;
-use App\Models\AlertInstance;
-use App\Models\AlertRule;
-use App\Models\AlertRulePrometheus;
-use App\Models\Endpoint;
-use App\Models\GrafanaWebhookAlert;
-use App\Models\Log;
-use App\Models\Notify;
-use App\Models\SentryWebhookAlert;
-use App\Models\SilentRule;
-use App\Models\ZabbixWebhookAlert;
 use App\Helpers\Call;
-use App\Helpers\Constants;
 use App\Helpers\Email;
 use App\Helpers\SMS;
 use App\Helpers\Teams;
 use App\Helpers\Telegram;
-use Illuminate\Support\Collection;
+use App\Jobs\SendNotifyJob;
+use App\Models\AlertRule;
+use App\Models\Endpoint;
+use App\Models\Notify;
 
 class SendNotifyService
 {
@@ -79,15 +69,22 @@ class SendNotifyService
             return;
         }
 
-//        $endpointIds = GroupService::GetEndpointsByAlertId($notify->alertRule);
-
-
         $endpointIds = $notify->alertRule->endpointIds ?? [];
         $silentUserIds = $notify->alertRule->silentUserIds ?? [];
 
+        if (!$isTest && in_array($notify->alertRule->user_id, $silentUserIds)) {
+            $notify->status = Notify::STATUS_SILENT;
+            $notify->save();
+            return;
+        }
 
-        $endpoints = Endpoint::whereIn("_id", $endpointIds)->whereNotIn("userId", $silentUserIds)->get();
-//        ds($endpoints,);
+        $endpointsQuery = Endpoint::whereIn("_id", $endpointIds);
+        if (!$isTest) {
+            $endpointsQuery = $endpointsQuery->whereNotIn("userId", $silentUserIds);
+        }
+        $endpoints = $endpointsQuery->get();
+
+
         $phones = $endpoints->where("type", "sms")->pluck("value");
         $phonesCalls = $endpoints->where("type", "call")->pluck("value");
         $teamsUrls = $endpoints->where("type", "teams")->pluck("value");

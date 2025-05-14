@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class ElasticHistory extends Model
+class ElasticHistory extends BaseModel
 {
 
     public $timestamps = true;

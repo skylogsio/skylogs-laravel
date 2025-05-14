@@ -22,3 +22,16 @@ Authorization: Bearer {{alertToken}}
     "description" : "myDes"
 }
 
+
+###
+
+POST {{domain}}/notification-alert
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{alertToken}}
+
+{
+    "instance" : "test",
+    "description" : "myDes"
+}
+

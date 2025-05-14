@@ -8,7 +8,7 @@ use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 
-class AlertRuleGrafana extends Model implements Messageable
+class AlertRuleGrafana extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

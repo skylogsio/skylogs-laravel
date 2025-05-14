@@ -84,7 +84,7 @@ class AlertRuleService
 
                 /*       $aggregationArray[] = [
                            '$sort' => [
-                               'created_at' => -1,
+                               'createdAt' => -1,
                            ]
                        ];
 
@@ -103,7 +103,7 @@ class AlertRuleService
 
                     }
                     if (!empty($filterCreatedAtArray)) {
-                        $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                        $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                     }
                     $aggregationArray[] = [
                         '$match' => $matchAggregationArray
@@ -113,7 +113,7 @@ class AlertRuleService
 
                 $aggregationArray[] = [
                     '$sort' => [
-                        'created_at' => -1,
+                        'createdAt' => -1,
                     ]
                 ];
                 $aggregationArray[] = [
@@ -136,7 +136,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -146,7 +146,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -176,7 +176,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -186,7 +186,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -216,7 +216,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -227,7 +227,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -259,7 +259,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -270,7 +270,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -303,7 +303,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -314,7 +314,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -347,7 +347,7 @@ class AlertRuleService
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -358,7 +358,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -404,7 +404,7 @@ class AlertRuleService
 
                 $aggregationArray[] = [
                     '$sort' => [
-                        'created_at' => -1,
+                        'createdAt' => -1,
                     ]
                 ];
 
@@ -420,23 +420,18 @@ class AlertRuleService
                 return $collection->aggregate($aggregationArray);
             });
             $result = collect($query)->toArray()[0];
-//            ds(json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]);
             $data = json_decode(json_encode(iterator_to_array($result['data'])), TRUE);
-//            ds($data);
             if (!empty($data)) {
                 $isEnd = json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]['totalCount'] <= $perPage * $page;
-//            ds(\Arr::dot($data[0]['created_at']));
                 $data = collect($data)->map(function ($array) {
                     $array["id"] = $array['_id']['$oid'];
-                    $array['created_at'] = Carbon::createFromTimestampMs($array['created_at']['$date']['$numberLong'])->format("Y-m-d H:i:s");
-//                ds($array);
+                    $array['createdAt'] = Carbon::createFromTimestampMs($array['createdAt']['$date']['$numberLong'])->format("Y-m-d H:i:s");
                     return $array;
                 });
                 return view("content.pages.alerts.all_history_ajax", compact("data", "isEnd", "page"));
             } else {
                 return "";
             }
-//            ds(\Arr::dot($data[0]));
         } else {
             $from = $request->from ? Carbon::createFromTimestamp($request->from)->format("Y-m-d H:i") : "";
             $to = $request->to ? Carbon::createFromTimestamp($request->to)->format("Y-m-d H:i") : "";
@@ -486,7 +481,7 @@ class AlertRuleService
             return AlertRule::get();
     }
 
-    public static function FlushAlertRuleCache(): void
+    public static function FlushCache(): void
     {
         Cache::tags(['alertRule'])->flush();
     }

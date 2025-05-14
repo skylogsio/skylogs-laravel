@@ -11,7 +11,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class MetabaseWebhookAlert extends Model implements Messageable
+class MetabaseWebhookAlert extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

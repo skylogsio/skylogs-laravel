@@ -8,7 +8,7 @@ use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
 
-class FailedJob extends Model {
+class FailedJob extends BaseModel {
 
     protected $guarded = [
         "uid",
