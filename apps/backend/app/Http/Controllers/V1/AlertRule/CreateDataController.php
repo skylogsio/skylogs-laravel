@@ -10,7 +10,6 @@ use App\Models\DataSource\DataSource;
 use App\Models\Endpoint;
 use App\Models\User;
 use App\Services\PrometheusInstanceService;
-use Excel;
 use Illuminate\Http\Request;
 
 class CreateDataController extends Controller

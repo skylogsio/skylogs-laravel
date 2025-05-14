@@ -9,7 +9,7 @@ use App\Models\AlertRule;
 
 Artisan::command('app:test', function () {
     if (config('app.env') === 'local') {
-//    $alerts = AlertRule::where("type", \App\Enums\AlertRuleType::API)->get();
+
     }
 })->purpose('Run Code');
 
