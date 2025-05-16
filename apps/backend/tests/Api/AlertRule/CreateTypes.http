@@ -56,10 +56,10 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "mySentryAlert",
+    "name": "TestSentry",
     "type": "sentry",
-    "dataSourceIds": [],
-    "dataSourceAlertName": "mySentryAlertRuleName",
+    "dataSourceIds": ["682777ead8edb934b17c5fe5"],
+    "dataSourceAlertName": "TestSentry",
     "extraField": [],
     "queryText": "",
     "queryObject": "",

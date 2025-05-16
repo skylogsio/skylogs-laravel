@@ -116,3 +116,111 @@ Accept: application/json
     "state": "ok",
     "message": "**Resolved**\n\nValue: [ var3Dwarning&matcher=template_name%3Dpmm_mysql_too_many_connections"
 }
+
+
+###
+
+POST {{domain}}/sentry-alert/1Tcmw
+Content-Type: application/json
+Accept: application/json
+
+{
+    "action": "critical",
+    "installation": {
+        "uuid": "d1b2b611-9ce7-428f-846e-b1dd93f38837"
+    },
+    "data": {
+        "metric_alert": {
+            "id": "94",
+            "identifier": "94",
+            "organization_id": "1",
+            "projects": [
+                "escrow-production"
+            ],
+            "alert_rule": {
+                "id": "6",
+                "name": "TestSentry",
+                "organization_id": "1",
+                "status": 0,
+                "query_type": 1,
+                "dataset": "transactions",
+                "query": "transaction:/api/v1/integrations/divar transaction.status:ok",
+                "aggregate": "p95(transaction.duration)",
+                "threshold_type": 0,
+                "resolve_threshold": 600,
+                "time_window": 15,
+                "environment": null,
+                "resolution": 1,
+                "threshold_period": 1,
+                "triggers": [
+                    {
+                        "id": "10",
+                        "alert_rule_id": "6",
+                        "label": "critical",
+                        "threshold_type": 0,
+                        "alert_threshold": 800,
+                        "resolve_threshold": 600,
+                        "date_created": "2023-09-17T13:50:33.165385Z",
+                        "actions": [
+                            {
+                                "id": "18",
+                                "alert_rule_trigger_id": "10",
+                                "type": "sentry_app",
+                                "target_type": "sentry_app",
+                                "target_identifier": 1,
+                                "input_channel_id": null,
+                                "integration_id": null,
+                                "sentry_app_id": 1,
+                                "date_created": "2023-09-25T13:31:59.018139Z",
+                                "desc": "Send a notification via skylogs-notifier"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "11",
+                        "alert_rule_id": "6",
+                        "label": "warning",
+                        "threshold_type": 0,
+                        "alert_threshold": 600,
+                        "resolve_threshold": 600,
+                        "date_created": "2023-09-17T13:50:33.181119Z",
+                        "actions": []
+                    }
+                ],
+                "projects": [
+                    "escrow-production"
+                ],
+                "include_all_projects": false,
+                "owner": "team:9",
+                "original_alert_rule_id": null,
+                "comparison_delta": null,
+                "date_modified": "2023-09-25T13:31:58.842715Z",
+                "date_created": "2023-09-17T13:50:33.065535Z",
+                "created_by": {
+                    "id": 17,
+                    "name": "Bardia",
+                    "email": "b.zamanian@toman.ir"
+                }
+            },
+            "activities": null,
+            "seen_by": null,
+            "has_seen": null,
+            "status": 2,
+            "status_method": 3,
+            "type": 2,
+            "title": "Divar Response Time",
+            "date_started": "2023-10-02T15:29:00.000000Z",
+            "date_detected": "2023-10-02T15:44:00.000000Z",
+            "date_created": "2023-10-02T15:45:39.090525Z",
+            "date_closed": "2023-10-02T19:34:00.000000Z"
+        },
+        "description_text": "595.5 p95(transaction.duration) in the last 15 minutes",
+        "description_title": "Resolved: Divar Response Time",
+        "web_url": "http://sentry.qcluster.org:9000/organizations/sentry/alerts/rules/details/6/?alert=94&referrer=metric_alert&notification_uuid=5406d27a-ada9-4325-83fe-f9238385eb18"
+    },
+    "actor": {
+        "type": "application",
+        "id": "sentry",
+        "name": "Sentry"
+    }
+}

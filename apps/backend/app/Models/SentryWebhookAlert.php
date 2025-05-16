@@ -22,44 +22,55 @@ class SentryWebhookAlert extends BaseModel implements Messageable
 
     public function alertRule()
     {
-        return  AlertRule::where("type", Constants::SENTRY)->where('alertname', $this->alert_name)->first();
+        return AlertRule::where("id", $this->alertRuleId)->first();
     }
-    public function CustomSave($jsonWebhook)
+
+    public function CustomSave($dataSource, $alertRules, $jsonWebhook)
     {
         try {
             $dataArray = $jsonWebhook['data'];
             Utilities::removeEmptyKeys($dataArray);
             $this->data = $dataArray;
 
-            if(!empty($dataArray['metric_alert'])){
+            if (!empty($dataArray['metric_alert'])) {
                 $this->project_name = $jsonWebhook['data']['metric_alert']['projects'][0] ?? "";
                 $this->action = $jsonWebhook['action'];
 
                 $this->message = $jsonWebhook['data']['description_text'] ?? "";
                 $this->description = $jsonWebhook['data']['description_text'] ?? "";
                 $this->url = $jsonWebhook['data']['web_url'] ?? "";
-                $this->alert_name = $jsonWebhook['data']['metric_alert']['alert_rule']['name'] ?? "";
-                $alert = AlertRule::where("alertname",$this->alert_name)->first();
-                if($alert){
-                    $this->alertRuleId = $alert->_id;
-                    $alert->state = $this->action;
-                    $alert->notify_at = time();
-                    $alert->save();
+                $this->dataSourceAlertName = $jsonWebhook['data']['metric_alert']['alert_rule']['name'] ?? "";
+                $this->dataSourceId = $dataSource->id;
+                $this->dataSourceName = $dataSource->name;
+
+                $alertRule = $alertRules->where('dataSourceAlertName', $this->dataSourceAlertName)->first();
+                if ($alertRule) {
+                    $this->alertRuleId = $alertRule->_id;
+                    $this->alertRuleName = $alertRule->name;
+                    $alertRule->state = $this->action;
+                    $alertRule->notify_at = time();
+                    $alertRule->save();
                 }
-            }else{
+
+            } else {
 
                 $this->action = $jsonWebhook['action'];
 
                 $this->message = $jsonWebhook['data']['event']['message'] ?? "";
                 $this->description = $jsonWebhook['data']['event']['message'] ?? "";
                 $this->url = $jsonWebhook['data']['event']['web_url'] ?? "";
-                $this->alert_name = $jsonWebhook['data']['triggered_rule'] ?? "";
-                $alert = AlertRule::where("alertname",$this->alert_name)->first();
-                if($alert){
-                    $this->alertRuleId = $alert->_id;
-                    $alert->state = $this->action;
-                    $alert->notify_at = time();
-                    $alert->save();
+                $this->dataSourceAlertName = $jsonWebhook['data']['triggered_rule'] ?? "";
+                $this->dataSourceId = $dataSource->id;
+                $this->dataSourceName = $dataSource->name;
+                $alertRule = $alertRules->where('dataSourceAlertName', $this->dataSourceAlertName)->first();
+
+                if ($alertRule) {
+                    $this->alertRuleId = $alertRule->_id;
+                    $this->alertRuleName = $alertRule->name;
+
+                    $alertRule->state = $this->action;
+                    $alertRule->notify_at = time();
+                    $alertRule->save();
                 }
             }
 
@@ -72,12 +83,11 @@ class SentryWebhookAlert extends BaseModel implements Messageable
 
     public function telegramMessage(): string
     {
-        $text = $this->alert_name;
+        $text = $this->alertRuleName;
 
-        $alert = AlertRule::where("alertname",$this->alert_name)->first();
 
-        if (!empty($alert->state)) {
-            switch ($alert->state) {
+        if (!empty($this->action)) {
+            switch ($this->action) {
                 case AlertRule::RESOlVED:
                     $text .= "\nSeverity: Resolved ✅";
                     break;
@@ -88,29 +98,29 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $text .= "\nSeverity: Critical 🔥";
                     break;
                 case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert";
+                    $text .= "\nTRIGGERED Alert 📢";
                     break;
 
             }
         }
 
-//        $text .= "\nlevel: " . $this->action;
+        $text .= "\n";
+        $text .= "\nDataSource: ".$this->dataSourceName;
+
         $text .= "\nDescription: " . $this->description;
         $text .= "\nUrl: " . $this->url;
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
 
         return $text;
     }
 
     public function teamsMessage(): string
     {
-        $text = $this->alert_name;
+        $text = $this->alertRuleName;
 
-        $alert = AlertRule::where("alertname",$this->alert_name)->first();
 
-        if (!empty($alert->state)) {
-            switch ($alert->state) {
+        if (!empty($this->action)) {
+            switch ($this->action) {
                 case AlertRule::RESOlVED:
                     $text .= "\nSeverity: Resolved ✅";
                     break;
@@ -121,28 +131,29 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $text .= "\nSeverity: Critical 🔥";
                     break;
                 case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert";
+                    $text .= "\nTRIGGERED Alert 📢";
                     break;
 
             }
         }
 
-//        $text .= "\nlevel: " . $this->action;
+        $text .= "\n";
+        $text .= "\nDataSource: ".$this->dataSourceName;
+
         $text .= "\nDescription: " . $this->description;
         $text .= "\nUrl: " . $this->url;
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
 
         return $text;
     }
+
     public function emailMessage(): string
     {
-        $text = $this->alert_name;
+        $text = $this->alertRuleName;
 
-        $alert = AlertRule::where("alertname",$this->alert_name)->first();
 
-        if (!empty($alert->state)) {
-            switch ($alert->state) {
+        if (!empty($this->action)) {
+            switch ($this->action) {
                 case AlertRule::RESOlVED:
                     $text .= "\nSeverity: Resolved ✅";
                     break;
@@ -153,29 +164,29 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $text .= "\nSeverity: Critical 🔥";
                     break;
                 case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert";
+                    $text .= "\nTRIGGERED Alert 📢";
                     break;
 
             }
         }
 
-//        $text .= "\nlevel: " . $this->action;
+        $text .= "\n";
+        $text .= "\nDataSource: ".$this->dataSourceName;
+
         $text .= "\nDescription: " . $this->description;
         $text .= "\nUrl: " . $this->url;
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
 
         return $text;
     }
 
     public function smsMessage(): string
     {
-        $text = $this->alert_name;
+        $text = $this->alertRuleName;
 
-        $alert = AlertRule::where("alertname",$this->alert_name)->first();
 
-        if (!empty($alert->state)) {
-            switch ($alert->state) {
+        if (!empty($this->action)) {
+            switch ($this->action) {
                 case AlertRule::RESOlVED:
                     $text .= "\nSeverity: Resolved ✅";
                     break;
@@ -186,29 +197,51 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $text .= "\nSeverity: Critical 🔥";
                     break;
                 case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert";
+                    $text .= "\nTRIGGERED Alert 📢";
                     break;
+
             }
         }
 
+        $text .= "\n";
+        $text .= "\nDataSource: ".$this->dataSourceName;
 
-//        $text .= "\nlevel: " . $this->action;
         $text .= "\nDescription: " . $this->description;
         $text .= "\nUrl: " . $this->url;
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
 
         return $text;
     }
 
     public function callMessage(): string
     {
-        $text = $this->alert_name;
-        $text .= "\nlevel: " . $this->action;
-        $text .= "\ndescription: " . $this->description;
-        $text .= "\nurl: " . $this->url;
-        $text .= "\ndate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
+        $text = $this->alertRuleName;
+
+
+        if (!empty($this->action)) {
+            switch ($this->action) {
+                case AlertRule::RESOlVED:
+                    $text .= "\nSeverity: Resolved ✅";
+                    break;
+                case AlertRule::WARNING:
+                    $text .= "\nSeverity: Warning ⚠️";
+                    break;
+                case AlertRule::CRITICAL:
+                    $text .= "\nSeverity: Critical 🔥";
+                    break;
+                case AlertRule::TRIGGERED:
+                    $text .= "\nTRIGGERED Alert 📢";
+                    break;
+
+            }
+        }
+
+        $text .= "\n";
+        $text .= "\nDataSource: ".$this->dataSourceName;
+
+        $text .= "\nDescription: " . $this->description;
+        $text .= "\nUrl: " . $this->url;
+        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
     }

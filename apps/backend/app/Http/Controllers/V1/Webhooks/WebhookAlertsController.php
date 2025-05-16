@@ -59,11 +59,15 @@ class WebhookAlertsController extends Controller
 
     public function SentryWebhook(Request $request,$token)
     {
+
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
+
         $post = $request->post();
 
         $model = new SentryWebhookAlert();
 
-        if ($model->CustomSave($post)) {
+        if ($model->CustomSave($dataSource,$alertRules,$post)) {
 
             SendNotifyService::CreateNotify(SendNotifyJob::SENTRY_WEBHOOK, $model, $model->alertRuleId);
 
