@@ -42,6 +42,8 @@ enum AlertRuleType: string
             self::PMM,
             self::SPLUNK,
             self::SENTRY,
+            self::METABASE,
+            self::ZABBIX,
         ]);
     }
 }

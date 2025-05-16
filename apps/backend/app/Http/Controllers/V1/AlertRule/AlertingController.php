@@ -184,16 +184,12 @@ class AlertingController extends Controller
                     break;
                 case AlertRuleType::METABASE:
                 case AlertRuleType::ZABBIX:
-
-                    $alert = AlertRule::create([
-                        ...$commonFields,
-                    ]);
-                    break;
                 case AlertRuleType::SENTRY:
                 case AlertRuleType::SPLUNK:
 
                     $alert = AlertRule::create([
                         ...$commonFields,
+                        "dataSourceIds" => array_unique($request->dataSourceIds ?? []),
                         "dataSourceAlertName" => $request->dataSourceAlertName,
                     ]);
                     break;
@@ -224,12 +220,12 @@ class AlertingController extends Controller
                     $alert = AlertRule::create([
                         ...$commonFields,
                         'interval' => ((int)$request->interval),
-                        "dataview_name" => $request->dataview_name,
-                        "dataview_title" => $request->dataview_title,
-                        "query_string" => $request->query_string,
+                        "dataviewName" => $request->dataview_name,
+                        "dataviewTitle" => $request->dataview_title,
+                        "queryString" => $request->query_string,
                         "minutes" => ((int)$request->minutes),
                         "conditionType" => $request->conditionType,
-                        "count_document" => ((int)$request->count_document),
+                        "countDocument" => ((int)$request->count_document),
                     ]);
                     break;
             }
@@ -264,10 +260,22 @@ class AlertingController extends Controller
             $userIds = $alert->userIds;
         }
         $userIds[] = $alert->userId;
+        $currentUser = Auth::user();
 
-        if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
+        if (!($currentUser->isAdmin() || in_array($currentUser->_id, $userIds))) {
             abort(403);
         }
+        $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+        $alert->has_admin_access = $alert->hasAdminAccess;
+        [$alertStatus, $alertStatusCount] = $alert->getStatus();
+        $alert->statusLabel = $alertStatus;
+        $alert->status_label = $alertStatus;
+        $alert->statusCount = $alertStatusCount;
+        $isSilent = $alert->isSilent();
+        $alert->isSilent = $isSilent;
+        $alert->is_silent = $isSilent;
+        $alert->countEndpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
+        $alert->count_endpoints = $alert->countEndpoints;
 
 
         return response()->json($alert);

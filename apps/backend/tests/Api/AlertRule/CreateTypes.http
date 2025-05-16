@@ -22,14 +22,8 @@ Authorization: Bearer {{authToken}}
     ],
     "queryText": "",
     "queryObject": "",
-    "endpoints": [
-        "a",
-        "b"
-    ],
-    "accessUsers": [
-        "a",
-        "b"
-    ],
+    "endpoints": [],
+    "accessUsers": [],
     "tags": []
 }
 
@@ -44,7 +38,7 @@ Authorization: Bearer {{authToken}}
     "type": "pmm",
     "queryType": "dynamic",
     "dataSourceIds": ["6826d12427f551da450610b2"],
-    "dataSourceAlertName": "pmm_mysql_too_manrting Rule",
+    "dataSourceAlertName": "myPmmAlertRuleName",
     "extraField": [],
     "queryText": "",
     "queryObject": "",
@@ -52,6 +46,25 @@ Authorization: Bearer {{authToken}}
     ],
     "accessUsers": [
     ],
+    "tags": []
+}
+
+### Create Sentry Alert Rule
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "mySentryAlert",
+    "type": "sentry",
+    "dataSourceIds": [],
+    "dataSourceAlertName": "mySentryAlertRuleName",
+    "extraField": [],
+    "queryText": "",
+    "queryObject": "",
+    "endpoints": [],
+    "accessUsers": [],
     "tags": []
 }
 

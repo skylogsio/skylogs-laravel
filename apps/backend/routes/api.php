@@ -32,12 +32,12 @@ Route::prefix('v1')->group(function () {
 
     Route::controller(WebhookAlertsController::class)->group(function () {
 
-        Route::post("/metabase-alert", 'MetabaseWebhook');
-        Route::post("/sentry-alert", 'SentryWebhook');
-        Route::post("/splunk-alert", 'SplunkWebhook');
-        Route::post("/zabbix-alert", 'ZabbixWebhook');
-        Route::post("/grafana-alert/{token}", 'GrafanaWebhook')->name("api.grafanaWebhook");
-        Route::post("/pmm-alert/{token}", 'PmmWebhook')->name("api.pmmWebhook");
+        Route::post("/metabase-alert/{token}", 'MetabaseWebhook')->name("webhook.metabase");
+        Route::post("/sentry-alert/{token}", 'SentryWebhook')->name("webhook.sentry");
+        Route::post("/splunk-alert/{token}", 'SplunkWebhook')->name("webhook.splunk");
+        Route::post("/zabbix-alert/{token}", 'ZabbixWebhook')->name("webhook.zabbix");
+        Route::post("/grafana-alert/{token}", 'GrafanaWebhook')->name("webhook.grafana");
+        Route::post("/pmm-alert/{token}", 'PmmWebhook')->name("webhook.pmm");
         Route::post("/notify-updamus", 'UpdamusWebhook');
 
     });
