@@ -76,7 +76,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name."\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
@@ -88,21 +88,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
+
+
+        $text .= "Data Source: ".$this->dataSourceName . "\n\n";
+
 
 
         if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
+            $text .= "AlertName: " . $alert->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -125,8 +125,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
         return $text;
     }
 
-    public function smsMessage(): string
-    {
+    public function smsMessage(): string{
         $needLabelArray = [
             "severity",
             "namespace",
@@ -151,7 +150,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name."\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
@@ -163,21 +162,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
+
+
+        $text .= "Data Source: ".$this->dataSourceName . "\n\n";
+
 
 
         if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
+            $text .= "AlertName: " . $alert->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -200,8 +199,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
         return $text;
     }
 
-    public function callMessage(): string
-    {
+    public function callMessage(): string{
         $needLabelArray = [
             "severity",
             "namespace",
@@ -226,7 +224,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name."\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
@@ -238,21 +236,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
+
+
+        $text .= "Data Source: ".$this->dataSourceName . "\n\n";
+
 
 
         if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
+            $text .= "AlertName: " . $alert->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -274,8 +272,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         return $text;
     }
-    public function teamsMessage()
-    {
+    public function teamsMessage(){
         $needLabelArray = [
             "severity",
             "namespace",
@@ -300,7 +297,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name."\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
@@ -312,21 +309,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
+
+
+        $text .= "Data Source: ".$this->dataSourceName . "\n\n";
+
 
 
         if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
+            $text .= "AlertName: " . $alert->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -348,8 +345,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         return $text;
     }
-    public function emailMessage()
-    {
+    public function emailMessage(){
         $needLabelArray = [
             "severity",
             "namespace",
@@ -374,7 +370,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name."\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
@@ -386,21 +382,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
+
+
+        $text .= "Data Source: ".$this->dataSourceName . "\n\n";
+
 
 
         if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
+            $text .= "AlertName: " . $alert->dataSourceAlertName . "\n\n";
         }else{
             $needLabelArray[] = "alertname";
         }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {

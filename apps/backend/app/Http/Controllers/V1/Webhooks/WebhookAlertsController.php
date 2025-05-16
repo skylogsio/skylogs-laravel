@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\V1\Webhooks;
 
 
+use App\Enums\AlertRuleType;
+use App\Enums\DataSourceType;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
+use App\Models\DataSource\DataSource;
+use App\Models\GrafanaWebhookAlert;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
+use App\Services\DataSourceService;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
 use App\Helpers\Constants;
@@ -18,19 +23,62 @@ use Illuminate\Http\Request;
 class WebhookAlertsController extends Controller
 {
 
-    public function GrafanaWebhook(Request $request, $instance)
+    public function GrafanaWebhook(Request $request, $token)
     {
+
+        $dataSource = DataSourceService::Get(DataSourceType::GRAFANA)
+            ->where('webhookToken', $token)
+            ->first();
+        if (!$dataSource) abort(403);
+
+        $alertRules = AlertRule::where('type', AlertRuleType::GRAFANA)
+            ->where('dataSourceIds', $dataSource->id)
+            ->get();
+
+        if ($alertRules->isEmpty())
+            abort(422,'Alert rule not found');
+
+
 
         $alerts = $request->alerts;
 
         foreach ($alerts as &$alert) {
-            $alert['instance'] = $instance;
+            $alert['dataSourceId'] = $dataSource->id;
         }
-        $alertRules = AlertRule::where('type', Constants::GRAFANA)->get();
 
         $matchedAlerts = GrafanaService::CheckMatchedAlerts($request->all(), $alerts, $alertRules,);
-        GrafanaService::SaveMatchedAlerts($instance, $request->all(), $matchedAlerts);
-//        \Log::debug("getAlerts",$request->all());
+        GrafanaService::SaveMatchedAlerts( $dataSource, $request->all(), $matchedAlerts);
+
+        return [
+            "status" => true,
+        ];
+    }
+
+    public function PmmWebhook(Request $request, $token)
+    {
+
+        $dataSource = DataSourceService::Get(DataSourceType::PMM)
+            ->where('webhookToken', $token)
+            ->first();
+        if (!$dataSource) abort(422,'DataSource not found');
+
+        $alertRules = AlertRule::where('type', AlertRuleType::PMM)
+            ->where('dataSourceIds', $dataSource->id)
+            ->get();
+
+        if ($alertRules->isEmpty())
+            abort(422,'Alert rule not found');
+
+
+        $alerts = $request->alerts;
+
+        foreach ($alerts as &$alert) {
+            $alert['dataSourceId'] = $dataSource->id;
+        }
+
+        $matchedAlerts = GrafanaService::CheckMatchedAlerts($request->all(), $alerts, $alertRules,);
+        GrafanaService::SaveMatchedAlerts( $dataSource, $request->all(), $matchedAlerts);
+
         return [
             "status" => true,
         ];

@@ -7,7 +7,7 @@ Authorization: Bearer {{authToken}}
 {
     "name": "test1",
     "type": "prometheus",
-    "prometheusQueryType": "dynamic",
+    "queryType": "dynamic",
     "dataSourceIds": [],
     "dataSourceAlertName": "prometheusAlertNAme",
     "extraField": [
@@ -20,8 +20,8 @@ Authorization: Bearer {{authToken}}
             "value" : "adf"
         }
     ],
-    "prometheusQuery": "",
-    "prometheusQueryObject": "",
+    "queryText": "",
+    "queryObject": "",
     "endpoints": [
         "a",
         "b"
@@ -29,6 +29,28 @@ Authorization: Bearer {{authToken}}
     "accessUsers": [
         "a",
         "b"
+    ],
+    "tags": []
+}
+
+### Create Pmm Alert Rule
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "myPmmAlert",
+    "type": "pmm",
+    "queryType": "dynamic",
+    "dataSourceIds": ["6826d12427f551da450610b2"],
+    "dataSourceAlertName": "pmm_mysql_too_manrting Rule",
+    "extraField": [],
+    "queryText": "",
+    "queryObject": "",
+    "endpoints": [
+    ],
+    "accessUsers": [
     ],
     "tags": []
 }

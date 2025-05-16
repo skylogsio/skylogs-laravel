@@ -12,6 +12,7 @@ use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
 use App\Http\Controllers\V1\UserController;
 use App\Http\Controllers\V1\Webhooks\ApiAlertController;
+use App\Http\Controllers\V1\Webhooks\WebhookAlertsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,19 @@ Route::prefix('v1')->group(function () {
         Route::post("status-alert", "StatusAlert");
         Route::post("notification-alert", "NotificationAlert");
         Route::post("stop-alert", "ResolveAlert");
+    });
+
+
+    Route::controller(WebhookAlertsController::class)->group(function () {
+
+        Route::post("/metabase-alert", 'MetabaseWebhook');
+        Route::post("/sentry-alert", 'SentryWebhook');
+        Route::post("/splunk-alert", 'SplunkWebhook');
+        Route::post("/zabbix-alert", 'ZabbixWebhook');
+        Route::post("/grafana-alert/{token}", 'GrafanaWebhook')->name("api.grafanaWebhook");
+        Route::post("/pmm-alert/{token}", 'PmmWebhook')->name("api.pmmWebhook");
+        Route::post("/notify-updamus", 'UpdamusWebhook');
+
     });
 
     Route::middleware('auth')->group(function () {

@@ -57,19 +57,22 @@ class DataSourceController extends Controller
             ],
         );
         if ($va->passes()) {
+
             $url = rtrim($request->url, "/");
+
+            do {
+                $webhookToken = \Str::random(5);
+            } while (DataSource::where('webhookToken', $webhookToken)->first());
+
             $modelArray = [
                 "type" => $request->type,
                 "name" => $request->name,
                 "url" => $url,
+                "webhookToken" => $webhookToken,
             ];
-            if ($request->has("api_token") && !empty($request->api_token)) {
-                $modelArray["api_token"] = $request->api_token;
-            }
-            if ($request->has("username") && !empty($request->username)) {
-                $modelArray["username"] = $request->username;
-                $modelArray['password'] = $request->password ?? "";
-            }
+            $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["username"] = $request->username ?? "";
+            $modelArray['password'] = $request->password ?? "";
             $model = DataSource::create($modelArray);
             return response()->json([
                 'status' => true,
@@ -104,13 +107,9 @@ class DataSourceController extends Controller
                 "name" => $request->name,
                 "url" => $url,
             ];
-            if ($request->has("api_token") && !empty($request->api_token)) {
-                $modelArray["api_token"] = $request->api_token;
-            }
-            if ($request->has("username") && !empty($request->username)) {
-                $modelArray["username"] = $request->username;
-                $modelArray['password'] = $request->password ?? "";
-            }
+            $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["username"] = $request->username ?? "";
+            $modelArray['password'] = $request->password ?? "";
 
             $model->update($modelArray);
 

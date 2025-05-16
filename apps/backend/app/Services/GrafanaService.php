@@ -58,9 +58,8 @@ class GrafanaService
                 $matchLabels = [];
                 $matchAnnotations = [];
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $alertRuleInstanceArray = is_array($alertRule['instance']) ? $alertRule['instance'] : [$alertRule['instance'],];
 
-                    if (in_array($alert['instance'], $alertRuleInstanceArray) && $alert['labels']['alertname'] == $alertRule['grafana_alertname']) {
+                    if (in_array($alert['dataSourceId'], $alertRule['dataSourceIds']) && $alert['labels']['alertname'] == $alertRule['dataSourceAlertName']) {
 
                         if (!empty($alertRule->extraField))
                             foreach ($alertRule->extraField as $key => $patterns) {
@@ -81,8 +80,8 @@ class GrafanaService
                 } else {
                     // TEXT QUERY
 
-                    if (!empty($alertRule->grafana_query_object)) {
-                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->grafana_query_object);
+                    if (!empty($alertRule->queryObject)) {
+                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->queryObject);
                         if (!$matchedFilterResult) {
                             $isMatch = false;
                         }
@@ -100,9 +99,9 @@ class GrafanaService
                     }
 
                     $fireAlertsByRule[$alertRule->_id][] = [
-                        "instance" => $alert['instance'],
+                        "dataSourceId" => $alert['dataSourceId'],
                         "alertRuleName" => $alertRule->name,
-                        "grafana_alertname" => $alert['labels']['alertname'],
+                        "dataSourceAlertName" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
                         "alertRuleId" => $alertRule->_id,
@@ -117,13 +116,14 @@ class GrafanaService
 
     }
 
-    public static function SaveMatchedAlerts($instance,$webhook, $matchedAlerts)
+    public static function SaveMatchedAlerts($dataSource,$webhook, $matchedAlerts)
     {
         $status = $webhook['status'];
         foreach ($matchedAlerts as $alertRuleId => $alerts) {
             $model = new GrafanaWebhookAlert();
             $model->alerts = $alerts;
-            $model->instance = $instance;
+            $model->dataSourceId = $dataSource->id;
+            $model->dataSourceName = $dataSource->name;
             $model->alertRuleId = $alertRuleId;
             $model->status = $status;
 
