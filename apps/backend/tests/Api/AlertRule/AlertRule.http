@@ -25,7 +25,7 @@ Authorization: Bearer {{authToken}}
 
 
 ###
-GET {{domain}}/alert-rule/67cf5e9d60f5ce9d5f003b52
+GET {{domain}}/alert-rule/68178152e4876e3b9b004e16
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

@@ -3,20 +3,13 @@
 namespace App\Http\Controllers\V1\Webhooks;
 
 
-use App\Enums\AlertRuleType;
-use App\Enums\DataSourceType;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
-use App\Models\AlertRule;
-use App\Models\DataSource\DataSource;
-use App\Models\GrafanaWebhookAlert;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
-use App\Services\DataSourceService;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
-use App\Helpers\Constants;
 use Illuminate\Http\Request;
 
 
@@ -26,19 +19,8 @@ class WebhookAlertsController extends Controller
     public function GrafanaWebhook(Request $request, $token)
     {
 
-        $dataSource = DataSourceService::Get(DataSourceType::GRAFANA)
-            ->where('webhookToken', $token)
-            ->first();
-        if (!$dataSource) abort(403);
-
-        $alertRules = AlertRule::where('type', AlertRuleType::GRAFANA)
-            ->where('dataSourceIds', $dataSource->id)
-            ->get();
-
-        if ($alertRules->isEmpty())
-            abort(422,'Alert rule not found');
-
-
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
 
         $alerts = $request->alerts;
 
@@ -57,18 +39,9 @@ class WebhookAlertsController extends Controller
     public function PmmWebhook(Request $request, $token)
     {
 
-        $dataSource = DataSourceService::Get(DataSourceType::PMM)
-            ->where('webhookToken', $token)
-            ->first();
-        if (!$dataSource) abort(422,'DataSource not found');
 
-        $alertRules = AlertRule::where('type', AlertRuleType::PMM)
-            ->where('dataSourceIds', $dataSource->id)
-            ->get();
-
-        if ($alertRules->isEmpty())
-            abort(422,'Alert rule not found');
-
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
 
         $alerts = $request->alerts;
 
@@ -84,7 +57,7 @@ class WebhookAlertsController extends Controller
         ];
     }
 
-    public function SentryWebhook(Request $request)
+    public function SentryWebhook(Request $request,$token)
     {
         $post = $request->post();
 
@@ -107,7 +80,7 @@ class WebhookAlertsController extends Controller
         }
     }
 
-    public function ZabbixWebhook(Request $request)
+    public function ZabbixWebhook(Request $request,$token)
     {
 
 //        $file = fopen("text.txt", 'a+');
@@ -140,15 +113,37 @@ class WebhookAlertsController extends Controller
         }
     }
 
-    public function UpdamusWebhook(Request $request)
+    public function SplunkWebhook(Request $request)
     {
+        $post = $request->post();
 
-        return [
-            "status" => true,
-        ];
+        $file = fopen("text.txt", 'a+');
+        fwrite($file, json_encode($request->post()));
+        fwrite($file, "\n\n\n");
+        fclose($file);
+        return response()->json(['status' => true]);
+//        $model = new SplunkWebhookAlert([
+//            ...$post,
+//        ]);
 
+//        if ($model->CustomSave($post)) {
+
+//            SendNotifyService::CreateNotify(SendNotifyJob::SPLUNK_WEBHOOK, $model, $model->alert_rule_id);
+
+//            return [
+//                "status" => true,
+//            ];
+//
+//        } else {
+//
+//            return [
+//                "status" => false,
+//            ];
+//
+//        }
     }
-    public function MetabaseWebhook(Request $request)
+
+    public function MetabaseWebhook(Request $request,$token)
     {
 
 

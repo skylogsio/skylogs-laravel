@@ -265,6 +265,7 @@ class AlertingController extends Controller
         if (!($currentUser->isAdmin() || in_array($currentUser->_id, $userIds))) {
             abort(403);
         }
+
         $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
         [$alertStatus, $alertStatusCount] = $alert->getStatus();

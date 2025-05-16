@@ -21,7 +21,7 @@ Route::prefix('v1')->group(function () {
 
     Route::post("auth/login", [AuthController::class, "login"]);
 
-    Route::middleware("api_auth")->controller(ApiAlertController::class)->group(function () {
+    Route::middleware("apiAuth")->controller(ApiAlertController::class)->group(function () {
         Route::post("fire-alert", "FireAlert");
         Route::post("resolve-alert", "ResolveAlert");
         Route::post("status-alert", "StatusAlert");
@@ -30,15 +30,14 @@ Route::prefix('v1')->group(function () {
     });
 
 
-    Route::controller(WebhookAlertsController::class)->group(function () {
+    Route::middleware('webhookAuth')->controller(WebhookAlertsController::class)->group(function () {
 
-        Route::post("/metabase-alert/{token}", 'MetabaseWebhook')->name("webhook.metabase");
+//        Route::post("/metabase-alert/{token}", 'MetabaseWebhook')->name("webhook.metabase");
         Route::post("/sentry-alert/{token}", 'SentryWebhook')->name("webhook.sentry");
         Route::post("/splunk-alert/{token}", 'SplunkWebhook')->name("webhook.splunk");
         Route::post("/zabbix-alert/{token}", 'ZabbixWebhook')->name("webhook.zabbix");
         Route::post("/grafana-alert/{token}", 'GrafanaWebhook')->name("webhook.grafana");
         Route::post("/pmm-alert/{token}", 'PmmWebhook')->name("webhook.pmm");
-        Route::post("/notify-updamus", 'UpdamusWebhook');
 
     });
 
