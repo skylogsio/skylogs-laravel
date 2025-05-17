@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
+use App\Observers\EndpointObserver;
 use App\Services\EndpointService;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
+#[ObservedBy(EndpointObserver::class)]
 class Endpoint extends BaseModel
 {
 

@@ -105,3 +105,27 @@ Authorization: Bearer {{authToken}}
     ],
     "tags": []
 }
+
+### Create Elastic Alert Rule
+# conditionType can be greaterOrEqual or lessOrEqual
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "testElastic",
+    "type" : "elastic",
+    "dataSourceId" : "dataSourceId",
+    "dataviewName" : "responses",
+    "dataviewTitle" : "responses*",
+    "queryString" : "OriginStatus:>=400 name:myName",
+    "minutes" : 15,
+    "conditionType" : "greaterOrEqual",
+    "countDocument" : 5,
+    "endpoints": [
+    ],
+    "accessUsers": [
+    ],
+    "tags": []
+}

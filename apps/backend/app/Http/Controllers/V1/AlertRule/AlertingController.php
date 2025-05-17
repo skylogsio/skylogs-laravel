@@ -136,6 +136,7 @@ class AlertingController extends Controller
                 'name' => "required|unique:alert_rules",
                 'type' => "required",
                 'dataSourceAlertName' => "required_if:type," . AlertRuleType::GetDataSourceAlertNeed()->implode(','),
+                "dataSourceId" => "required_if:type,".AlertRuleType::ELASTIC->value,
             ], [
             ]
         );
@@ -162,10 +163,13 @@ class AlertingController extends Controller
                         ...$commonFields,
                     ]);
                     $alert->queryType = $request->queryType;
+                    $extraFields = [];
+                    $queryText = "";
+                    $dataSourceIds = [];
+                    $dataSourceAlertname = "";
                     if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                        $alert->dataSourceIds = array_unique($request->dataSourceIds ?? []);
-                        $alert->dataSourceAlertName = $request->dataSourceAlertName;
-                        $extraFields = [];
+                        $dataSourceIds = array_unique($request->dataSourceIds ?? []);
+                        $dataSourceAlertname = $request->dataSourceAlertName;
                         if ($request->has("extraField") && !empty($request->extraField))
                             foreach ($request->extraField as $value) {
                                 if (!empty($value)) {
@@ -173,11 +177,16 @@ class AlertingController extends Controller
                                         $extraFields[$value["key"]] = $value['value'];
                                 }
                             }
-                        $alert->extraField = $extraFields;
                     } else {
-                        $alert->queryText = $request->queryText;
+                        $queryText = $request->queryText;
                         $alert->queryObject = $request->queryObject;
                     }
+
+                    $alert->dataSourceIds = $dataSourceIds;
+                    $alert->dataSourceAlertName = $dataSourceAlertname;
+                    $alert->queryText = $queryText;
+
+                    $alert->extraField = $extraFields;
 
                     $alert->save();
 
@@ -219,13 +228,13 @@ class AlertingController extends Controller
 
                     $alert = AlertRule::create([
                         ...$commonFields,
-                        'interval' => ((int)$request->interval),
-                        "dataviewName" => $request->dataview_name,
-                        "dataviewTitle" => $request->dataview_title,
-                        "queryString" => $request->query_string,
+                        "dataSourceId" => $request->dataSourceId ,
+                        "dataviewName" => $request->dataviewName,
+                        "dataviewTitle" => $request->dataviewTitle,
+                        "queryString" => $request->queryString,
                         "minutes" => ((int)$request->minutes),
                         "conditionType" => $request->conditionType,
-                        "countDocument" => ((int)$request->count_document),
+                        "countDocument" => ((int)$request->countDocument),
                     ]);
                     break;
             }
@@ -482,6 +491,8 @@ class AlertingController extends Controller
         }
         $model = $model->firstOrFail();
 
+
+
         $model->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
 
         switch ($model->type) {
@@ -489,10 +500,13 @@ class AlertingController extends Controller
             case AlertRuleType::PMM:
             case AlertRuleType::PROMETHEUS:
                 $extraFields = [];
+                $queryText = "";
+                $dataSourceIds = [];
+                $dataSourceAlertname = "";
                 $model->queryType = $request->queryType;
                 if ($request->queryType == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $model->dataSourceIds = array_unique($request->dataSourceIds);
-                    $model->dataSourceAlertName = $request->dataSourceAlertName;
+                    $dataSourceIds = array_unique($request->dataSourceIds);
+                    $dataSourceAlertname = $request->dataSourceAlertName;
 
                     if ($request->has("extraField") && !empty($request->extraField))
                         foreach ($request->extraField as $value) {
@@ -503,9 +517,13 @@ class AlertingController extends Controller
                         }
                     $model->extraField = $extraFields;
                 } else {
-                    $model->prometheusQuery = $request->prometheusQuery;
-                    $model->prometheusQueryObject = $request->prometheusQueryObject;
+                    $queryText = $request->queryText;
+                    $model->queryObject = $request->queryObject;
                 }
+                $model->dataSourceIds = $dataSourceIds;
+                $model->dataSourceAlertName = $dataSourceAlertname;
+                $model->queryText = $queryText;
+
                 $model->state = null;
                 $model->save();
                 break;
@@ -518,6 +536,7 @@ class AlertingController extends Controller
             case AlertRuleType::SENTRY:
             case AlertRuleType::SPLUNK:
                 $model->name = $request->name;
+                $model->dataSourceIds = array_unique($request->dataSourceIds ?? []);
                 $model->dataSourceAlertName = $request->dataSourceAlertName;
                 $model->state = null;
                 $model->save();
@@ -529,28 +548,18 @@ class AlertingController extends Controller
                 $model->save();
                 break;
             case AlertRuleType::ELASTIC:
-                $model->alertname = $request->alertname;
-                $model->interval = ((int)$request->interval);
-                $model->dataview_name = $request->dataview_name;
-                $model->dataview_title = $request->dataview_title;
-                $model->query_string = $request->query_string;
+                $model->name = $request->name;
+                $model->dataSourceId= $request->dataSourceId;
+                $model->dataviewName = $request->dataviewName;
+                $model->dataviewTitle = $request->dataviewTitle;
+                $model->queryString = $request->queryString;
                 $model->conditionType = $request->conditionType;
                 $model->minutes = ((int)$request->minutes);
-                $model->count_document = ((int)$request->count_document);
+                $model->countDocument = ((int)$request->countDocument);
                 $model->save();
                 ElasticCheck::where("alertRuleId", $model->_id)->delete();
                 break;
-            case AlertRuleType::HEALTH:
-                $model->alertname = $request->alertname;
-                $model->interval = ((int)$request->interval);
-                $model->threshold_down = ((int)$request->threshold_down);
-                $model->threshold_up = ((int)$request->threshold_up);
-                $model->url = $request->url;
-                $model->basic_auth_username = $request->username;
-                $model->basic_auth_password = $request->password;
-                $model->save();
-                HealthCheck::where("alertRuleId", $model->_id)->delete();
-                break;
+
             case AlertRuleType::NOTIFICATION:
                 AlertInstance::where("alertRuleId", $model->id)->update(['alertRuleName' => $request->name]);
                 $model->name = $request->name;
@@ -641,7 +650,8 @@ class AlertingController extends Controller
                     $alert->save();
 
                     SentryWebhookAlert::create([
-                        "alert_name" => $alert->name,
+                        "alertRuleName" => $alert->name,
+                        "dataSourceAlertName" => $alert->dataSourceAlertName,
                         "alertRuleId" => $alert->_id,
                         "action" => "resolved",
                         "message" => "resolved manually.",
@@ -665,16 +675,6 @@ class AlertingController extends Controller
                     $sendResolve = true;
                 }
                 break;
-            case AlertRuleType::HEALTH:
-                $check = HealthCheck::where("alertRuleId", $alert->_id)->where("state", HealthCheck::DOWN)->first();
-                if ($check && $check->state == HealthCheck::DOWN) {
-                    $check->state = HealthCheck::UP;
-                    $check->counter = 0;
-                    $check->save();
-
-                    $sendResolve = true;
-                }
-                break;
             case AlertRuleType::ELASTIC:
                 $check = ElasticCheck::where("alertRuleId", $alert->_id)->where("state", ElasticCheck::FIRE)->first();
                 if ($check && $check->state == ElasticCheck::FIRE) {
@@ -684,13 +684,14 @@ class AlertingController extends Controller
                     ElasticHistory::create([
                         "alertRuleId" => $alert->_id,
                         "alertRuleName" => $alert->name,
-                        "dataview_name" => $alert->dataview_name,
-                        "dataview_title" => $alert->dataview_title,
-                        "query_string" => $alert->query_string,
+                        "dataSourceId" => $alert->dataSourceId,
+                        "dataviewName" => $alert->dataviewName,
+                        "dataviewTitle" => $alert->dataviewTitle,
+                        "queryString" => $alert->queryString,
                         "conditionType" => $alert->conditionType,
                         "minutes" => $alert->minutes,
-                        "count_document" => $alert->count_document,
-                        "current_count_document" => -1,
+                        "countDocument" => $alert->countDocument,
+                        "currentCountDocument" => -1,
                         "state" => ElasticCheck::RESOLVED,
                     ]);
                     $sendResolve = true;
@@ -735,9 +736,6 @@ class AlertingController extends Controller
                     break;
                 case AlertRuleType::PROMETHEUS:
                     PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
-                    break;
-                case AlertRuleType::HEALTH:
-                    HealthCheck::where("alertRuleId", $alertRuleId)->delete();
                     break;
                 case AlertRuleType::ELASTIC:
                     ElasticCheck::where("alertRuleId", $alertRuleId)->delete();

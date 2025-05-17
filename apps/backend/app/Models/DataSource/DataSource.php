@@ -5,8 +5,11 @@ namespace App\Models\DataSource;
 use App\Enums\DataSourceType;
 use App\Models\BaseModel;
 use App\Models\User;
+use App\Observers\DataSourceObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use MongoDB\Laravel\Relations\BelongsTo;
 
+#[ObservedBy(DataSourceObserver::class)]
 class DataSource extends BaseModel
 {
 
