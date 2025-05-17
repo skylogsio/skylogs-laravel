@@ -285,6 +285,7 @@ class AlertingController extends Controller
         $alert->statusLabel = $alertStatus;
         $alert->status_label = $alertStatus;
         $alert->statusCount = $alertStatusCount;
+        $alert->ownerName = $alert->user->name;
         $isSilent = $alert->isSilent();
         $alert->isSilent = $isSilent;
         $alert->is_silent = $isSilent;

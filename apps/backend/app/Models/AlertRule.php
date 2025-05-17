@@ -34,7 +34,7 @@ class AlertRule extends BaseModel implements Messageable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,"userId");
     }
 
     public function dataSource(): ?BelongsTo
