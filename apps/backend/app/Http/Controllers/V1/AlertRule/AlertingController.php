@@ -275,6 +275,10 @@ class AlertingController extends Controller
             abort(403);
         }
 
+        if (!empty($alert->dataSourceIds)){
+            $alert->dataSourceLabels = DataSource::whereIn("id", $alert->dataSourceIds)->get()->pluck("name")->toArray();
+        }
+
         $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
         [$alertStatus, $alertStatusCount] = $alert->getStatus();
