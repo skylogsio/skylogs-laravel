@@ -14,6 +14,7 @@ import {
   useTheme
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BsFillClipboard2Fill } from "react-icons/bs";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { HiCollection, HiFire, HiPencil, HiTrash, HiUsers } from "react-icons/hi";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
@@ -87,6 +88,15 @@ export default function ViewAlertRule() {
       }
     }
   });
+
+  async function handleCopyApiTokenToClipboard() {
+    try {
+      await window.navigator.clipboard.writeText(data!.api_token!);
+    } catch (err) {
+      console.error("Unable to copy to clipboard.", err);
+      alert("Copy to clipboard failed.");
+    }
+  }
 
   const { mutate: testAlertRuleMutation, isPending: isTesting } = useMutation({
     mutationFn: () => testAlertRule(alertId),
@@ -176,71 +186,101 @@ export default function ViewAlertRule() {
           <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
             <Stack direction="row" alignItems="center" spacing={2}>
               <Icon color={defaultColor} size="4rem" />
-              <Stack>
-                <Stack direction="row" alignItems="flex-start" spacing={1}>
-                  <Typography variant="h6" fontWeight="bold">
-                    {data.name}
-                  </Typography>
-                  <AlertRuleStatus status={data.status_label} />
-                </Stack>
+              <Stack alignItems="flex-start" spacing={0.5}>
+                <Typography variant="h6" fontWeight="bold">
+                  {data.name}
+                </Typography>
+                <AlertRuleStatus status={data.status_label} />
               </Stack>
             </Stack>
-            <Stack direction="row-reverse" spacing={2}>
-              <Button
-                startIcon={<HiTrash />}
-                onClick={() => setCurrentOpenModal("DELETE")}
-                sx={{
-                  textTransform: "capitalize !important",
-                  color: palette.error.light,
-                  backgroundColor: alpha(palette.error.light, 0.05),
-                  paddingX: 2
-                }}
-              >
-                Delete
-              </Button>
-              <Button
-                startIcon={<HiPencil />}
-                onClick={() => setCurrentOpenModal("EDIT")}
-                sx={{
-                  textTransform: "capitalize !important",
-                  color: palette.info.light,
-                  backgroundColor: alpha(palette.info.light, 0.05),
-                  paddingX: 2
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                startIcon={
-                  data.is_silent ? (
-                    <IoNotificationsOff size="1.4rem" />
-                  ) : (
-                    <IoNotifications size="1.4rem" />
-                  )
-                }
-                disabled={isSilencing}
-                onClick={() => silenceAlertRuleMutation()}
-                sx={{
-                  textTransform: "capitalize !important",
-                  color: palette.warning.main,
-                  backgroundColor: alpha(palette.warning.main, 0.05),
-                  paddingX: 2
-                }}
-              >
-                {data.is_silent ? "Unsilent" : "Silent"}
-              </Button>
-              <Button
-                onClick={handleTest}
-                startIcon={<RiTestTubeFill size="1.4rem" />}
-                sx={{
-                  textTransform: "capitalize !important",
-                  color: palette.primary.light,
-                  backgroundColor: alpha(palette.primary.light, 0.05),
-                  paddingX: 2
-                }}
-              >
-                Test
-              </Button>
+            <Stack spacing={1} alignItems="flex-end">
+              <Stack direction="row-reverse" spacing={1}>
+                <Button
+                  startIcon={<HiTrash />}
+                  onClick={() => setCurrentOpenModal("DELETE")}
+                  sx={{
+                    textTransform: "capitalize !important",
+                    color: palette.error.light,
+                    backgroundColor: alpha(palette.error.light, 0.05),
+                    paddingX: 2
+                  }}
+                >
+                  Delete
+                </Button>
+                <Button
+                  startIcon={<HiPencil />}
+                  onClick={() => setCurrentOpenModal("EDIT")}
+                  sx={{
+                    textTransform: "capitalize !important",
+                    color: palette.info.light,
+                    backgroundColor: alpha(palette.info.light, 0.05),
+                    paddingX: 2
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  startIcon={
+                    data.is_silent ? (
+                      <IoNotificationsOff size="1.4rem" />
+                    ) : (
+                      <IoNotifications size="1.4rem" />
+                    )
+                  }
+                  disabled={isSilencing}
+                  onClick={() => silenceAlertRuleMutation()}
+                  sx={{
+                    textTransform: "capitalize !important",
+                    color: palette.warning.main,
+                    backgroundColor: alpha(palette.warning.main, 0.05),
+                    paddingX: 2
+                  }}
+                >
+                  {data.is_silent ? "Unsilent" : "Silent"}
+                </Button>
+                <Button
+                  onClick={handleTest}
+                  startIcon={<RiTestTubeFill size="1.4rem" />}
+                  sx={{
+                    textTransform: "capitalize !important",
+                    color: palette.primary.light,
+                    backgroundColor: alpha(palette.primary.light, 0.05),
+                    paddingX: 2
+                  }}
+                >
+                  Test
+                </Button>
+              </Stack>
+              {data.api_token && (
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  bgcolor={alpha(palette.secondary.main, 0.1)}
+                  borderRadius={2}
+                  paddingLeft={1}
+                  paddingY={0.5}
+                  paddingRight={0.5}
+                  spacing={1}
+                  border="1px solid"
+                  borderColor={palette.secondary.light}
+                >
+                  <Typography
+                    variant="caption"
+                    color={palette.secondary.main}
+                    sx={{
+                      maxWidth: "300px",
+                      textWrap: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                  >
+                    {data.api_token}
+                  </Typography>
+                  <IconButton size="small" onClick={() => handleCopyApiTokenToClipboard()}>
+                    <BsFillClipboard2Fill size="1rem" color={palette.secondary.main} />
+                  </IconButton>
+                </Stack>
+              )}
             </Stack>
           </Stack>
           <Stack marginTop={3}>
