@@ -37,7 +37,6 @@ export default function EndPoints() {
         ref={tableRef}
         title="EndPoints"
         url="endpoint"
-        defaultPage={1}
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },

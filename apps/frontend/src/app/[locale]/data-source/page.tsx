@@ -33,7 +33,6 @@ export default function DataSource() {
         ref={tableRef}
         title="Data Sources"
         url="data-source"
-        defaultPage={1}
         defaultPageSize={10}
         refetchInterval={5000}
         columns={[

@@ -11,7 +11,7 @@ export async function fetchTableData<T>({
 }: FetchTableDataArgs): Promise<IServerResponseTabularDate<T>> {
   try {
     const response = await axios.get<IServerResponseTabularDate<T>>(
-      `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex}&sortBy=_id&sortType=asc&${filterSearchParams}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}${url}?perPage=${pageSize}&page=${pageIndex + 1}&sortBy=_id&sortType=asc&${filterSearchParams}`
     );
     return response.data;
   } catch (error) {
