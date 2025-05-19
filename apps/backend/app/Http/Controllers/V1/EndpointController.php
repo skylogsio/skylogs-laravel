@@ -17,7 +17,7 @@ class EndpointController extends Controller
 
     public function Index(Request $request)
     {
-        $perPage = $request->per_page ?? 25;
+        $perPage = $request->perPage ?? 25;
 
         $data = Endpoint::query();
         $isAdmin = auth()->user()->isAdmin();

@@ -38,7 +38,7 @@ class AlertingController extends Controller
     public function Index(Request $request)
     {
 
-        $perPage = $request->per_page ?? 25;
+        $perPage = $request->perPage ?? 25;
 
         $data = AlertRule::latest();
 
