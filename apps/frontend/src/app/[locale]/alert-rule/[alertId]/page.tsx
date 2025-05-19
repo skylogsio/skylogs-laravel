@@ -171,7 +171,6 @@ export default function ViewAlertRule() {
     return null;
   }
 
-  console.log(data);
 
   function handleRefreshData() {
     refetch();

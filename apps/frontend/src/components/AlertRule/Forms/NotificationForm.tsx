@@ -96,7 +96,6 @@ export default function NotificationForm({ onClose, onSubmit, data }: Notificati
   });
 
   function handleSubmitForm(values: NotificationFormType) {
-    console.log(values);
     if (data === "NEW") {
       createNotificationMutation(values);
     } else if (data) {
