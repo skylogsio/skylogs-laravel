@@ -284,7 +284,7 @@ function Table<T>(
       </Box>
       <TablePagination
         component="div"
-        count={table.getPageCount()}
+        count={data?.total ?? 0}
         page={table.getState().pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}
         rowsPerPage={table.getState().pagination.pageSize}

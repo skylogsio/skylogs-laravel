@@ -94,7 +94,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   const { mutate: createClientAPIMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: ClientAPIFormType) => createAlertRule(body),
     onSuccess: (data) => {
-      console.log(data);
       if (data.status) {
         toast.success("Client Api Alert Rule Created Successfully.");
         onSubmit();
@@ -132,7 +131,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
   }
 
   function handleSubmitForm(values: ClientAPIFormType) {
-    console.log(values);
     if (data === "NEW") {
       createClientAPIMutation(values);
     } else if (data) {

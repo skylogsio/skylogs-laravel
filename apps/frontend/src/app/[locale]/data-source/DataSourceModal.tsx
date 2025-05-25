@@ -41,16 +41,8 @@ const schema = z.object({
       message: "This field is Required."
     }),
   api_token: z.string().optional(),
-  username: z
-    .string({ required_error: "This field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    }),
-  password: z
-    .string({ required_error: "This field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    })
+  username: z.string().optional(),
+  password: z.string().optional()
 });
 
 type DataSourceFormType = z.infer<typeof schema> & { chatId?: string };
