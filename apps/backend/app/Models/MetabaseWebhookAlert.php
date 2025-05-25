@@ -43,7 +43,7 @@ class MetabaseWebhookAlert extends BaseModel implements Messageable
             if ($alert) {
                 $this->alertRuleId = $alert->_id;
                 $alert->state = AlertRule::UNKNOWN;
-                $alert->notify_at = time();
+                $alert->notifyAt = time();
                 $alert->save();
             }
 

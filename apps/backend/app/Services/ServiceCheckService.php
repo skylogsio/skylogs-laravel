@@ -155,7 +155,7 @@ class ServiceCheckService
                 if ($check->counter < $check->threshold_up && $check->state == ServiceCheck::DOWN) {
 
                     $check->state = ServiceCheck::UP;
-                    $check->notify_at = time();
+                    $check->notifyAt = time();
                     $check->save();
                     SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alertRuleId);
 
@@ -183,7 +183,7 @@ class ServiceCheckService
                     $check->counter += 1;
                 if ($check->counter >= $check->threshold_down && $check->state == ServiceCheck::UP) {
                     $check->state = ServiceCheck::DOWN;
-                    $check->notify_at = time();
+                    $check->notifyAt = time();
                     $check->save();
                     SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $check->alertRuleId);
 

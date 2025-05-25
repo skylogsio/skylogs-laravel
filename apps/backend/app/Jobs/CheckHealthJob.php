@@ -70,7 +70,7 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
                     if ($check->counter < $check->threshold_up && $check->state == HealthCheck::DOWN) {
 
                         $check->state = HealthCheck::UP;
-                        $check->notify_at = time();
+                        $check->notifyAt = time();
                         $check->save();
                         SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check,$this->alert->_id);
                         HealthHistory::create(
@@ -103,7 +103,7 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
                     $check->counter += 1;
                 if ($check->counter >= $check->threshold_down && $check->state == HealthCheck::UP) {
                     $check->state = HealthCheck::DOWN;
-                    $check->notify_at = time();
+                    $check->notifyAt = time();
                     $check->save();
                     SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check,$this->alert->_id);
 

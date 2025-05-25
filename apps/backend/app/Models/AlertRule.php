@@ -4,9 +4,13 @@ namespace App\Models;
 
 use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
+use App\Models\DataSource\DataSource;
+use App\Observers\AlertRuleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
+#[ObservedBy(AlertRuleObserver::class)]
 class AlertRule extends BaseModel implements Messageable
 {
 
@@ -30,7 +34,15 @@ class AlertRule extends BaseModel implements Messageable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,"userId");
+    }
+
+    public function dataSource(): ?BelongsTo
+    {
+        if ($this->type == AlertRuleType::ELASTIC)
+            return $this->belongsTo(DataSource::class, "dataSourceId", "_id");
+        else
+            return null;
     }
 
     public function prometheusCheck()
@@ -111,9 +123,9 @@ class AlertRule extends BaseModel implements Messageable
                 $alertCount = AlertInstance::where('alertRuleId', $this->id)
                     ->where("state", AlertInstance::FIRE)->count();
                 if ($alertCount == 0) {
-                    $alertState =  self::RESOlVED;
-                }else{
-                    $alertState =  self::CRITICAL;
+                    $alertState = self::RESOlVED;
+                } else {
+                    $alertState = self::CRITICAL;
                 }
                 break;
             case AlertRuleType::PROMETHEUS:
@@ -121,11 +133,11 @@ class AlertRule extends BaseModel implements Messageable
                 if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
                     $alertState = self::RESOlVED;
                 } else {
-                    if (!empty($alert->alerts)){
-                        $alertState =  self::CRITICAL;
+                    if (!empty($alert->alerts)) {
+                        $alertState = self::CRITICAL;
                         $alertCount = count($alert->alerts);
                     } else {
-                        $alertState =  self::CRITICAL;
+                        $alertState = self::CRITICAL;
                     }
                 }
                 break;
@@ -134,26 +146,26 @@ class AlertRule extends BaseModel implements Messageable
             case AlertRuleType::METABASE:
             case AlertRuleType::ZABBIX:
                 if (empty($this->state)) {
-                    $alertState =  self::UNKNOWN;
+                    $alertState = self::UNKNOWN;
                 } else {
-                    $alertState =  $this->state;
+                    $alertState = $this->state;
                 }
-            break;
+                break;
             case AlertRuleType::HEALTH:
                 $check = HealthCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
-                    $alertState =  self::RESOlVED;
+                    $alertState = self::RESOlVED;
                 } else {
-                    $alertState =  self::CRITICAL;
+                    $alertState = self::CRITICAL;
                 }
                 break;
 
             case AlertRuleType::ELASTIC:
                 $check = ElasticCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
-                    $alertState =  self::RESOlVED;
+                    $alertState = self::RESOlVED;
                 } else {
-                    $alertState =  self::CRITICAL;
+                    $alertState = self::CRITICAL;
                 }
                 break;
             case AlertRuleType::NOTIFICATION:
@@ -161,7 +173,7 @@ class AlertRule extends BaseModel implements Messageable
                 // TODO
             case AlertRuleType::SPLUNK:
                 // TODO
-            break;
+                break;
 
         }
         return [$alertState, $alertCount];

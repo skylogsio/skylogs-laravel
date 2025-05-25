@@ -48,7 +48,7 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $this->alertRuleId = $alertRule->_id;
                     $this->alertRuleName = $alertRule->name;
                     $alertRule->state = $this->action;
-                    $alertRule->notify_at = time();
+                    $alertRule->notifyAt = time();
                     $alertRule->save();
                 }
 
@@ -69,7 +69,7 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $this->alertRuleName = $alertRule->name;
 
                     $alertRule->state = $this->action;
-                    $alertRule->notify_at = time();
+                    $alertRule->notifyAt = time();
                     $alertRule->save();
                 }
             }

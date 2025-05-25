@@ -25,8 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        DataSource::observe(DataSourceObserver::class);
-        Endpoint::observe(EndpointObserver::class);
-        AlertRule::observe(AlertRuleObserver::class);
+
     }
 }

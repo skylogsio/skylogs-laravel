@@ -13,11 +13,8 @@ Artisan::command('app:test', function () {
     }
 })->purpose('Run Code');
 
-if (config('app.env') === 'production') {
-    Schedule::job(new CheckPrometheusJob)->everyFiveSeconds();
-    Schedule::job(new AddChecksJob)->everyFiveSeconds();
-    Schedule::job(new AutoResolveApiAlertsJob)->everyFiveSeconds();
-} else {
-    Schedule::job(new CheckPrometheusJob)->everyThirtySeconds();
-    Schedule::job(new AddChecksJob)->everyThirtySeconds();
-}
+
+Schedule::job(new CheckPrometheusJob)->everyFiveSeconds();
+Schedule::job(new AddChecksJob)->everyFiveSeconds();
+Schedule::job(new AutoResolveApiAlertsJob)->everyFiveSeconds();
+
