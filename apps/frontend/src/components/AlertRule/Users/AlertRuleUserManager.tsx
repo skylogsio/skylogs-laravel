@@ -1,16 +1,6 @@
 import { useState } from "react";
 
-import {
-  alpha,
-  Autocomplete,
-  Button,
-  Stack,
-  TextField,
-  IconButton,
-  Box,
-  Typography,
-  useTheme
-} from "@mui/material";
+import { alpha, Autocomplete, Button, Stack, TextField, IconButton, useTheme } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FaUsers } from "react-icons/fa";
 import { HiOutlinePlusSm, HiTrash } from "react-icons/hi";
@@ -21,6 +11,7 @@ import {
   getAlertRuleUsersList,
   removeUserFromAlertRule
 } from "@/api/alertRule";
+import EmptyList from "@/components/EmptyList";
 import DataTable from "@/components/Table/DataTable";
 
 interface AlertRuleUserManagerProps {
@@ -124,28 +115,13 @@ export default function AlertRuleUserManager({ alertId }: AlertRuleUserManagerPr
           ]}
         />
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            py: 6,
-            px: 2,
-            textAlign: "center",
-            backgroundColor: (theme) => alpha(theme.palette.grey[100], 0.5),
-            borderRadius: 2
-          }}
-        >
-          <FaUsers size="3rem" style={{ color: palette.primary.light, marginBottom: 5 }} />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            No Users Assigned
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400 }}>
-            This alert rule doesn&#39;t have any users assigned yet. Use the form above to add users
-            who should receive notifications for this alert.
-          </Typography>
-        </Box>
+        <EmptyList
+          icon={<FaUsers size="3rem" style={{ color: palette.primary.light, marginBottom: 5 }} />}
+          title="No Users Assigned"
+          description="This alert rule doesn&#39;t have any users assigned yet. Use the form above to add users
+            who should receive notifications for this alert."
+        />
+
       )}
     </Stack>
   );

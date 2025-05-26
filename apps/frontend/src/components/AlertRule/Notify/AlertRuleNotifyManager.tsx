@@ -1,16 +1,6 @@
 import { useState } from "react";
 
-import {
-  alpha,
-  Autocomplete,
-  Button,
-  Stack,
-  TextField,
-  IconButton,
-  Box,
-  Typography,
-  useTheme
-} from "@mui/material";
+import { alpha, Autocomplete, Button, Stack, TextField, IconButton, useTheme } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AiFillNotification } from "react-icons/ai";
 import { HiOutlinePlusSm, HiTrash } from "react-icons/hi";
@@ -21,6 +11,7 @@ import {
   getAlertRuleEndpointsList,
   removeEndpointFromAlertRule
 } from "@/api/alertRule";
+import EmptyList from "@/components/EmptyList";
 import DataTable from "@/components/Table/DataTable";
 import { renderEndPointChip } from "@/utils/endpointVariants";
 
@@ -124,31 +115,17 @@ export default function AlertRuleNotifyManager({ alertId }: { alertId: string })
           ]}
         />
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            py: 6,
-            px: 2,
-            textAlign: "center",
-            backgroundColor: (theme) => alpha(theme.palette.grey[100], 0.5),
-            borderRadius: 2
-          }}
-        >
-          <AiFillNotification
-            size="3rem"
-            style={{ color: palette.warning.light, marginBottom: "16px" }}
-          />
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            No Notification Endpoints Configured
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400 }}>
-            This alert rule doesn&#39;t have any notification endpoints set up yet. Use the form
-            above to add endpoints like Teams, Telegram, SMS or Call to receive alerts.
-          </Typography>
-        </Box>
+        <EmptyList
+          icon={
+            <AiFillNotification
+              size="3rem"
+              style={{ color: palette.warning.light, marginBottom: "16px" }}
+            />
+          }
+          title="No Notification Endpoints Configured"
+          description="This alert rule doesn&#39;t have any notification endpoints set up yet. Use the form
+            above to add endpoints like Teams, Telegram, SMS or Call to receive alerts."
+        />
       )}
     </Stack>
   );
