@@ -9,13 +9,13 @@ import AlertRuleActionColumn from "@/app/[locale]/alert-rule/AlertRuleActionColu
 import TagsCell from "@/app/[locale]/alert-rule/TagsCell";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
+import AlertRuleNotifyModal from "@/components/AlertRule/Notify/AlertRuleNotifyModal";
 import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
 
 import AlertRuleFilter from "./AlertRuleFilter";
 import AlertRuleModal from "./AlertRuleModal";
 import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
-import NotifyModal from "./NotifyModal";
 
 export default function AlertRule() {
   const tableRef = useRef<TableComponentRef>(null);
@@ -57,7 +57,7 @@ export default function AlertRule() {
           {
             header: "Notify",
             cell: ({ row }) => (
-              <NotifyModal
+              <AlertRuleNotifyModal
                 alertId={row.original.id}
                 numberOfEndpoints={row.original.count_endpoints}
                 onClose={handleRefreshData}

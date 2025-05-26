@@ -14,36 +14,31 @@ import {
   useTheme
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AiFillNotification } from "react-icons/ai";
 import { BsFillClipboard2Fill } from "react-icons/bs";
+import { FaUsers } from "react-icons/fa";
 import { FaClockRotateLeft } from "react-icons/fa6";
-import { HiCollection, HiFire, HiPencil, HiTrash, HiUsers } from "react-icons/hi";
+import { HiFire, HiPencil, HiTrash } from "react-icons/hi";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { RiTestTubeFill } from "react-icons/ri";
 
 import { type IAlertRule } from "@/@types/alertRule";
-import {
-  getAlertRuleById,
-  getAlertRuleEndpointsList,
-  removeEndpointFromAlertRule,
-  silenceAlertRule,
-  testAlertRule
-} from "@/api/alertRule";
+import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
+import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
 import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
-import DataTable from "@/components/Table/DataTable";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
-import { renderEndPointChip } from "@/utils/endpointVariants";
 
 const TABS = ["fire", "users", "history", "notify"];
 type TabType = (typeof TABS)[number];
 
 const TABS_ICON: { [key: TabType]: ReactElement } = {
   fire: <HiFire size="1.2rem" />,
-  users: <HiUsers size="1.2rem" />,
+  users: <FaUsers size="1.2rem" />,
   history: <FaClockRotateLeft size="1.1rem" />,
-  notify: <HiCollection size="1.2rem" />
+  notify: <AiFillNotification size="1.2rem" />
 };
 
 export default function ViewAlertRule() {
@@ -102,21 +97,6 @@ export default function ViewAlertRule() {
     onSuccess: (data) => {
       if (data.status) {
         handleCloseTestConfirmationPopover();
-      }
-    }
-  });
-
-  const { data: EndpointsList, refetch: refetchEndpointsList } = useQuery({
-    queryKey: ["notifications", alertId],
-    queryFn: () => getAlertRuleEndpointsList(alertId),
-    enabled: Boolean(alertId) && currentTab === "notify"
-  });
-
-  const { mutate: removeEndpoint, isPending: isRemovingEndpoint } = useMutation({
-    mutationFn: (endpointId: string) => removeEndpointFromAlertRule(alertId, endpointId),
-    onSuccess: (data) => {
-      if (data.status) {
-        refetchEndpointsList();
       }
     }
   });
@@ -292,42 +272,14 @@ export default function ViewAlertRule() {
           sx={{
             backgroundColor: palette.background.paper,
             padding: `${spacing(1)}!important`,
-            marginTop: `${spacing(2)}!important`
+            marginTop: `${spacing(1)}!important`
           }}
         >
           {TABS.map((tab) => renderTab(tab))}
         </Stack>
         <Stack width="100%" bgcolor={palette.background.paper} borderRadius={3} padding={3}>
           {currentTab === "users" && <AlertRuleUserManager alertId={alertId} />}
-          {currentTab === "notify" && (
-            <DataTable
-              data={EndpointsList?.alertEndpoints ?? []}
-              columns={[
-                { header: "Row", size: 50, accessorFn: (_, index) => ++index },
-                { header: "Name", accessorKey: "name" },
-                {
-                  header: "Type",
-                  accessorKey: "type",
-                  cell: ({ cell }) => renderEndPointChip(cell.getValue())
-                },
-                {
-                  header: "Actions",
-                  cell: ({ row }) => (
-                    <IconButton
-                      disabled={isRemovingEndpoint}
-                      onClick={() => removeEndpoint(row.original.id)}
-                      sx={({ palette }) => ({
-                        color: palette.error.light,
-                        backgroundColor: alpha(palette.error.light, 0.05)
-                      })}
-                    >
-                      <HiTrash size="1.4rem" />
-                    </IconButton>
-                  )
-                }
-              ]}
-            />
-          )}
+          {currentTab === "notify" && <AlertRuleNotifyManager alertId={alertId} />}
         </Stack>
       </Stack>
       {currentOpenModal === "DELETE" && (
