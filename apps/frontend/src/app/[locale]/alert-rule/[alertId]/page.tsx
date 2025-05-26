@@ -24,15 +24,14 @@ import { type IAlertRule } from "@/@types/alertRule";
 import {
   getAlertRuleById,
   getAlertRuleEndpointsList,
-  getAlertRuleUsersList,
   removeEndpointFromAlertRule,
-  removeUserFromAlertRule,
   silenceAlertRule,
   testAlertRule
 } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
+import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
 import DataTable from "@/components/Table/DataTable";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
 import { renderEndPointChip } from "@/utils/endpointVariants";
@@ -107,21 +106,6 @@ export default function ViewAlertRule() {
     }
   });
 
-  const { data: UsersList, refetch: refetchUsersList } = useQuery({
-    queryKey: ["alert-rule-users", alertId],
-    queryFn: () => getAlertRuleUsersList(alertId),
-    enabled: Boolean(alertId) && currentTab === "users"
-  });
-
-  const { mutate: removeUser, isPending: isRemovingUser } = useMutation({
-    mutationFn: (userId: string) => removeUserFromAlertRule(alertId, userId),
-    onSuccess: (data) => {
-      if (data.status) {
-        refetchUsersList();
-      }
-    }
-  });
-
   const { data: EndpointsList, refetch: refetchEndpointsList } = useQuery({
     queryKey: ["notifications", alertId],
     queryFn: () => getAlertRuleEndpointsList(alertId),
@@ -170,7 +154,6 @@ export default function ViewAlertRule() {
   if (!data) {
     return null;
   }
-
 
   function handleRefreshData() {
     refetch();
@@ -314,60 +297,38 @@ export default function ViewAlertRule() {
         >
           {TABS.map((tab) => renderTab(tab))}
         </Stack>
-        {currentTab === "users" && (
-          <DataTable
-            data={UsersList?.alertUsers ?? []}
-            columns={[
-              { header: "Row", size: 50, accessorFn: (_, index) => ++index },
-              { header: "Username", accessorKey: "username" },
-              { header: "Name", accessorKey: "name" },
-              {
-                header: "Actions",
-                cell: ({ row }) => (
-                  <IconButton
-                    disabled={isRemovingUser}
-                    onClick={() => removeUser(row.original.id)}
-                    sx={({ palette }) => ({
-                      color: palette.error.light,
-                      backgroundColor: alpha(palette.error.light, 0.05)
-                    })}
-                  >
-                    <HiTrash size="1.4rem" />
-                  </IconButton>
-                )
-              }
-            ]}
-          />
-        )}
-        {currentTab === "notify" && (
-          <DataTable
-            data={EndpointsList?.alertEndpoints ?? []}
-            columns={[
-              { header: "Row", size: 50, accessorFn: (_, index) => ++index },
-              { header: "Name", accessorKey: "name" },
-              {
-                header: "Type",
-                accessorKey: "type",
-                cell: ({ cell }) => renderEndPointChip(cell.getValue())
-              },
-              {
-                header: "Actions",
-                cell: ({ row }) => (
-                  <IconButton
-                    disabled={isRemovingEndpoint}
-                    onClick={() => removeEndpoint(row.original.id)}
-                    sx={({ palette }) => ({
-                      color: palette.error.light,
-                      backgroundColor: alpha(palette.error.light, 0.05)
-                    })}
-                  >
-                    <HiTrash size="1.4rem" />
-                  </IconButton>
-                )
-              }
-            ]}
-          />
-        )}
+        <Stack width="100%" bgcolor={palette.background.paper} borderRadius={3} padding={3}>
+          {currentTab === "users" && <AlertRuleUserManager alertId={alertId} />}
+          {currentTab === "notify" && (
+            <DataTable
+              data={EndpointsList?.alertEndpoints ?? []}
+              columns={[
+                { header: "Row", size: 50, accessorFn: (_, index) => ++index },
+                { header: "Name", accessorKey: "name" },
+                {
+                  header: "Type",
+                  accessorKey: "type",
+                  cell: ({ cell }) => renderEndPointChip(cell.getValue())
+                },
+                {
+                  header: "Actions",
+                  cell: ({ row }) => (
+                    <IconButton
+                      disabled={isRemovingEndpoint}
+                      onClick={() => removeEndpoint(row.original.id)}
+                      sx={({ palette }) => ({
+                        color: palette.error.light,
+                        backgroundColor: alpha(palette.error.light, 0.05)
+                      })}
+                    >
+                      <HiTrash size="1.4rem" />
+                    </IconButton>
+                  )
+                }
+              ]}
+            />
+          )}
+        </Stack>
       </Stack>
       {currentOpenModal === "DELETE" && (
         <DeleteAlertRuleModal
