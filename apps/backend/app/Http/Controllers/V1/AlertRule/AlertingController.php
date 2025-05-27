@@ -296,197 +296,6 @@ class AlertingController extends Controller
         return response()->json($alert);
     }
 
-    public function AllHistory(Request $request)
-    {
-        return AlertRuleService::GetAllHistory($request);
-
-    }
-
-    public function History(Request $request, $id)
-    {
-        if ($request->has("perPage")) {
-            $perPage = $request->perPage;
-        } else
-            $perPage = 50;
-
-        $pageConfigs = ['myLayout' => 'blank'];
-
-        $alert = AlertRule::where("_id", $id)->firstOrFail();
-        $userIds = [];
-        if (!empty($alert->userIds)) {
-            $userIds = $alert->userIds;
-        }
-        $userIds[] = $alert->userId;
-
-        if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
-            abort(403);
-        }
-
-        switch ($alert->type) {
-            case AlertRuleType::GRAFANA:
-                if ($request->ajax()) {
-                    $data = GrafanaWebhookAlert::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_grafana_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_grafana", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::PROMETHEUS:
-                if ($request->ajax()) {
-                    $data = PrometheusHistory::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_prometheus_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_prometheus", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::SENTRY:
-                if ($request->ajax()) {
-                    $data = SentryWebhookAlert::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_sentry_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_sentry", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::SPLUNK:
-                if ($request->ajax()) {
-                    $data = SplunkWebhookAlert::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_splunk_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_splunk", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::METABASE:
-                if ($request->ajax()) {
-                    $data = MetabaseWebhookAlert::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_metabase_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_metabase", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::ZABBIX:
-                if ($request->ajax()) {
-                    $data = ZabbixWebhookAlert::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_zabbix_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_zabbix", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::API:
-                if ($request->ajax()) {
-                    $data = ApiAlertHistory::where("alertRule_id", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_api_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_api", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::NOTIFICATION:
-                if ($request->ajax()) {
-                    $data = ApiAlertHistory::where("alertRule_id", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_notification_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_notification", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::HEALTH:
-                if ($request->ajax()) {
-                    $data = HealthHistory::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_health_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_health", compact("alert", "pageConfigs"));
-
-            case AlertRuleType::ELASTIC:
-                if ($request->ajax()) {
-                    $data = ElasticHistory::where("alertRuleId", $id)->latest();
-                    if ($request->has("from") && !empty($request->from)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
-                        $data = $data->where("createdAt", ">=", $date->toDateTime());
-                    }
-                    if ($request->has("to") && !empty($request->to)) {
-                        $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
-                        $data = $data->where("createdAt", "<=", $date->toDateTime());
-                    }
-                    $data = $data->paginate($perPage);
-                    return view("content.pages.alerts.history_elastic_ajax", compact("alert", "data"));
-                } else
-                    return view("content.pages.alerts.history_elastic", compact("alert", "pageConfigs"));
-        }
-
-        return null;
-    }
-
 
     public function StoreUpdate(Request $request, $id)
     {
@@ -762,6 +571,173 @@ class AlertingController extends Controller
         return response()->json(['status' => true]);
 //        return redirect()->route('role.index');
     }
+
+    public function AllHistory(Request $request)
+    {
+        return AlertRuleService::GetAllHistory($request);
+
+    }
+
+    public function History(Request $request, $id)
+    {
+        $perPage = $request->perPage ?? 50;
+
+        $alert = AlertRule::where("_id", $id)->firstOrFail();
+        $userIds = [];
+        if (!empty($alert->userIds)) {
+            $userIds = $alert->userIds;
+        }
+        $userIds[] = $alert->userId;
+
+        if (!(Auth::user()->isAdmin() || in_array(Auth::user()->_id, $userIds))) {
+            abort(403);
+        }
+
+        switch ($alert->type) {
+            case AlertRuleType::GRAFANA:
+
+                $data = GrafanaWebhookAlert::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_grafana_ajax", compact("alert", "data"));
+
+            case AlertRuleType::PROMETHEUS:
+
+                $data = PrometheusHistory::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_prometheus_ajax", compact("alert", "data"));
+
+            case AlertRuleType::SENTRY:
+
+                $data = SentryWebhookAlert::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_sentry_ajax", compact("alert", "data"));
+
+            case AlertRuleType::SPLUNK:
+
+                $data = SplunkWebhookAlert::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_splunk_ajax", compact("alert", "data"));
+
+            case AlertRuleType::METABASE:
+
+                $data = MetabaseWebhookAlert::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_metabase_ajax", compact("alert", "data"));
+
+            case AlertRuleType::ZABBIX:
+
+                $data = ZabbixWebhookAlert::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_zabbix_ajax", compact("alert", "data"));
+
+            case AlertRuleType::API:
+
+                $data = ApiAlertHistory::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return response()->json($data);
+
+            case AlertRuleType::NOTIFICATION:
+
+                $data = ApiAlertHistory::where("alertRule_id", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return response()->json($data);
+
+            case AlertRuleType::HEALTH:
+
+                $data = HealthHistory::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_health_ajax", compact("alert", "data"));
+
+            case AlertRuleType::ELASTIC:
+
+                $data = ElasticHistory::where("alertRuleId", $id)->latest();
+                if ($request->has("from") && !empty($request->from)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
+                    $data = $data->where("createdAt", ">=", $date->toDateTime());
+                }
+                if ($request->has("to") && !empty($request->to)) {
+                    $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
+                    $data = $data->where("createdAt", "<=", $date->toDateTime());
+                }
+                $data = $data->paginate($perPage);
+                return view("content.pages.alerts.history_elastic_ajax", compact("alert", "data"));
+        }
+
+        return null;
+    }
+
 
 
 }
