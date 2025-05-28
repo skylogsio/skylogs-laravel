@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { FaUsers } from "react-icons/fa";
 import { HiOutlinePlusSm, HiTrash } from "react-icons/hi";
 
+import type { IAlertRule } from "@/@types/alertRule";
 import type { IUser } from "@/@types/user";
 import {
   addUsersToAlertRule,
@@ -15,7 +16,7 @@ import EmptyList from "@/components/EmptyList";
 import DataTable from "@/components/Table/DataTable";
 
 interface AlertRuleUserManagerProps {
-  alertId: string;
+  alertId: IAlertRule["id"];
   onClose?: () => void;
 }
 
@@ -121,7 +122,6 @@ export default function AlertRuleUserManager({ alertId }: AlertRuleUserManagerPr
           description="This alert rule doesn&#39;t have any users assigned yet. Use the form above to add users
             who should receive notifications for this alert."
         />
-
       )}
     </Stack>
   );

@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AiFillNotification } from "react-icons/ai";
 import { HiOutlinePlusSm, HiTrash } from "react-icons/hi";
 
+import type { IAlertRule } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
 import {
   addEndpointToAlertRule,
@@ -15,7 +16,7 @@ import EmptyList from "@/components/EmptyList";
 import DataTable from "@/components/Table/DataTable";
 import { renderEndPointChip } from "@/utils/endpointVariants";
 
-export default function AlertRuleNotifyManager({ alertId }: { alertId: string }) {
+export default function AlertRuleNotifyManager({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
   const [selectedEndpoints, setSelectedEndpoints] = useState<IEndpoint[]>([]);
 

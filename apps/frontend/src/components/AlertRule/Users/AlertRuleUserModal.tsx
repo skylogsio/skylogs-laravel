@@ -3,12 +3,13 @@ import { useState } from "react";
 import { alpha, IconButton } from "@mui/material";
 import { FaUsers } from "react-icons/fa";
 
+import type { IAlertRule } from "@/@types/alertRule";
 import ModalContainer from "@/components/Modal";
 
 import AlertRuleUserManager from "./AlertRuleUserManager";
 
 interface AlertRuleUserModalProps {
-  alertId: string;
+  alertId: IAlertRule["id"];
 }
 
 export default function AlertRuleUserModal({ alertId }: AlertRuleUserModalProps) {

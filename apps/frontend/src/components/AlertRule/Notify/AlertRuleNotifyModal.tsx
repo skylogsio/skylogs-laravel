@@ -3,11 +3,12 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 import { HiOutlinePlusSm } from "react-icons/hi";
 
+import type{ IAlertRule } from "@/@types/alertRule";
 import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
 import ModalContainer from "@/components/Modal";
 
 interface NotifyModalProps {
-  alertId: string;
+  alertId: IAlertRule["id"] ;
   numberOfEndpoints: number;
   onClose: () => void;
 }
