@@ -17,3 +17,29 @@ export type ServerSelectableDataType = Array<{ id: string; name: string }>;
 type ErrorResponse = { status: false; message: unknown };
 type SuccessResponse<T> = { status: true; data: T };
 export type ServerResponse<T> = AxiosResponse<ErrorResponse | SuccessResponse<T>>;
+
+export interface IServerResponseTabularData<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  from: number;
+  first_page_url: string;
+  last_page_url: string;
+  next_page_url: string;
+  path: string;
+  per_page: number;
+  prev_page_url: string;
+  to: number;
+  total: number;
+  links: Array<{
+    url: string;
+    label: string;
+    active: boolean;
+  }>;
+}
+
+export interface PaginationLink {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
