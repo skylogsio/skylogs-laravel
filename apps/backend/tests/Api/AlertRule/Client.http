@@ -6,7 +6,7 @@ Accept: application/json
 Authorization: Bearer {{alertToken}}
 
 {
-    "instance" : "test",
+    "instance" : "testwe3",
     "description" : "myDes"
 }
 
@@ -18,7 +18,7 @@ Accept: application/json
 Authorization: Bearer {{alertToken}}
 
 {
-    "instance" : "test",
+    "instance" : "testwe3",
     "description" : "myDes"
 }
 

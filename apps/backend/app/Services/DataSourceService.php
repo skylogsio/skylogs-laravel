@@ -33,7 +33,9 @@ class DataSourceService
         return $prometheuses;
     }
 
-    public static function FlushCache()
+
+
+    public function flushCache()
     {
         cache()->tags(['dataSource'])->flush();
     }

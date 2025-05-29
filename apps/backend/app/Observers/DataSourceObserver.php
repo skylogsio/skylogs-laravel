@@ -8,23 +8,23 @@ use App\Services\DataSourceService;
 class DataSourceObserver {
 
     public function created(DataSource $dataSource): void {
-        DataSourceService::FlushCache();
+        app(DataSourceService::class)->flushCache();
     }
 
     public function updated(DataSource $dataSource): void {
-        DataSourceService::FlushCache();
+        app(DataSourceService::class)->flushCache();
     }
 
     public function deleted(DataSource $dataSource): void {
-        DataSourceService::FlushCache();
+        app(DataSourceService::class)->flushCache();
     }
 
     public function restored(DataSource $dataSource): void {
-        DataSourceService::FlushCache();
+        app(DataSourceService::class)->flushCache();
     }
 
     public function forceDeleted(DataSource $dataSource): void {
-        DataSourceService::FlushCache();
+        app(DataSourceService::class)->flushCache();
     }
 
 }
