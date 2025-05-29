@@ -689,6 +689,7 @@ class AlertingController extends Controller
                     $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
                     $data = $data->where("createdAt", "<=", $date->toDateTime());
                 }
+
                 $data = $data->paginate($perPage);
                 return response()->json($data);
 
