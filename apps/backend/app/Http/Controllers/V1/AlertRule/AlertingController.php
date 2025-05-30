@@ -34,6 +34,7 @@ use Str;
 class AlertingController extends Controller
 {
 
+    public function __construct(protected AlertRuleService $alertRuleService){}
 
     public function Index(Request $request)
     {
@@ -739,6 +740,11 @@ class AlertingController extends Controller
         return null;
     }
 
+    public function FiredAlerts($id)
+    {
+        // TODO check access alert
+        return $this->alertRuleService->firedAlerts($id);
+    }
 
 
 }

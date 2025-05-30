@@ -91,6 +91,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
                 Route::get('/history/{id}', 'History');
+                Route::get('/triggered/{id}', 'FiredAlerts');
                 Route::get('/filter-endpoints', 'FilterEndpoints');
 
                 Route::prefix("/create-data")
