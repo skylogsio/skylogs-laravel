@@ -20,6 +20,23 @@ use MongoDB\BSON\UTCDateTime;
 class AlertRuleService
 {
 
+    public function firedAlerts(string $alertRuleId)
+    {
+        $alertRule = AlertRule::where("id", $alertRuleId)->firstOrFail();
+        switch ($alertRule->type){
+            case AlertRuleType::API:
+                $firedInstances = AlertInstance::where("alertRuleId", $alertRuleId)
+                    ->where("state",AlertInstance::FIRE)
+                    ->get();
+                return $firedInstances;
+                break;
+            case AlertRuleType::PROMETHEUS:
+
+                break;
+        }
+
+
+    }
     public static function GetAllHistory(Request $request)
     {
         if ($request->has("perPage")) {

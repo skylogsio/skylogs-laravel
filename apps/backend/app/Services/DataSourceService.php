@@ -11,7 +11,7 @@ class DataSourceService
 {
 
 
-    public static function Get(DataSourceType $dataSourceType = null): Collection
+    public function get(DataSourceType $dataSourceType = null): Collection
     {
         $tagsArray = ['dataSource'];
         $keyName = 'dataSource';
@@ -20,7 +20,7 @@ class DataSourceService
             $keyName .= ':' . $dataSourceType->value;
         }
 
-        $prometheuses = cache()
+        $dataSources = cache()
             ->tags($tagsArray)
             ->rememberForever($keyName, function () use ($dataSourceType) {
                 $dataSource = DataSource::query();
@@ -30,10 +30,10 @@ class DataSourceService
                 return $dataSource->get()->keyBy('id');
             });
 
-        return $prometheuses;
+        return $dataSources;
     }
 
-    public static function FlushCache()
+    public static function flushCache()
     {
         cache()->tags(['dataSource'])->flush();
     }
