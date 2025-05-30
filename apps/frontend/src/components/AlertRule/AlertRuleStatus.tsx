@@ -51,7 +51,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
           backgroundColor: alpha(color[status], 0.07)
         }}
       />
-      {status === "critical" && (
+      {status === "critical" && id && (
         <IconButton
           disabled={isPending}
           size="small"
