@@ -26,6 +26,7 @@ import { type IAlertRule } from "@/@types/alertRule";
 import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
+import AlertRuleHistory from "@/components/AlertRule/AlertRuleHistory";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
 import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
@@ -129,6 +130,19 @@ export default function ViewAlertRule() {
         {tab}
       </Button>
     );
+  }
+
+  function renderSections() {
+    switch (currentTab) {
+      case "users":
+        return <AlertRuleUserManager alertId={alertId} />;
+      case "history":
+        return <AlertRuleHistory alertId={alertId} />;
+      case "notify":
+        return <AlertRuleNotifyManager alertId={alertId} />;
+      default:
+        return null;
+    }
   }
 
   if (!data) {
@@ -278,8 +292,7 @@ export default function ViewAlertRule() {
           {TABS.map((tab) => renderTab(tab))}
         </Stack>
         <Stack width="100%" bgcolor={palette.background.paper} borderRadius={3} padding={3}>
-          {currentTab === "users" && <AlertRuleUserManager alertId={alertId} />}
-          {currentTab === "notify" && <AlertRuleNotifyManager alertId={alertId} />}
+          {renderSections()}
         </Stack>
       </Stack>
       {currentOpenModal === "DELETE" && (

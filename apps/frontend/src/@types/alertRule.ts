@@ -37,3 +37,16 @@ export interface IAlertRuleUsers {
   alertUsers: Array<IUser>;
   selectableUsers: Array<IUser>;
 }
+
+export interface IAlertRuleHistoryItem {
+  alertRuleId: string;
+  alertRuleName: string;
+  instance: string;
+  description: string;
+  summary: string;
+  state: number;
+  status: AlertRuleStatus;
+  updatedAt: string;
+  createdAt: string;
+  id: string;
+}
