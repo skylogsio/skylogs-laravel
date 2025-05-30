@@ -1,13 +1,18 @@
 "use server";
 
-import type {
+import {
   IAlertRule,
   IAlertRuleCreateData,
   IAlertRuleEndpoints,
+  IAlertRuleHistoryItem,
   IAlertRuleUsers
 } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
-import type { ServerResponse, ServerSelectableDataType } from "@/@types/global";
+import type {
+  IServerResponseTabularData,
+  ServerResponse,
+  ServerSelectableDataType
+} from "@/@types/global";
 import axios from "@/lib/axios";
 import { DataSourceType } from "@/utils/dataSourceUtils";
 
@@ -27,7 +32,7 @@ export async function createAlertRule(body: unknown): Promise<ServerResponse<unk
 }
 
 export async function updateAlertRule(
-  alertRuleId: string,
+  alertRuleId: IAlertRule["id"],
   body: unknown
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -41,7 +46,7 @@ export async function updateAlertRule(
   }
 }
 
-export async function getAlertRuleById(alertId: string) {
+export async function getAlertRuleById(alertId: IAlertRule["id"]) {
   try {
     const response = await axios.get<IAlertRule>(`${ALERT_RULE_URL}/${alertId}`);
     return response.data;
@@ -50,7 +55,9 @@ export async function getAlertRuleById(alertId: string) {
   }
 }
 
-export async function deleteAlertRule(alertRuleId: string): Promise<ServerResponse<unknown>> {
+export async function deleteAlertRule(
+  alertRuleId: IAlertRule["id"]
+): Promise<ServerResponse<unknown>> {
   try {
     const response = await axios.delete<ServerResponse<unknown>>(
       `${ALERT_RULE_URL}/${alertRuleId}`
@@ -61,7 +68,7 @@ export async function deleteAlertRule(alertRuleId: string): Promise<ServerRespon
   }
 }
 
-export async function testAlertRule(id: string): Promise<ServerResponse<unknown>> {
+export async function testAlertRule(id: IAlertRule["id"]): Promise<ServerResponse<unknown>> {
   try {
     const response = await axios.post<ServerResponse<unknown>>(
       `${ALERT_RULE_NOTIFY_URL}/test/${id}`
@@ -72,7 +79,7 @@ export async function testAlertRule(id: string): Promise<ServerResponse<unknown>
   }
 }
 
-export async function silenceAlertRule(id: string): Promise<ServerResponse<unknown>> {
+export async function silenceAlertRule(id: IAlertRule["id"]): Promise<ServerResponse<unknown>> {
   try {
     const response = await axios.post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/silent/${id}`);
     return response.data;
@@ -90,7 +97,9 @@ export async function getAlertFilterEndpointList(): Promise<IEndpoint[]> {
   }
 }
 
-export async function resolveFiredAlertRule(alertRuleId: string): Promise<ServerResponse<unknown>> {
+export async function resolveFiredAlertRule(
+  alertRuleId: IAlertRule["id"]
+): Promise<ServerResponse<unknown>> {
   try {
     const response = await axios.post<ServerResponse<unknown>>(
       `${ALERT_RULE_URL}/resolve/${alertRuleId}`
@@ -101,7 +110,9 @@ export async function resolveFiredAlertRule(alertRuleId: string): Promise<Server
   }
 }
 
-export async function getAlertRuleEndpointsList(alertRuleId: string): Promise<IAlertRuleEndpoints> {
+export async function getAlertRuleEndpointsList(
+  alertRuleId: IAlertRule["id"]
+): Promise<IAlertRuleEndpoints> {
   try {
     const response = await axios.get<IAlertRuleEndpoints>(
       `${ALERT_RULE_NOTIFY_URL}/${alertRuleId}`
@@ -113,7 +124,7 @@ export async function getAlertRuleEndpointsList(alertRuleId: string): Promise<IA
 }
 
 export async function addEndpointToAlertRule(
-  alertRuleId: string,
+  alertRuleId: IAlertRule["id"],
   endpointIds: string[]
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -128,7 +139,7 @@ export async function addEndpointToAlertRule(
 }
 
 export async function removeEndpointFromAlertRule(
-  alertRuleId: string,
+  alertRuleId: IAlertRule["id"],
   endpointId: string
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -141,7 +152,9 @@ export async function removeEndpointFromAlertRule(
   }
 }
 
-export async function getAlertRuleUsersList(alertRuleId: string): Promise<IAlertRuleUsers> {
+export async function getAlertRuleUsersList(
+  alertRuleId: IAlertRule["id"]
+): Promise<IAlertRuleUsers> {
   try {
     const response = await axios.get<IAlertRuleUsers>(`${ALERT_RULE_USER_URL}/${alertRuleId}`);
     return response.data;
@@ -151,7 +164,7 @@ export async function getAlertRuleUsersList(alertRuleId: string): Promise<IAlert
 }
 
 export async function addUsersToAlertRule(
-  alertRuleId: string,
+  alertRuleId: IAlertRule["id"],
   userIds: string[]
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -166,7 +179,7 @@ export async function addUsersToAlertRule(
 }
 
 export async function removeUserFromAlertRule(
-  alertRuleId: string,
+  alertRuleId: IAlertRule["id"],
   userId: string
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -231,6 +244,20 @@ export async function getAlertRuleDataSourcesByAlertType(
 export async function getDataSourceAlertName(type: DataSourceType) {
   try {
     const response = await axios.get(`${ALERT_RULE_CREATE_DATA_URL}/rules?type=${type}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getAlertRuleHistory(
+  alertRuleId: IAlertRule["id"],
+  page: number
+): Promise<IServerResponseTabularData<IAlertRuleHistoryItem>> {
+  try {
+    const response = await axios.get(
+      `${ALERT_RULE_URL}/history/${alertRuleId}?perPage=10&page=${page}`
+    );
     return response.data;
   } catch (error) {
     throw error;

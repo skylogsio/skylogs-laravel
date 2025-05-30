@@ -8,6 +8,7 @@ import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table/SmartTable";
 import { type TableComponentRef } from "@/components/Table/types";
 import { renderEndPointChip } from "@/utils/endpointVariants";
+import { truncateLongString } from "@/utils/general";
 
 import EndPointModal from "./EndPointModal";
 
@@ -48,7 +49,8 @@ export default function EndPoints() {
           },
           {
             header: "Value",
-            accessorFn: (row) => (row.type === "telegram" ? row.chatId : row.value)
+            accessorFn: (row) =>
+              truncateLongString(row.type === "telegram" ? row.chatId : row.value)
           },
           {
             header: "Action",

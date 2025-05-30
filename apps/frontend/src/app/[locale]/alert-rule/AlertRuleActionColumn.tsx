@@ -8,8 +8,7 @@ import { RiTestTubeFill } from "react-icons/ri";
 
 import { silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import ActionColumn, { ActionColumnProps } from "@/components/ActionColumn";
-
-import AlertRuleUserModal from "./UserModal";
+import AlertRuleUserModal from "@/components/AlertRule/Users/AlertRuleUserModal";
 
 interface AlertRuleActionColumnProps extends ActionColumnProps {
   rowId: string;

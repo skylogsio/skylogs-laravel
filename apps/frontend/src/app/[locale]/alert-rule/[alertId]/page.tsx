@@ -14,37 +14,32 @@ import {
   useTheme
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AiFillNotification } from "react-icons/ai";
 import { BsFillClipboard2Fill } from "react-icons/bs";
+import { FaUsers } from "react-icons/fa";
 import { FaClockRotateLeft } from "react-icons/fa6";
-import { HiCollection, HiFire, HiPencil, HiTrash, HiUsers } from "react-icons/hi";
+import { HiFire, HiPencil, HiTrash } from "react-icons/hi";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import { RiTestTubeFill } from "react-icons/ri";
 
 import { type IAlertRule } from "@/@types/alertRule";
-import {
-  getAlertRuleById,
-  getAlertRuleEndpointsList,
-  getAlertRuleUsersList,
-  removeEndpointFromAlertRule,
-  removeUserFromAlertRule,
-  silenceAlertRule,
-  testAlertRule
-} from "@/api/alertRule";
+import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
+import AlertRuleHistory from "@/components/AlertRule/AlertRuleHistory";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
-import DataTable from "@/components/Table/DataTable";
+import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
+import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
-import { renderEndPointChip } from "@/utils/endpointVariants";
 
 const TABS = ["fire", "users", "history", "notify"];
 type TabType = (typeof TABS)[number];
 
 const TABS_ICON: { [key: TabType]: ReactElement } = {
   fire: <HiFire size="1.2rem" />,
-  users: <HiUsers size="1.2rem" />,
+  users: <FaUsers size="1.2rem" />,
   history: <FaClockRotateLeft size="1.1rem" />,
-  notify: <HiCollection size="1.2rem" />
+  notify: <AiFillNotification size="1.2rem" />
 };
 
 export default function ViewAlertRule() {
@@ -107,40 +102,12 @@ export default function ViewAlertRule() {
     }
   });
 
-  const { data: UsersList, refetch: refetchUsersList } = useQuery({
-    queryKey: ["alert-rule-users", alertId],
-    queryFn: () => getAlertRuleUsersList(alertId),
-    enabled: Boolean(alertId) && currentTab === "users"
-  });
-
-  const { mutate: removeUser, isPending: isRemovingUser } = useMutation({
-    mutationFn: (userId: string) => removeUserFromAlertRule(alertId, userId),
-    onSuccess: (data) => {
-      if (data.status) {
-        refetchUsersList();
-      }
-    }
-  });
-
-  const { data: EndpointsList, refetch: refetchEndpointsList } = useQuery({
-    queryKey: ["notifications", alertId],
-    queryFn: () => getAlertRuleEndpointsList(alertId),
-    enabled: Boolean(alertId) && currentTab === "notify"
-  });
-
-  const { mutate: removeEndpoint, isPending: isRemovingEndpoint } = useMutation({
-    mutationFn: (endpointId: string) => removeEndpointFromAlertRule(alertId, endpointId),
-    onSuccess: (data) => {
-      if (data.status) {
-        refetchEndpointsList();
-      }
-    }
-  });
-
   function renderTab(tab: TabType) {
     let backgroundColor;
     let color;
+
     if (tab === "fire") {
+      if (data?.status_label !== "critical") return null;
       backgroundColor =
         currentTab === tab ? palette.error.main : alpha(palette.secondary.main, 0.1);
       color = currentTab === tab ? palette.background.paper : palette.error.main;
@@ -167,10 +134,22 @@ export default function ViewAlertRule() {
     );
   }
 
+  function renderSections() {
+    switch (currentTab) {
+      case "users":
+        return <AlertRuleUserManager alertId={alertId} />;
+      case "history":
+        return <AlertRuleHistory alertId={alertId} />;
+      case "notify":
+        return <AlertRuleNotifyManager alertId={alertId} />;
+      default:
+        return null;
+    }
+  }
+
   if (!data) {
     return null;
   }
-
 
   function handleRefreshData() {
     refetch();
@@ -309,65 +288,14 @@ export default function ViewAlertRule() {
           sx={{
             backgroundColor: palette.background.paper,
             padding: `${spacing(1)}!important`,
-            marginTop: `${spacing(2)}!important`
+            marginTop: `${spacing(1)}!important`
           }}
         >
           {TABS.map((tab) => renderTab(tab))}
         </Stack>
-        {currentTab === "users" && (
-          <DataTable
-            data={UsersList?.alertUsers ?? []}
-            columns={[
-              { header: "Row", size: 50, accessorFn: (_, index) => ++index },
-              { header: "Username", accessorKey: "username" },
-              { header: "Name", accessorKey: "name" },
-              {
-                header: "Actions",
-                cell: ({ row }) => (
-                  <IconButton
-                    disabled={isRemovingUser}
-                    onClick={() => removeUser(row.original.id)}
-                    sx={({ palette }) => ({
-                      color: palette.error.light,
-                      backgroundColor: alpha(palette.error.light, 0.05)
-                    })}
-                  >
-                    <HiTrash size="1.4rem" />
-                  </IconButton>
-                )
-              }
-            ]}
-          />
-        )}
-        {currentTab === "notify" && (
-          <DataTable
-            data={EndpointsList?.alertEndpoints ?? []}
-            columns={[
-              { header: "Row", size: 50, accessorFn: (_, index) => ++index },
-              { header: "Name", accessorKey: "name" },
-              {
-                header: "Type",
-                accessorKey: "type",
-                cell: ({ cell }) => renderEndPointChip(cell.getValue())
-              },
-              {
-                header: "Actions",
-                cell: ({ row }) => (
-                  <IconButton
-                    disabled={isRemovingEndpoint}
-                    onClick={() => removeEndpoint(row.original.id)}
-                    sx={({ palette }) => ({
-                      color: palette.error.light,
-                      backgroundColor: alpha(palette.error.light, 0.05)
-                    })}
-                  >
-                    <HiTrash size="1.4rem" />
-                  </IconButton>
-                )
-              }
-            ]}
-          />
-        )}
+        <Stack width="100%" bgcolor={palette.background.paper} borderRadius={3} padding={3}>
+          {renderSections()}
+        </Stack>
       </Stack>
       {currentOpenModal === "DELETE" && (
         <DeleteAlertRuleModal
