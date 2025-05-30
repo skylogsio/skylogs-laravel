@@ -44,9 +44,9 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async function (error: AxiosError) {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && error.config) {
       try {
-        error.request.config.headers.Authorization = await getAuthorizationHeader();
+        error.config.headers.Authorization = await getAuthorizationHeader();
         return axiosInstance.request(error.request.config);
       } catch (tokenRefreshError) {
         return Promise.reject(tokenRefreshError);
