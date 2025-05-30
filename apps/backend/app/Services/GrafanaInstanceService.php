@@ -38,7 +38,8 @@ class GrafanaInstanceService
             return collect();
         }
 
-        $this->fetchOrganizations($dataSources);
+        $dataSources = $this->fetchOrganizations($dataSources);
+
         return $this->fetchRules($dataSources)->pluck('title')->unique();
 
     }
@@ -48,19 +49,21 @@ class GrafanaInstanceService
 
 
         $requestsData = [];
-        $rulesResponses = Http::pool(function (Pool $pool) use ($dataSources) {
+        $rulesResponses = Http::pool(function (Pool $pool) use ($dataSources,&$requestsData) {
 
             $requests = [];
 
             foreach ($dataSources as $dataSource) {
-                $request = $pool->acceptJson();
 
-                if (!empty($dataSource->username) && !empty($dataSource->password)) {
-                    $request = $request->withBasicAuth($dataSource->username, $dataSource->password);
-                }
 
                 if (!empty($dataSource->orgs)) {
+
                     foreach ($dataSource->orgs as $org) {
+                        $request = $pool->acceptJson();
+
+                        if (!empty($dataSource->username) && !empty($dataSource->password)) {
+                            $request = $request->withBasicAuth($dataSource->username, $dataSource->password);
+                        }
                         $requests[] = $request
                             ->withHeader("X-Grafana-Org-Id", $org['id'])
                             ->get($dataSource->grafanaAlertRulesUrl());
@@ -68,6 +71,11 @@ class GrafanaInstanceService
                         $requestsData[] = $dataSource;
                     }
                 } else {
+                    $request = $pool->acceptJson();
+
+                    if (!empty($dataSource->username) && !empty($dataSource->password)) {
+                        $request = $request->withBasicAuth($dataSource->username, $dataSource->password);
+                    }
                     $requests[] = $request->get($dataSource->grafanaAlertRulesUrl());
                     $requestsData[] = $dataSource;
                 }
@@ -80,26 +88,24 @@ class GrafanaInstanceService
         $alerts = collect();
         foreach ($rulesResponses as $index => $ruleResponse) {
             $dataSource = $requestsData[$index] ?? null;
-
             if (!($ruleResponse instanceof Response && $ruleResponse->ok())) continue;
 
             $response = $ruleResponse->json();
             try {
                 foreach ($response as $alert) {
-
+//                    ds($alert);
                     $model = new AlertRuleGrafana();
                     $model->dataSourceId = $dataSource->id;
                     $model->dataSourceName = $dataSource->name;
                     $model->organizationId = $dataSource->org['id'] ?? null;
                     $model->organizationName = $dataSource->org['name'] ?? "";
-                    $model->ruleGroup = $alert["ruleGroup"];
+                    $model->ruleGroup = $alert["ruleGroup"] ?? "";
                     $model->title = $alert["title"];
-                    $model->annotations = $alert['annotations'];
-                    $model->labels = $alert['labels'];
+                    $model->annotations = $alert['annotations'] ?? [];
+                    $model->labels = $alert['labels'] ?? [];
                     $alerts[] = $model;
                 }
             } catch  (\Exception $e) {
-
             }
 
         }
@@ -108,8 +114,7 @@ class GrafanaInstanceService
     }
 
 
-    public
-    static function getTriggered(): array
+    public static function getTriggered(): array
     {
         $prometheusAll = GrafanaInstance::all();
         $alerts = [];
@@ -141,7 +146,7 @@ class GrafanaInstanceService
      * @param Collection $dataSources
      * @return void
      */
-    public function fetchOrganizations(Collection &$dataSources): void
+    public function fetchOrganizations(Collection &$dataSources): Collection
     {
         $orgResponses = Http::pool(function (Pool $pool) use ($dataSources) {
             $result = [];
@@ -157,13 +162,17 @@ class GrafanaInstanceService
             }
             return $result;
         });
-
         foreach ($orgResponses as $dataSourceId => $orgResponse) {
+
             if (!($orgResponse instanceof Response && $orgResponse->ok())) continue;
 
             $response = $orgResponse->json();
-            $dataSources->get($dataSourceId)->orgs = collect($response)->toArray();
+
+            $dataSources->get($dataSourceId)->orgs = $response;
+
         }
+        return $dataSources;
+
 
     }
 
