@@ -105,7 +105,9 @@ export default function ViewAlertRule() {
   function renderTab(tab: TabType) {
     let backgroundColor;
     let color;
+
     if (tab === "fire") {
+      if (data?.status_label !== "critical") return null;
       backgroundColor =
         currentTab === tab ? palette.error.main : alpha(palette.secondary.main, 0.1);
       color = currentTab === tab ? palette.background.paper : palette.error.main;
