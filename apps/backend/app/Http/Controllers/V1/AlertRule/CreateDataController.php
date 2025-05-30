@@ -9,11 +9,18 @@ use App\Http\Controllers\Controller;
 use App\Models\DataSource\DataSource;
 use App\Models\Endpoint;
 use App\Models\User;
+use App\Services\GrafanaInstanceService;
 use App\Services\PrometheusInstanceService;
 use Illuminate\Http\Request;
 
 class CreateDataController extends Controller
 {
+
+    public function __construct(
+        protected PrometheusInstanceService $prometheusInstanceService,
+        protected GrafanaInstanceService $grafanaInstanceService,
+    ) {}
+
 
     public function CreateData(Request $request)
     {
@@ -55,23 +62,21 @@ class CreateDataController extends Controller
     {
 
         $type = AlertRuleType::tryFrom($request->input("type"));
-        switch ($type) {
-            case AlertRuleType::PROMETHEUS:
-            default:
-                $rules = PrometheusInstanceService::getRules($request->dataSourceId);
-                break;
-        }
+        $rules = match ($type) {
+            AlertRuleType::GRAFANA => $this->grafanaInstanceService->alertRulesName($request->dataSourceId),
+            default => $this->prometheusInstanceService->getRules($request->dataSourceId),
+        };
         return response()->json($rules);
     }
 
     public function Labels(Request $request)
     {
-        return response()->json(PrometheusInstanceService::getLabels());
+        return response()->json($this->prometheusInstanceService->getLabels());
     }
 
     public function LabelValues(Request $request, $label)
     {
-        return response()->json(PrometheusInstanceService::getLabelValues($label));
+        return response()->json($this->prometheusInstanceService->getLabelValues($label));
     }
 
 

@@ -29,6 +29,12 @@ Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
+###
+GET {{domain}}/alert-rule/create-data/rules?type=grafana
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
 
 ###
 GET {{domain}}/alert-rule/68178152e4876e3b9b004e16
