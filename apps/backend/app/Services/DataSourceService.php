@@ -5,11 +5,36 @@ namespace App\Services;
 use App\Enums\DataSourceType;
 use App\Models\DataSource\DataSource;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 
 
 class DataSourceService
 {
 
+
+    public function isConnected(string $dataSourceId): bool
+    {
+        $ds = DataSource::query()->whereId($dataSourceId)->firstOrFail();
+
+        try {
+            $request = Http::timeout(5);
+            switch ($ds->type) {
+                case DataSourceType::GRAFANA:
+                case DataSourceType::PROMETHEUS:
+                case DataSourceType::ELASTIC:
+                case DataSourceType::SENTRY:
+                case DataSourceType::PMM:
+                case DataSourceType::SPLUNK:
+                case DataSourceType::ZABBIX:
+                $response = $request->get($ds->url);
+                    break;
+            }
+            return $response->successful();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+    }
 
     public function get(DataSourceType $dataSourceType = null): Collection
     {

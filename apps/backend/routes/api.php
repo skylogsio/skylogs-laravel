@@ -79,6 +79,7 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
+                Route::get('/status/{id}', 'IsConnected');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
