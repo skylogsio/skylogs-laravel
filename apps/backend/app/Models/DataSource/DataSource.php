@@ -58,6 +58,12 @@ class DataSource extends BaseModel
 //        return PrometheusInstanceService::getHealthCheck($this);
     }
 
+    public function grafanaOrganizationsUrl(){
+        return $this->url . "/api/orgs";
+    }
+    public function grafanaAlertRulesUrl(){
+        return $this->url . "/api/v1/provisioning/alert-rules";
+    }
     public function prometheusGetRulesUrl(){
         return $this->url . "/api/v1/rules";
     }

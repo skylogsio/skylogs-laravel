@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WebhookAuth
 {
+
+    public function __construct(protected DataSourceService $dataSourceService) {}
+
     /**
      * Handle an incoming request.
      *
@@ -39,7 +42,7 @@ class WebhookAuth
         }
 
         $token = $request->route('token');
-        $dataSource = DataSourceService::Get($dataSourceType)
+        $dataSource = $this->dataSourceService->get($dataSourceType)
             ->where('webhookToken', $token)
             ->first();
         if (!$dataSource) abort(403);

@@ -5,6 +5,7 @@ use App\Jobs\AddChecksJob;
 use App\Jobs\AutoResolveApiAlertsJob;
 use App\Jobs\CheckPrometheusJob;
 use App\Models\AlertRule;
+use App\Models\DataSource\DataSource;
 
 
 Artisan::command('app:test', function () {

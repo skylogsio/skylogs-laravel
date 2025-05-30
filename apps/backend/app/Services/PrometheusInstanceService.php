@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Http;
 class PrometheusInstanceService
 {
 
+    public function __construct(protected DataSourceService $dataSourceService) {}
 
-    public static function getLabels(): array
+    public function getLabels(): array
     {
-        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+        $prometheusAll = $this->dataSourceService->get(DataSourceType::PROMETHEUS);
         $resultLabels = [];
         $responses = [];
         if ($prometheusAll->isNotEmpty()) {
@@ -67,9 +68,9 @@ class PrometheusInstanceService
         return $resultLabels;
     }
 
-    public static function getLabelValues($label): array
+    public function getLabelValues($label): array
     {
-        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+        $prometheusAll = $this->dataSourceService->get(DataSourceType::PROMETHEUS);
         $resultLabels = collect();
         $responses = [];
         if ($prometheusAll->isNotEmpty()) {
@@ -112,7 +113,7 @@ class PrometheusInstanceService
         return $resultLabels->unique()->toArray();
     }
 
-    public static function GetRulesByName()
+    public function GetRulesByName()
     {
         $prometheusAll = Service::where('type', 'prometheus');
 
@@ -188,20 +189,20 @@ class PrometheusInstanceService
         return $alerts;
     }
 
-    public static function getRules($dataSourceId = null): array
+    public function getRules($dataSourceId = null): array
     {
         if (empty($dataSourceId)) {
-            return self::getAllRules();
+            return $this->getAllRules();
         } else {
-            return self::getRulesInstance($dataSourceId);
+            return $this->getRulesInstance($dataSourceId);
         }
 
     }
 
 
-    private static function getAllRules($names = [])
+    private function getAllRules($names = [])
     {
-        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+        $prometheusAll = $this->dataSourceService->get(DataSourceType::PROMETHEUS);
 
         $alerts = collect();
         $responses = [];
@@ -259,7 +260,7 @@ class PrometheusInstanceService
         return $alerts->pluck('name')->toArray();
     }
 
-    private static function getRulesInstance($id)
+    private function getRulesInstance($id)
     {
         $pro = DataSource::where("id", $id)->first();
         $alerts = [];
@@ -297,10 +298,10 @@ class PrometheusInstanceService
         return $alerts;
     }
 
-    public static function getTriggered(): array
+    public function getTriggered(): array
     {
 
-        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+        $prometheusAll = $this->dataSourceService->get(DataSourceType::PROMETHEUS);
         $alerts = [];
 
         $responses = [];
@@ -346,10 +347,10 @@ class PrometheusInstanceService
 
     }
 
-    public static function getMetricLabels($id, $metric)
+    public function getMetricLabels($id, $metric)
     {
         $prometheus = DataSource::where("id", $id)->first();
-        $prometheusAll = DataSourceService::Get(DataSourceType::PROMETHEUS);
+        $prometheusAll = $this->dataSourceService->get(DataSourceType::PROMETHEUS);
 
         $labels = [];
 

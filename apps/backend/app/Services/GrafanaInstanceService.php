@@ -2,110 +2,114 @@
 
 namespace App\Services;
 
-use App\Models\AlertInstance;
-use App\Models\AlertRule;
+use App\Enums\DataSourceType;
 use App\Models\AlertRuleGrafana;
-use App\Models\Endpoint;
 use App\Models\GrafanaInstance;
-use App\Models\SentryWebhookAlert;
-use App\Helpers\Call;
-use App\Helpers\Constants;
-use App\Helpers\SMS;
-use App\Helpers\Telegram;
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
 
 class GrafanaInstanceService
 {
 
-    public static function getRules($instance = null): array
+    protected DataSourceService $dataSourceService;
+
+    public function __construct(DataSourceService $dataSourceService)
     {
-//        $url .= "/api/v1/";
-        if (empty($instance) || is_array($instance)) {
-            return self::getAllRules($instance);
-        } else {
-            return self::getRulesInstance($instance);
+        $this->dataSourceService = $dataSourceService;
+    }
+
+    protected function resolveDataSources(?int $dataSourceId): Collection
+    {
+        if ($dataSourceId) {
+            $source = $this->dataSourceService->get(DataSourceType::GRAFANA)->get($dataSourceId);
+            return $source ? collect([$dataSourceId => $source]) : collect();
         }
+
+        return $this->dataSourceService->get(DataSourceType::GRAFANA);
+    }
+
+    public function alertRulesName(?string $dataSourceId = null): Collection
+    {
+        $dataSources = $this->resolveDataSources($dataSourceId);
+
+        if ($dataSources->isEmpty()) {
+            return collect();
+        }
+
+        $this->fetchOrganizations($dataSources);
+        return $this->fetchRules($dataSources)->pluck('title')->unique();
 
     }
 
-    private static function getAllRules($instance)
+    private function fetchRules($dataSources)
     {
 
-        if(empty($instance)){
-            $prometheusAll = GrafanaInstance::all();
-        } else {
-            $prometheusAll = GrafanaInstance::whereIn("name", $instance)->get();
-        }
 
+        $requestsData = [];
+        $rulesResponses = Http::pool(function (Pool $pool) use ($dataSources) {
 
-        $alerts = [];
+            $requests = [];
 
-        foreach ($prometheusAll as $pro) {
+            foreach ($dataSources as $dataSource) {
+                $request = $pool->acceptJson();
 
-            try {
-
-                if (!empty($pro->username) && !empty($pro->password)) {
-                    $response = \Http::acceptJson()->withBasicAuth($pro->username, $pro->password)->get($pro->url . "/api/v1/provisioning/alert-rules")->json();
-                } else {
-                    $response = \Http::acceptJson()->get($pro->url . "/api/v1/provisioning/alert-rules")->json();
+                if (!empty($dataSource->username) && !empty($dataSource->password)) {
+                    $request = $request->withBasicAuth($dataSource->username, $dataSource->password);
                 }
+
+                if (!empty($dataSource->orgs)) {
+                    foreach ($dataSource->orgs as $org) {
+                        $requests[] = $request
+                            ->withHeader("X-Grafana-Org-Id", $org['id'])
+                            ->get($dataSource->grafanaAlertRulesUrl());
+                        $dataSource->org = $org;
+                        $requestsData[] = $dataSource;
+                    }
+                } else {
+                    $requests[] = $request->get($dataSource->grafanaAlertRulesUrl());
+                    $requestsData[] = $dataSource;
+                }
+
+            }
+
+            return $requests;
+        });
+
+        $alerts = collect();
+        foreach ($rulesResponses as $index => $ruleResponse) {
+            $dataSource = $requestsData[$index] ?? null;
+
+            if (!($ruleResponse instanceof Response && $ruleResponse->ok())) continue;
+
+            $response = $ruleResponse->json();
+            try {
                 foreach ($response as $alert) {
 
                     $model = new AlertRuleGrafana();
-                    $model->instance = $pro->name;
+                    $model->dataSourceId = $dataSource->id;
+                    $model->dataSourceName = $dataSource->name;
+                    $model->organizationId = $dataSource->org['id'] ?? null;
+                    $model->organizationName = $dataSource->org['name'] ?? "";
                     $model->ruleGroup = $alert["ruleGroup"];
                     $model->title = $alert["title"];
                     $model->annotations = $alert['annotations'];
                     $model->labels = $alert['labels'];
                     $alerts[] = $model;
                 }
-
-
-            } catch (\Exception $e) {
+            } catch  (\Exception $e) {
 
             }
-
 
         }
 
         return $alerts;
     }
 
-    private static function getRulesInstance($instance)
-    {
 
-        $pro = GrafanaInstance::where("name", $instance)->firstOrFail();
-        $alerts = [];
-
-        try {
-
-            if (!empty($pro->username) && !empty($pro->password)) {
-                $response = \Http::acceptJson()->withBasicAuth($pro->username, $pro->password)->get($pro->url . "/api/v1/provisioning/alert-rules");
-                $body = $response->json();
-            } else {
-                $response = \Http::acceptJson()->get($pro->url . "/api/v1/provisioning/alert-rules");
-                $body = $response->json();
-            }
-            if ($response->status() == 200)
-                foreach ($body as $alert) {
-                    $model = new AlertRuleGrafana();
-                    $model->instance = $pro->name;
-                    $model->ruleGroup = $alert["ruleGroup"] ?? "";
-                    $model->title = $alert["title"] ?? "";
-                    $model->annotations = $alert['annotations'] ?? "";
-                    $model->labels = $alert['labels'] ?? "";
-                    $alerts[] = $model;
-                }
-
-
-        } catch (\Exception $e) {
-
-        }
-
-
-        return $alerts;
-    }
-
-    public static function getTriggered(): array
+    public
+    static function getTriggered(): array
     {
         $prometheusAll = GrafanaInstance::all();
         $alerts = [];
@@ -130,6 +134,36 @@ class GrafanaInstanceService
             }
         }
         return $alerts;
+
+    }
+
+    /**
+     * @param Collection $dataSources
+     * @return void
+     */
+    public function fetchOrganizations(Collection &$dataSources): void
+    {
+        $orgResponses = Http::pool(function (Pool $pool) use ($dataSources) {
+            $result = [];
+            foreach ($dataSources as $dataSource) {
+                $request = $pool->as($dataSource->id)->acceptJson();
+
+                if (!empty($dataSource->username) && !empty($dataSource->password)) {
+                    $request = $request->withBasicAuth($dataSource->username, $dataSource->password);
+                }
+
+
+                $result[] = $request->get($dataSource->grafanaOrganizationsUrl());
+            }
+            return $result;
+        });
+
+        foreach ($orgResponses as $dataSourceId => $orgResponse) {
+            if (!($orgResponse instanceof Response && $orgResponse->ok())) continue;
+
+            $response = $orgResponse->json();
+            $dataSources->get($dataSourceId)->orgs = collect($response)->toArray();
+        }
 
     }
 
