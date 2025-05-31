@@ -13,12 +13,8 @@ use Illuminate\Support\Facades\Http;
 class GrafanaInstanceService
 {
 
-    protected DataSourceService $dataSourceService;
 
-    public function __construct(DataSourceService $dataSourceService)
-    {
-        $this->dataSourceService = $dataSourceService;
-    }
+    public function __construct(protected DataSourceService $dataSourceService){}
 
     protected function resolveDataSources(?int $dataSourceId): Collection
     {
