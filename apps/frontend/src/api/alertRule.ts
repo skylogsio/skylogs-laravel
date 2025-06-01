@@ -1,10 +1,11 @@
 "use server";
 
-import {
+import type {
   IAlertRule,
   IAlertRuleCreateData,
   IAlertRuleEndpoints,
   IAlertRuleHistoryItem,
+  IAlertRuleInstance,
   IAlertRuleUsers
 } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
@@ -257,6 +258,19 @@ export async function getAlertRuleHistory(
   try {
     const response = await axios.get(
       `${ALERT_RULE_URL}/history/${alertRuleId}?perPage=10&page=${page}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getFiredInstances(
+  alertRuleId: IAlertRule["id"]
+): Promise<IAlertRuleInstance[]> {
+  try {
+    const response = await axios.get<IAlertRuleInstance[]>(
+      `${ALERT_RULE_URL}/triggered/${alertRuleId}`
     );
     return response.data;
   } catch (error) {
