@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 
 import type { IDataSource } from "@/@types/dataSource";
 import { deleteDataSource } from "@/api/dataSource";
-import ConnectionStatus from "@/components/ConnectionStatus";
 import DataSourceType from "@/components/DataSource/DataSourceType";
+import DataSourceConnectionStatus from "@/components/DataSourceConnectionStatus";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
 import type { DeleteModalProps } from "@/components/DeleteModal/DeleteModalTypes";
 
@@ -14,7 +14,7 @@ export default function DeleteDataSourceModal({
   onAfterDelete,
   ...props
 }: DeleteModalProps & { data: IDataSource }) {
-  const { id, name, type, status } = data;
+  const { id, name, type } = data;
 
   const { mutate: deleteDataSourceMutation, isPending } = useMutation({
     mutationFn: () => deleteDataSource(id),
@@ -54,7 +54,7 @@ export default function DeleteDataSourceModal({
         </Typography>
       </Grid>
       <Grid size={{ xs: 8, sm: 8, md: 9, lg: 9, xl: 9 }}>
-        <ConnectionStatus status={status} />
+        <DataSourceConnectionStatus dataSourceId={id} />
       </Grid>
     </DeleteModalContainer>
   );

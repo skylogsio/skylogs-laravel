@@ -1,5 +1,6 @@
 "use server";
 
+import type{ IDataSource, IDataSourceStatus } from "@/@types/dataSource";
 import type { ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
 
@@ -15,7 +16,7 @@ export async function createDataSource(body: unknown): Promise<ServerResponse<un
 }
 
 export async function updateDataSource(
-  dataSourceId: string,
+  dataSourceId: IDataSource["id"],
   body: unknown
 ): Promise<ServerResponse<unknown>> {
   try {
@@ -29,9 +30,22 @@ export async function updateDataSource(
   }
 }
 
-export async function deleteDataSource(dataSourceId: string): Promise<ServerResponse<unknown>> {
+export async function deleteDataSource(
+  dataSourceId: IDataSource["id"]
+): Promise<ServerResponse<unknown>> {
   try {
     const response = await axios.delete(`${DATA_SOURCE_URL}/${dataSourceId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getDataSourceStatus(dataSourceId: IDataSource["id"]): Promise<IDataSourceStatus> {
+  try {
+    const response = await axios.get<IDataSourceStatus>(
+      `${DATA_SOURCE_URL}/status/${dataSourceId}`
+    );
     return response.data;
   } catch (error) {
     throw error;

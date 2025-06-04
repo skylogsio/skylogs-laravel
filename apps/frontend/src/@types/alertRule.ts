@@ -50,3 +50,22 @@ export interface IAlertRuleHistoryItem {
   createdAt: string;
   id: string;
 }
+
+export interface IAlertRuleInstance {
+  alertRuleId: string;
+  alertRuleName: string;
+  instance: string;
+  job: string;
+  state: number;
+  description: string;
+  summary: string;
+  updated_at: string;
+  created_at: string;
+  historyId: string;
+  name: string | null;
+  file: string;
+  fileName: string;
+  updatedAt: string;
+  id: string;
+  status: AlertRuleStatus;
+}

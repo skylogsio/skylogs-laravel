@@ -26,6 +26,7 @@ import { type IAlertRule } from "@/@types/alertRule";
 import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
+import AlertRuleFiredInstances from "@/components/AlertRule/AlertRuleFiredInstances";
 import AlertRuleHistory from "@/components/AlertRule/AlertRuleHistory";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
@@ -142,6 +143,8 @@ export default function ViewAlertRule() {
         return <AlertRuleHistory alertId={alertId} />;
       case "notify":
         return <AlertRuleNotifyManager alertId={alertId} />;
+      case "fire":
+        return <AlertRuleFiredInstances alertId={alertId} />;
       default:
         return null;
     }
