@@ -13,9 +13,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CheckPrometheusJob implements ShouldQueue,ShouldBeUnique
+class CheckPrometheusJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+
 
     /**
      * Create a new job instance.
@@ -36,7 +38,7 @@ class CheckPrometheusJob implements ShouldQueue,ShouldBeUnique
     {
 
         $alertRules = AlertRule::where('type', AlertRuleType::PROMETHEUS)->get();
-        $alerts = PrometheusInstanceService::GetTriggered();
+        $alerts = app(PrometheusInstanceService::class)->getTriggered();
 
         $fireAlertsByRule = PrometheusService::CheckPrometheusFiredAlerts($alerts,$alertRules);
         PrometheusService::CheckAlerts($alertRules,$fireAlertsByRule);

@@ -5,13 +5,38 @@ namespace App\Services;
 use App\Enums\DataSourceType;
 use App\Models\DataSource\DataSource;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Http;
 
 
 class DataSourceService
 {
 
 
-    public static function Get(DataSourceType $dataSourceType = null): Collection
+    public function isConnected(string $dataSourceId): bool
+    {
+        $ds = DataSource::query()->whereId($dataSourceId)->firstOrFail();
+
+        try {
+            $request = Http::timeout(5);
+            switch ($ds->type) {
+                case DataSourceType::GRAFANA:
+                case DataSourceType::PROMETHEUS:
+                case DataSourceType::ELASTIC:
+                case DataSourceType::SENTRY:
+                case DataSourceType::PMM:
+                case DataSourceType::SPLUNK:
+                case DataSourceType::ZABBIX:
+                $response = $request->get($ds->url);
+                    break;
+            }
+            return $response->successful();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+    }
+
+    public function get(DataSourceType $dataSourceType = null): Collection
     {
         $tagsArray = ['dataSource'];
         $keyName = 'dataSource';
@@ -20,7 +45,7 @@ class DataSourceService
             $keyName .= ':' . $dataSourceType->value;
         }
 
-        $prometheuses = cache()
+        $dataSources = cache()
             ->tags($tagsArray)
             ->rememberForever($keyName, function () use ($dataSourceType) {
                 $dataSource = DataSource::query();
@@ -30,10 +55,10 @@ class DataSourceService
                 return $dataSource->get()->keyBy('id');
             });
 
-        return $prometheuses;
+        return $dataSources;
     }
 
-    public static function FlushCache()
+    public static function flushCache()
     {
         cache()->tags(['dataSource'])->flush();
     }

@@ -8,12 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DataSourceResource;
 use App\Models\DataSource\DataSource;
 use App\Models\Service;
+use App\Services\DataSourceService;
 use Illuminate\Http\Request;
 
 
 class DataSourceController extends Controller
 {
 
+    public function __construct(protected DataSourceService $dataSourceService){}
 
     public function Index(Request $request)
     {
@@ -22,10 +24,6 @@ class DataSourceController extends Controller
         $data = DataSource::latest();
 
         $data = $data->paginate($perPage);
-
-        foreach ($data->items() as &$item) {
-            $item['status'] = "connected";
-        }
 
         return response()->json($data);
 
@@ -129,5 +127,10 @@ class DataSourceController extends Controller
         return response()->json(DataSourceType::GetTypes());
     }
 
+    public function IsConnected($id)
+    {
+        $isConnected = $this->dataSourceService->isConnected($id);
+        return response()->json(["isConnected" => $isConnected]);
+    }
 
 }

@@ -2,17 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\AlertInstance;
-use App\Models\AlertRule;
-use App\Models\AlertRuleGrafana;
 use App\Models\ElasticCheck;
-use App\Models\Endpoint;
-use App\Models\GrafanaInstance;
-use App\Models\SentryWebhookAlert;
-use App\Helpers\Call;
-use App\Helpers\Constants;
-use App\Helpers\SMS;
-use App\Helpers\Telegram;
 use Carbon\Carbon;
 
 class ElasticService

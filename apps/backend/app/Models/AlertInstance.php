@@ -24,6 +24,18 @@ class AlertInstance extends BaseModel implements Messageable
     public const NOTIFICATION = 3;
 
 
+    protected $appends = ['status'];
+
+    public function getStatusAttribute()
+    {
+        return match ($this->state) {
+            self::FIRE => AlertRule::CRITICAL,
+            self::RESOLVED => AlertRule::RESOlVED,
+            default => AlertRule::UNKNOWN,
+        };
+    }
+
+
     public function alertRule(): BelongsTo
     {
         return $this->belongsTo(AlertRule::class, "alertRuleId", "id");

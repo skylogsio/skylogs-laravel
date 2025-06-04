@@ -34,6 +34,7 @@ use Str;
 class AlertingController extends Controller
 {
 
+    public function __construct(protected AlertRuleService $alertRuleService){}
 
     public function Index(Request $request)
     {
@@ -52,29 +53,33 @@ class AlertingController extends Controller
         }
 
 
-        if ($request->has("alertname") && !empty($request->alertname)) {
+        if ($request->filled("alertname")) {
             $data = $data->where("name", "like", '%' . $request->alertname . '%');
         }
 
-        if ($request->has("types") && !empty($request->types)) {
+        if ($request->filled("types")) {
             $types = explode(',', $request->types);
             $data = $data->whereIn("type", $types);
         }
 
-        if ($request->has("tags") && !empty($request->tags)) {
+        if ($request->filled("tags")) {
             $tags = explode(',', $request->tags);
             $data = $data->whereIn("tags", $tags);
         }
-        if ($request->has("silentStatus") && !empty($request->silentStatus)) {
+        if ($request->filled("silentStatus")) {
             $silent = $request->silentStatus == 'silent' ? 1 : 0;
             $data = $data->where("silent", $silent);
         }
 
-        if ($request->has("endpointId") && !empty($request->endpointId)) {
+        if ($request->filled("endpointId")) {
             $endpointId = $request->endpointId;
 
             $data = $data->whereIn("endpointIds", [$endpointId]);
 
+        }
+
+        if ($request->filled("userId")) {
+            $data = $data->where("userId", $request->userId);
         }
 
         $data = $data->paginate($perPage);
@@ -98,7 +103,7 @@ class AlertingController extends Controller
 
     }
 
-    public function FilterEndpoints(Request $request)
+    public function FilterEndpoints()
     {
 
         $currentUser = \Auth::user();
@@ -108,12 +113,12 @@ class AlertingController extends Controller
         return response()->json($selectableEndpoints);
     }
 
-    public function GetTypes(Request $request)
+    public function GetTypes()
     {
         return response()->json(AlertRuleType::GetTypes());
     }
 
-    public function Silent(Request $request, $id)
+    public function Silent($id)
     {
         $alert = AlertRule::where("_id", $id)->first();
         if ($alert->isSilent()) {
@@ -122,7 +127,7 @@ class AlertingController extends Controller
             $alert->silent();
         }
 
-        return ['status' => true];
+        return ['status' => true, "isSilent" => $alert->isSilent()];
     }
 
 
@@ -136,7 +141,7 @@ class AlertingController extends Controller
                 'name' => "required|unique:alert_rules",
                 'type' => "required",
                 'dataSourceAlertName' => "required_if:type," . AlertRuleType::GetDataSourceAlertNeed()->implode(','),
-                "dataSourceId" => "required_if:type,".AlertRuleType::ELASTIC->value,
+                "dataSourceId" => "required_if:type," . AlertRuleType::ELASTIC->value,
             ], [
             ]
         );
@@ -228,7 +233,7 @@ class AlertingController extends Controller
 
                     $alert = AlertRule::create([
                         ...$commonFields,
-                        "dataSourceId" => $request->dataSourceId ,
+                        "dataSourceId" => $request->dataSourceId,
                         "dataviewName" => $request->dataviewName,
                         "dataviewTitle" => $request->dataviewTitle,
                         "queryString" => $request->queryString,
@@ -261,7 +266,7 @@ class AlertingController extends Controller
         }
     }
 
-    public function Show(Request $request, $id)
+    public function Show($id)
     {
         $alert = AlertRule::where("_id", $id)->firstOrFail();
         $userIds = [];
@@ -275,7 +280,7 @@ class AlertingController extends Controller
             abort(403);
         }
 
-        if (!empty($alert->dataSourceIds)){
+        if (!empty($alert->dataSourceIds)) {
             $alert->dataSourceLabels = DataSource::whereIn("id", $alert->dataSourceIds)->get()->pluck("name")->toArray();
         }
 
@@ -304,7 +309,6 @@ class AlertingController extends Controller
             $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
-
 
 
         $model->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
@@ -363,7 +367,7 @@ class AlertingController extends Controller
                 break;
             case AlertRuleType::ELASTIC:
                 $model->name = $request->name;
-                $model->dataSourceId= $request->dataSourceId;
+                $model->dataSourceId = $request->dataSourceId;
                 $model->dataviewName = $request->dataviewName;
                 $model->dataviewTitle = $request->dataviewTitle;
                 $model->queryString = $request->queryString;
@@ -431,7 +435,7 @@ class AlertingController extends Controller
 
     }
 
-    public function ResolveAlert(Request $request, $id)
+    public function ResolveAlert($id)
     {
 
         $alert = AlertRule::where('_id', $id)->first();
@@ -689,12 +693,13 @@ class AlertingController extends Controller
                     $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
                     $data = $data->where("createdAt", "<=", $date->toDateTime());
                 }
+
                 $data = $data->paginate($perPage);
                 return response()->json($data);
 
             case AlertRuleType::NOTIFICATION:
 
-                $data = ApiAlertHistory::where("alertRule_id", $id)->latest();
+                $data = ApiAlertHistory::where("alertRuleId", $id)->latest();
                 if ($request->has("from") && !empty($request->from)) {
                     $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                     $data = $data->where("createdAt", ">=", $date->toDateTime());
@@ -738,6 +743,11 @@ class AlertingController extends Controller
         return null;
     }
 
+    public function FiredAlerts($id)
+    {
+        // TODO check access alert
+        return $this->alertRuleService->firedAlerts($id);
+    }
 
 
 }

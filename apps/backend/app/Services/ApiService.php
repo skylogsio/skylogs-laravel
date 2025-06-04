@@ -204,10 +204,10 @@ class ApiService
 
     }
 
-    public static function AlertRuleByToken($token)
+    public static function AlertRuleByToken($token,AlertRuleType $type)
     {
-        $alertRules = Cache::tags(['alertRule','api'])->rememberForever("alertRule:api", function () {
-            return AlertRule::where("type", AlertRuleType::API)->get();
+        $alertRules = Cache::tags(['alertRule',$type->value])->rememberForever("alertRule:$type->value", function () use($type) {
+            return AlertRule::where("type", $type)->get();
         });
 
         $alert = $alertRules->where("apiToken", $token)->first();

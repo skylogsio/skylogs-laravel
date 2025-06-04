@@ -37,3 +37,5 @@ test.http
 #
 
 
+supervisord.log
+supervisord.pid

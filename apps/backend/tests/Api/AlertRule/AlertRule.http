@@ -1,5 +1,5 @@
 // status_label can be 1. resolved 2.unknown 3. critical 4.warning
-GET {{domain}}/alert-rule?alertname=&types=&endpointId=
+GET {{domain}}/alert-rule?alertname=&types=notification&endpointId=
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -18,13 +18,25 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ###
-GET {{domain}}/alert-rule/history/6825fb5a2daf862522079185
+GET {{domain}}/alert-rule/history/6838565203b43c55bd08c682
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+GET {{domain}}/alert-rule/triggered/68178152e4876e3b9b004e16
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ###
 GET {{domain}}/alert-rule/create-data/data-source/prometheus
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+###
+GET {{domain}}/alert-rule/create-data/rules?type=grafana
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
