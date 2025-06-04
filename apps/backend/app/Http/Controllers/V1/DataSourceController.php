@@ -15,9 +15,7 @@ use Illuminate\Http\Request;
 class DataSourceController extends Controller
 {
 
-    public function __construct(protected DataSourceService $dataSourceService)
-    {
-    }
+    public function __construct(protected DataSourceService $dataSourceService){}
 
     public function Index(Request $request)
     {
