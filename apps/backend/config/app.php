@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Skylogs'),
 
+
+    'clusterType' => env('CLUSTER_TYPE', 'master'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

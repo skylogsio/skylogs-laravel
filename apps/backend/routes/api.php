@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Constants;
+use App\Http\Controllers\Cluster\SyncController;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
@@ -17,11 +18,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
+Route::prefix('cluster')
+    ->controller(SyncController::class)
+    ->group(function () {
+
+    Route::get("/users","Users")->name("cluster.users");
+    Route::get("/endpoints","Endpoints")->name("cluster.endpoints");
+
+});
+
 Route::prefix('v1')->group(function () {
 
     Route::post("auth/login", [AuthController::class, "login"]);
 
-    Route::middleware("apiAuth")->controller(ApiAlertController::class)->group(function () {
+    Route::middleware([/*"throttle:apiWebhook",*/"apiAuth"])
+        ->controller(ApiAlertController::class)
+        ->group(function () {
         Route::post("fire-alert", "FireAlert");
         Route::post("resolve-alert", "ResolveAlert");
         Route::post("status-alert", "StatusAlert");
