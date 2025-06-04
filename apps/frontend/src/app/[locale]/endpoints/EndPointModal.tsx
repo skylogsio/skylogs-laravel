@@ -95,7 +95,12 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
   }, [data, open, reset]);
 
   return (
-    <ModalContainer title="Create New EndPoint" open={open} onClose={onClose} disableEscapeKeyDown>
+    <ModalContainer
+      title={`${data === "NEW" ? "Create New" : "Update"} Endpoint`}
+      open={open}
+      onClose={onClose}
+      disableEscapeKeyDown
+    >
       <Grid
         component="form"
         onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
@@ -163,7 +168,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
             size="large"
             fullWidth
           >
-            Create
+            {data === "NEW" ? "Create" : "Update"}
           </Button>
         </Grid>
       </Grid>

@@ -326,7 +326,7 @@ export default function SentryAlertRuleForm({
           />
         </Grid>
       </Grid>
-      <Stack direction="row" justifyContent="flex-end" spacing={2} paddingY={2}>
+      <Stack direction="row" justifyContent="flex-end" spacing={2} paddingTop={2}>
         <Button variant="outlined" disabled={isCreating || isUpdating} onClick={onClose}>
           Cancel
         </Button>
