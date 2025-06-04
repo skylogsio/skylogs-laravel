@@ -26,7 +26,7 @@ Route::prefix('v1')->group(function () {
         Route::post("resolve-alert", "ResolveAlert")->name("webhook.api.resolve");
         Route::post("status-alert", "StatusAlert")->name("webhook.api.status");
         Route::post("notification-alert", "NotificationAlert")->name("webhook.notification");
-        Route::post("stop-alert", "ResolveAlert")->name("webhook.api.resolve");
+        Route::post("stop-alert", "ResolveAlert")->name("webhook.api.stop");
     });
 
 
