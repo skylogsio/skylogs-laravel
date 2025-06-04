@@ -624,7 +624,7 @@ class AlertingController extends Controller
                     $data = $data->where("createdAt", "<=", $date->toDateTime());
                 }
                 $data = $data->paginate($perPage);
-                return view("content.pages.alerts.history_prometheus_ajax", compact("alert", "data"));
+                return response()->json($data);
 
             case AlertRuleType::SENTRY:
 
