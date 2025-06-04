@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AlertRuleType;
 use App\Services\ApiService;
 use Closure;
 use Illuminate\Http\Request;
@@ -18,7 +19,13 @@ class ApiAlertAuth
     {
 
         $bearerToken = $request->bearerToken();
-        $alert = ApiService::AlertRuleByToken($bearerToken);
+
+        $alert = null;
+        if($request->routeIs("webhook.notification")) {
+            $alert = ApiService::AlertRuleByToken($bearerToken,AlertRuleType::NOTIFICATION);
+        }elseif($request->routeIs("webhook.api.*")) {
+            $alert = ApiService::AlertRuleByToken($bearerToken,AlertRuleType::API);
+        }
         if ($alert) {
             return $next($request->merge(['alert' => $alert, "apiToken" => $bearerToken]));
         }
