@@ -699,7 +699,7 @@ class AlertingController extends Controller
 
             case AlertRuleType::NOTIFICATION:
 
-                $data = ApiAlertHistory::where("alertRule_id", $id)->latest();
+                $data = ApiAlertHistory::where("alertRuleId", $id)->latest();
                 if ($request->has("from") && !empty($request->from)) {
                     $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
                     $data = $data->where("createdAt", ">=", $date->toDateTime());
