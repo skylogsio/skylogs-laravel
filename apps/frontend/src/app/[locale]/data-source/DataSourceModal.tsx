@@ -121,7 +121,7 @@ export default function DataSourceModal({ open, onClose, data, onSubmit }: DataS
 
   return (
     <ModalContainer
-      title="Create New Data Source"
+      title={`${data === "NEW" ? "Create New" : "Update"} Data Source`}
       open={open}
       onClose={onClose}
       disableEscapeKeyDown
@@ -218,7 +218,7 @@ export default function DataSourceModal({ open, onClose, data, onSubmit }: DataS
             size="large"
             fullWidth
           >
-            Create
+            {data === "NEW" ? "Create" : "Update"}
           </Button>
         </Grid>
       </Grid>

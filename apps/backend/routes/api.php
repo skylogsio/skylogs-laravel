@@ -22,11 +22,11 @@ Route::prefix('v1')->group(function () {
     Route::post("auth/login", [AuthController::class, "login"]);
 
     Route::middleware("apiAuth")->controller(ApiAlertController::class)->group(function () {
-        Route::post("fire-alert", "FireAlert");
-        Route::post("resolve-alert", "ResolveAlert");
-        Route::post("status-alert", "StatusAlert");
-        Route::post("notification-alert", "NotificationAlert");
-        Route::post("stop-alert", "ResolveAlert");
+        Route::post("fire-alert", "FireAlert")->name("webhook.api.fire");
+        Route::post("resolve-alert", "ResolveAlert")->name("webhook.api.resolve");
+        Route::post("status-alert", "StatusAlert")->name("webhook.api.status");
+        Route::post("notification-alert", "NotificationAlert")->name("webhook.notification");
+        Route::post("stop-alert", "ResolveAlert")->name("webhook.api.stop");
     });
 
 

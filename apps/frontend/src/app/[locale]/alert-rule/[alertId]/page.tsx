@@ -73,6 +73,8 @@ export default function ViewAlertRule() {
     enabled: Boolean(alertId)
   });
 
+  console.log(data);
+
   const { mutate: silenceAlertRuleMutation, isPending: isSilencing } = useMutation({
     mutationFn: () => silenceAlertRule(alertId),
     onSuccess: (data) => {
@@ -87,7 +89,7 @@ export default function ViewAlertRule() {
 
   async function handleCopyApiTokenToClipboard() {
     try {
-      await window.navigator.clipboard.writeText(data!.api_token!);
+      await window.navigator.clipboard.writeText(data!.apiToken!);
     } catch (err) {
       console.error("Unable to copy to clipboard.", err);
       alert("Copy to clipboard failed.");
@@ -232,18 +234,18 @@ export default function ViewAlertRule() {
                   Test
                 </Button>
               </Stack>
-              {data.api_token && (
+              {data.apiToken && (
                 <Stack
                   direction="row"
                   alignItems="center"
-                  bgcolor={alpha(palette.secondary.main, 0.1)}
+                  bgcolor={alpha(palette.secondary.light, 0.1)}
                   borderRadius={2}
                   paddingLeft={1}
                   paddingY={0.5}
                   paddingRight={0.5}
                   spacing={1}
                   border="1px solid"
-                  borderColor={palette.secondary.light}
+                  borderColor={alpha(palette.secondary.light, 0.4)}
                 >
                   <Typography
                     variant="caption"
@@ -255,7 +257,7 @@ export default function ViewAlertRule() {
                       textOverflow: "ellipsis"
                     }}
                   >
-                    {data.api_token}
+                    {data.apiToken}
                   </Typography>
                   <IconButton size="small" onClick={() => handleCopyApiTokenToClipboard()}>
                     <BsFillClipboard2Fill size="1rem" color={palette.secondary.main} />
@@ -269,7 +271,7 @@ export default function ViewAlertRule() {
               <Typography variant="subtitle1" fontWeight="bold">
                 Owner :
               </Typography>
-              <Typography>---</Typography>
+              <Typography>{data.ownerName}</Typography>
             </Stack>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="subtitle1" fontWeight="bold">

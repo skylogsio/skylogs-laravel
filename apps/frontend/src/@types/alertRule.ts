@@ -10,7 +10,7 @@ export interface IAlertRuleCreateData {
 export type AlertRuleStatus = "resolved" | "warning" | "critical" | "triggered" | "unknown";
 
 export interface IAlertRule {
-  api_token?: string;
+  apiToken?: string;
   name: string;
   type: AlertRuleType;
   user_id: string;
@@ -21,6 +21,7 @@ export interface IAlertRule {
   endpoint_ids: string[];
   user_ids: string[];
   id: string;
+  ownerName: string;
   hasAdminAccess: boolean;
   status_label: AlertRuleStatus;
   is_silent: boolean;
