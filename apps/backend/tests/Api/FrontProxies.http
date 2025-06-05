@@ -1,0 +1,8 @@
+POST {{frontDomain}}/fire-alert
+Content-Type: application/json
+Accept: application/json
+
+{
+    "test1": "bah bah",
+    "password" : "123456"
+}
