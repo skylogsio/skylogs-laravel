@@ -40,6 +40,7 @@ export default function AlertRule() {
         ref={tableRef}
         title="Alert Rule"
         url="alert-rule"
+        searchKey="alertname"
         filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
         defaultPageSize={10}
         columns={[

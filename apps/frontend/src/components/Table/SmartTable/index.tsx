@@ -49,7 +49,8 @@ function Table<T>(
     rowsPerPageOptions = [10, 25, 50, 100],
     onCreate,
     refetchInterval,
-    filterComponent
+    filterComponent,
+    searchKey = "name"
   }: SmartTableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
@@ -63,10 +64,12 @@ function Table<T>(
   const [openFilterBox, setOpenFilterBox] = useState(false);
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [filterSearchParams, setFilterSearchParams] = useState("");
+  const [searchValue, setSearchValue] = useState("");
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
-    queryFn: () => fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams }),
+    queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams, searchValue, searchKey],
+    queryFn: () =>
+      fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams, searchKey, searchValue }),
     refetchInterval
   });
 
@@ -147,7 +150,7 @@ function Table<T>(
           </Typography>
         )}
         <Stack direction="row" spacing={1}>
-          <SearchBox title={title} />
+          <SearchBox title={title} onSearch={(searchText) => setSearchValue(searchText)} />
           <Button
             startIcon={<HiFilter />}
             size="small"
