@@ -9,6 +9,7 @@ export default function TopBar() {
     <Box
       width="100%"
       display="flex"
+      flexDirection="row-reverse"
       justifyContent="space-between"
       alignItems="center"
       sx={{
@@ -20,8 +21,8 @@ export default function TopBar() {
         padding: "0.7rem 0.5rem"
       }}
     >
-      <TopBarSearch />
-      <TopBarLanguage />
+      {/*<TopBarSearch />*/}
+      {/*<TopBarLanguage />*/}
       <TopBarProfile />
     </Box>
   );

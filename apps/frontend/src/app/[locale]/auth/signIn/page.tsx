@@ -165,16 +165,16 @@ export default function AuthenticationPage() {
           </Button>
         </Box>
       </Box>
-      <Box
-        style={{ marginRight: "auto" }}
-        sx={{
-          backgroundColor: ({ palette }) => alpha(palette.background.paper, 0.3),
-          padding: "0.6rem 0",
-          borderRadius: "0.6rem"
-        }}
-      >
-        <TopBarLanguage />
-      </Box>
+      {/*<Box*/}
+      {/*  style={{ marginRight: "auto" }}*/}
+      {/*  sx={{*/}
+      {/*    backgroundColor: ({ palette }) => alpha(palette.background.paper, 0.3),*/}
+      {/*    padding: "0.6rem 0",*/}
+      {/*    borderRadius: "0.6rem"*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <TopBarLanguage />*/}
+      {/*</Box>*/}
     </Box>
   );
 }

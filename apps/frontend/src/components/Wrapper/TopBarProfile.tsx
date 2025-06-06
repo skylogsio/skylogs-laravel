@@ -25,9 +25,9 @@ import { useScopedI18n } from "@/locales/client";
 import type { ProfileListType } from "./types";
 
 const ListContents: Array<ProfileListType> = [
-  { title: "list.manageAccount", iconSRC: "/static/icons/profile-manage-account.svg" },
-  { title: "list.changePassword", iconSRC: "/static/icons/profile-change-password.svg" },
-  { title: "list.activityLog", iconSRC: "/static/icons/profile-activity-log.svg" },
+  // { title: "list.manageAccount", iconSRC: "/static/icons/profile-manage-account.svg" },
+  // { title: "list.changePassword", iconSRC: "/static/icons/profile-change-password.svg" },
+  // { title: "list.activityLog", iconSRC: "/static/icons/profile-activity-log.svg" },
   { title: "list.logout", iconSRC: "/static/icons/profile-log-out.svg" }
 ];
 

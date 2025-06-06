@@ -164,45 +164,45 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           </MenuItem>
         </TextField>
       </Grid>
-      <Grid size={4}>
-        {/*fieldName:status*/}
-        <Stack direction="row" height="100%" alignItems="center" spacing={1}>
-          <Typography variant="body2">Status: </Typography>
-          <Chip
-            icon={status.includes("resolved") ? <FaCheck /> : undefined}
-            label="Resolved"
-            onClick={() => handleChangeStatus("resolved")}
-            variant="outlined"
-            color="success"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.success.light, 0.1),
-              borderColor: status.includes("resolved") ? palette.success.light : "transparent"
-            })}
-          />
-          <Chip
-            icon={status.includes("warning") ? <FaCheck /> : undefined}
-            label="Warning"
-            onClick={() => handleChangeStatus("warning")}
-            variant="outlined"
-            color="warning"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.warning.light, 0.1),
-              borderColor: status.includes("warning") ? palette.warning.light : "transparent"
-            })}
-          />
-          <Chip
-            icon={status.includes("fire") ? <FaCheck /> : undefined}
-            label="Fire"
-            onClick={() => handleChangeStatus("fire")}
-            variant="outlined"
-            color="error"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.error.light, 0.1),
-              borderColor: status.includes("fire") ? palette.error.light : "transparent"
-            })}
-          />
-        </Stack>
-      </Grid>
+      {/*<Grid size={4}>*/}
+      {/*  /!*fieldName:status*!/*/}
+      {/*  <Stack direction="row" height="100%" alignItems="center" spacing={1}>*/}
+      {/*    <Typography variant="body2">Status: </Typography>*/}
+      {/*    <Chip*/}
+      {/*      icon={status.includes("resolved") ? <FaCheck /> : undefined}*/}
+      {/*      label="Resolved"*/}
+      {/*      onClick={() => handleChangeStatus("resolved")}*/}
+      {/*      variant="outlined"*/}
+      {/*      color="success"*/}
+      {/*      sx={({ palette }) => ({*/}
+      {/*        backgroundColor: alpha(palette.success.light, 0.1),*/}
+      {/*        borderColor: status.includes("resolved") ? palette.success.light : "transparent"*/}
+      {/*      })}*/}
+      {/*    />*/}
+      {/*    <Chip*/}
+      {/*      icon={status.includes("warning") ? <FaCheck /> : undefined}*/}
+      {/*      label="Warning"*/}
+      {/*      onClick={() => handleChangeStatus("warning")}*/}
+      {/*      variant="outlined"*/}
+      {/*      color="warning"*/}
+      {/*      sx={({ palette }) => ({*/}
+      {/*        backgroundColor: alpha(palette.warning.light, 0.1),*/}
+      {/*        borderColor: status.includes("warning") ? palette.warning.light : "transparent"*/}
+      {/*      })}*/}
+      {/*    />*/}
+      {/*    <Chip*/}
+      {/*      icon={status.includes("fire") ? <FaCheck /> : undefined}*/}
+      {/*      label="Fire"*/}
+      {/*      onClick={() => handleChangeStatus("fire")}*/}
+      {/*      variant="outlined"*/}
+      {/*      color="error"*/}
+      {/*      sx={({ palette }) => ({*/}
+      {/*        backgroundColor: alpha(palette.error.light, 0.1),*/}
+      {/*        borderColor: status.includes("fire") ? palette.error.light : "transparent"*/}
+      {/*      })}*/}
+      {/*    />*/}
+      {/*  </Stack>*/}
+      {/*</Grid>*/}
     </Grid>
   );
 }
