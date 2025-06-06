@@ -4,7 +4,6 @@ import type {
   IAlertRule,
   IAlertRuleCreateData,
   IAlertRuleEndpoints,
-  IAlertRuleHistoryItem,
   IAlertRuleInstance,
   IAlertRuleUsers
 } from "@/@types/alertRule";
@@ -251,10 +250,10 @@ export async function getDataSourceAlertName(type: DataSourceType) {
   }
 }
 
-export async function getAlertRuleHistory(
+export async function getAlertRuleHistory<T>(
   alertRuleId: IAlertRule["id"],
   page: number
-): Promise<IServerResponseTabularData<IAlertRuleHistoryItem>> {
+): Promise<IServerResponseTabularData<T>> {
   try {
     const response = await axios.get(
       `${ALERT_RULE_URL}/history/${alertRuleId}?perPage=10&page=${page}`

@@ -39,7 +39,7 @@ export interface IAlertRuleUsers {
   selectableUsers: Array<IUser>;
 }
 
-export interface IAlertRuleHistoryItem {
+export interface IApiAndNotificationAlertRuleHistory {
   alertRuleId: string;
   alertRuleName: string;
   instance: string;
@@ -69,4 +69,26 @@ export interface IAlertRuleInstance {
   updatedAt: string;
   id: string;
   status: AlertRuleStatus;
+}
+
+interface IPrometheusSubAlertRule {
+  dataSourceId: string;
+  dataSourceName: string;
+  alertRuleName: string;
+  dataSourceAlertName: string;
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
+  alertRuleId: string;
+  skylogsStatus: number;
+}
+
+export interface IPrometheusAlertHistory {
+  alertRuleId: string;
+  alerts: IPrometheusSubAlertRule[];
+  state: number;
+  countResolve: number;
+  countFire: number;
+  updatedAt: string;
+  createdAt: string;
+  id: string;
 }

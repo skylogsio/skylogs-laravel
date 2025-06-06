@@ -27,8 +27,8 @@ import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRu
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
 import AlertRuleFiredInstances from "@/components/AlertRule/AlertRuleFiredInstances";
-import AlertRuleHistory from "@/components/AlertRule/AlertRuleHistory";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
+import AlertRuleHistory from "@/components/AlertRule/History/AlertRuleHistory";
 import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
 import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
 import { ALERT_RULE_VARIANTS } from "@/utils/alertRuleUtils";
@@ -72,8 +72,6 @@ export default function ViewAlertRule() {
     queryFn: () => getAlertRuleById(alertId),
     enabled: Boolean(alertId)
   });
-
-  console.log(data);
 
   const { mutate: silenceAlertRuleMutation, isPending: isSilencing } = useMutation({
     mutationFn: () => silenceAlertRule(alertId),
@@ -142,7 +140,7 @@ export default function ViewAlertRule() {
       case "users":
         return <AlertRuleUserManager alertId={alertId} />;
       case "history":
-        return <AlertRuleHistory alertId={alertId} />;
+        return <AlertRuleHistory alertId={alertId} type={data!.type} />;
       case "notify":
         return <AlertRuleNotifyManager alertId={alertId} />;
       case "fire":
