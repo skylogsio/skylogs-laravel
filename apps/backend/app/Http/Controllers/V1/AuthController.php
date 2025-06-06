@@ -58,6 +58,7 @@ class AuthController extends Controller
             'refreshToken' => $refreshToken,
             'token_type' => 'bearer',
             'tokenType' => 'bearer',
+            'roles' => auth()->user()->roles->pluck('name')->toArray(),
             'expires_in' => config("jwt.ttl") * 60,
             'expiresIn' => config("jwt.ttl") * 60,
             'refresh_expires_in' => config("jwt.refresh_ttl") * 60,
