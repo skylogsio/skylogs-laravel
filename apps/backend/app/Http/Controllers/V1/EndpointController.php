@@ -21,7 +21,7 @@ class EndpointController extends Controller
 
         $data = Endpoint::query();
         $isAdmin = auth()->user()->isAdmin();
-        if ($isAdmin) {
+        if (!$isAdmin) {
             $data = $data->where("userId", auth()->id());
         }
 

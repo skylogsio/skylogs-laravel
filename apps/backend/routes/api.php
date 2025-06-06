@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix("/user")
             ->controller(UserController::class)
+            ->middleware("role:" . Constants::ROLE_OWNER->value . "|" . Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/{id}', 'Show');
