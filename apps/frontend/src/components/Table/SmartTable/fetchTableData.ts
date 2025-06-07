@@ -27,6 +27,7 @@ export async function fetchTableData<T>({
     // );
     return response.data;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 }
