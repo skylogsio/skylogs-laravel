@@ -28,8 +28,8 @@ class AccessUserController extends Controller
         }
 
         $alertUsers = [];
-        if (!empty($alert->user_ids))
-            $alertUsers = User::whereIn("_id", $alert->user_ids)->get();
+        if (!empty($alert->userIds))
+            $alertUsers = User::whereIn("_id", $alert->userIds)->get();
 
         return response()->json(compact('alertUsers', 'selectableUsers'));
     }
@@ -48,7 +48,7 @@ class AccessUserController extends Controller
         if ($request->has("user_ids") && !empty($request->post("user_ids"))) {
 
             foreach ($request->user_ids as $userId) {
-                $alert->push("user_ids", $userId, true);
+                $alert->push("userIds", $userId, true);
             }
             $alert->save();
         }
@@ -64,7 +64,7 @@ class AccessUserController extends Controller
             abort(403);
         }
 
-        $alert->pull("user_ids", $userId);
+        $alert->pull("userIds", $userId);
         $alert->save();
 
         return response()->json(['status' => true]);

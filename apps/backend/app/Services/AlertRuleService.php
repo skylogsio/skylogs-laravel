@@ -468,7 +468,7 @@ class AlertRuleService
     public static function HasUserAccessAlert(User $user, AlertRule $alert): bool
     {
         if (self::HasAdminAccessAlert($user, $alert)) return true;
-        $userIds = $alert->user_ids ?? [];
+        $userIds = $alert->userIds ?? [];
         if (in_array($user->_id, $userIds)) return true;
         return false;
     }

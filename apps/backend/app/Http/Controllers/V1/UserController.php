@@ -61,7 +61,7 @@ class UserController extends Controller
         }
 
         foreach ($alertRules as $rule) {
-            $ruleUserIds = $rule->user_ids ?? [];
+            $ruleUserIds = $rule->userIds ?? [];
             $needToUpdate = false;
 
 
