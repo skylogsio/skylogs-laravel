@@ -69,7 +69,12 @@ class AuthController extends Controller
 
     public function me()
     {
-        return response()->json(auth()->user());
+
+        $user = auth()->user();
+        $result = $user->toArray();
+        $result['roles'] = $user->roles->pluck('name')->toArray();
+        $result['permissions'] = $user->permissions->pluck('name')->toArray();
+        return response()->json($result);
     }
 
 
