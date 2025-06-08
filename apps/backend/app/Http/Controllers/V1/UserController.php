@@ -30,6 +30,10 @@ class UserController extends Controller
 
         $data = User::query();
 
+        if ($request->filled('username')) {
+            $data->where('username', 'like', '%' . $request->username . '%');
+        }
+
         $data = $data->paginate($perPage);
         foreach ($data as &$value) {
             $value->roles = $value->roles()->pluck('name')->toArray();

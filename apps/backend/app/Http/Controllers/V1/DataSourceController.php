@@ -22,7 +22,9 @@ class DataSourceController extends Controller
         $perPage = $request->perPage ?? 25;
 
         $data = DataSource::latest();
-
+        if ($request->filled('name')) {
+            $data->where('name', 'like', '%' . $request->name . '%');
+        }
         $data = $data->paginate($perPage);
 
         return response()->json($data);

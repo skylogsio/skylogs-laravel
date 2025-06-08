@@ -24,6 +24,9 @@ class EndpointController extends Controller
         if (!$isAdmin) {
             $data = $data->where("userId", auth()->id());
         }
+        if ($request->filled('name')) {
+            $data->where('name', 'like', '%' . $request->name . '%');
+        }
 
         $data = $data->paginate($perPage);
 
