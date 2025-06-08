@@ -20,6 +20,7 @@ import type { BasicCreateOrUpdateModalProps } from "@/@types/global";
 import { createUser } from "@/api/user";
 import ModalContainer from "@/components/Modal";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
+import { useRole } from "@/hooks";
 import { ROLE_TYPES } from "@/utils/userUtils";
 
 const createUserSchema = z
@@ -82,6 +83,7 @@ export default function CreateUserModal({
     defaultValues
   });
   const { palette } = useTheme();
+  const { hasRole } = useRole();
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate: createUserMutation, isPending: isCreating } = useMutation({
@@ -112,22 +114,28 @@ export default function CreateUserModal({
         display="flex"
         marginTop="2rem"
       >
-        <Grid size={12} display="flex" justifyContent="flex-start" alignItems="center">
-          <Typography variant="body1" component="div" marginRight="0.7rem">
-            Role:
-          </Typography>
-          <ToggleButtonGroup
-            exclusive
-            value={watch("role")}
-            onChange={(_, value) => setValue("role", value)}
-          >
-            {ROLE_TYPES.map((role) => (
-              <ToggleButton key={role} value={role} sx={{ textTransform: "capitalize !important" }}>
-                {role}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Grid>
+        {hasRole("owner") && (
+          <Grid size={12} display="flex" justifyContent="flex-start" alignItems="center">
+            <Typography variant="body1" component="div" marginRight="0.7rem">
+              Role:
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              value={watch("role")}
+              onChange={(_, value) => setValue("role", value)}
+            >
+              {ROLE_TYPES.filter((role) => role !== "owner").map((role) => (
+                <ToggleButton
+                  key={role}
+                  value={role}
+                  sx={{ textTransform: "capitalize !important" }}
+                >
+                  {role}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </Grid>
+        )}
         <Grid size={6}>
           <TextField
             label="Username"

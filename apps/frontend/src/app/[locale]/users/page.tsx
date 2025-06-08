@@ -7,7 +7,8 @@ import type { IUser } from "@/@types/user";
 import ActionColumn from "@/components/ActionColumn";
 import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
-import { ROLE_COLORS } from "@/utils/userUtils";
+import { useRole } from "@/hooks";
+import { ROLE_COLORS, RoleType } from "@/utils/userUtils";
 
 import ChangePasswordModal from "./ChangePasswordModal";
 import CreateUserModal from "./CreateUserModal";
@@ -16,6 +17,7 @@ import EditUserModal from "./EditUserModal";
 
 export default function Users() {
   const tableRef = useRef<TableComponentRef>(null);
+  const { hasRole } = useRole();
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [editModalUserData, setEditModalUserData] = useState<IUser | null>(null);
   const [selectedUserToChangePassword, setSelectedUserToChangePassword] = useState<string | null>(
@@ -27,6 +29,11 @@ export default function Users() {
     if (tableRef.current) {
       tableRef.current.refreshData();
     }
+  }
+
+  function checkAccess(role: RoleType) {
+    if (hasRole("owner")) return true;
+    return hasRole("manager") && role === "member";
   }
 
   function handleDelete() {
@@ -64,12 +71,20 @@ export default function Users() {
             header: "Action",
             cell: ({ row }) => (
               <ActionColumn
-                onEdit={() => setEditModalUserData(row.original)}
-                onChangePassword={() => setSelectedUserToChangePassword(row.original.id)}
+                onEdit={
+                  checkAccess(row.original.roles[0]) && row.original.username !== "admin"
+                    ? () => setEditModalUserData(row.original)
+                    : undefined
+                }
+                onChangePassword={
+                  checkAccess(row.original.roles[0])
+                    ? () => setSelectedUserToChangePassword(row.original.id)
+                    : undefined
+                }
                 onDelete={
-                  row.original.username === "admin"
-                    ? undefined
-                    : () => setDeleteModalData(row.original)
+                  checkAccess(row.original.roles[0]) && row.original.username !== "admin"
+                    ? () => setDeleteModalData(row.original)
+                    : undefined
                 }
               />
             )

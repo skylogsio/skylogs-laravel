@@ -12,6 +12,7 @@ import type { IUser } from "@/@types/user";
 import { updateUser } from "@/api/user";
 import ModalContainer from "@/components/Modal";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
+import { useRole } from "@/hooks";
 import { ROLE_TYPES } from "@/utils/userUtils";
 
 const updateUserSchema = z.object({
@@ -56,6 +57,7 @@ export default function EditUserModal({
     resolver: zodResolver(updateUserSchema),
     defaultValues
   });
+  const { hasRole } = useRole();
 
   const { mutate: updateUserMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: UserFormType) => updateUser(userData.id, body),
@@ -90,22 +92,28 @@ export default function EditUserModal({
         display="flex"
         marginTop="2rem"
       >
-        <Grid size={12} display="flex" justifyContent="flex-start" alignItems="center">
-          <Typography variant="body1" component="div" marginRight="0.7rem">
-            Role:
-          </Typography>
-          <ToggleButtonGroup
-            exclusive
-            value={watch("role")}
-            onChange={(_, value) => setValue("role", value)}
-          >
-            {ROLE_TYPES.map((role) => (
-              <ToggleButton key={role} value={role} sx={{ textTransform: "capitalize !important" }}>
-                {role}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Grid>
+        {watch("role") !== "owner" && hasRole("owner") && (
+          <Grid size={12} display="flex" justifyContent="flex-start" alignItems="center">
+            <Typography variant="body1" component="div" marginRight="0.7rem">
+              Role:
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              value={watch("role")}
+              onChange={(_, value) => setValue("role", value)}
+            >
+              {ROLE_TYPES.filter((role) => role !== "owner").map((role) => (
+                <ToggleButton
+                  key={role}
+                  value={role}
+                  sx={{ textTransform: "capitalize !important" }}
+                >
+                  {role}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </Grid>
+        )}
         <Grid size={6}>
           <TextField
             label="Username"
