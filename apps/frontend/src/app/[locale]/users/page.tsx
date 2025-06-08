@@ -47,6 +47,7 @@ export default function Users() {
         ref={tableRef}
         title="Users"
         url="user"
+        searchKey="username"
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },

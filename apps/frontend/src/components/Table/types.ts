@@ -25,7 +25,7 @@ export interface SmartTableComponentProps<T> extends Pick<SearchBoxProps, "title
   onCreate?: MouseEventHandler<HTMLButtonElement> | undefined;
   refetchInterval?: number;
   filterComponent?: (props: TableFilterComponentProps) => ReactNode;
-  searchKey?: string;
+  searchKey?: (string & {}) | keyof T;
 }
 
 export interface DataTableComponentProps<T> {
