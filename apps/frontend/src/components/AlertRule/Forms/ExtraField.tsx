@@ -49,6 +49,7 @@ export default function ExtraField({
         <Autocomplete
           options={prometheusLabels ?? []}
           freeSolo
+          autoSelect
           value={keyTextFieldProps.value}
           onChange={(_, value) => {
             keyTextFieldProps.onChange(value);
@@ -81,6 +82,7 @@ export default function ExtraField({
           <Autocomplete
             options={prometheusLabelValues ?? []}
             freeSolo
+            autoSelect
             value={valueTextFieldProps.value}
             onChange={(_, value) => valueTextFieldProps.onChange(value)}
             renderTags={(value: readonly string[], getItemProps) =>
