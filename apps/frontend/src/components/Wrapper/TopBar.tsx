@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 
-import TopBarLanguage from "./TopBarLanguage";
+// import TopBarLanguage from "./TopBarLanguage";
 import TopBarProfile from "./TopBarProfile";
-import TopBarSearch from "./TopBarSearch";
+// import TopBarSearch from "./TopBarSearch";
 
 export default function TopBar() {
   return (

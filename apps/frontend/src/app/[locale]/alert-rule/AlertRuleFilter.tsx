@@ -1,7 +1,7 @@
 import { type ReactNode, useState } from "react";
 
 import {
-  alpha,
+  // alpha,
   Autocomplete,
   Box,
   Chip,
@@ -13,14 +13,14 @@ import {
   useTheme
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { FaCheck } from "react-icons/fa6";
+// import { FaCheck } from "react-icons/fa6";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 
 import { getAlertFilterEndpointList } from "@/api/alertRule";
 import type { TableFilterComponentProps } from "@/components/Table/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
-type AlertRuleStatus = "resolved" | "warning" | "fire" | "";
+// type AlertRuleStatus = "resolved" | "warning" | "fire" | "";
 type AlertRuleSilentStatus = "silent" | "not-silent" | "";
 
 interface IAlertRuleFilters {
@@ -30,7 +30,7 @@ interface IAlertRuleFilters {
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
   const { palette } = useTheme();
-  const [status, setStatus] = useState<AlertRuleStatus[]>([]);
+  // const [status, setStatus] = useState<AlertRuleStatus[]>([]);
   const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
 
   const [filter, setFilter] = useState<IAlertRuleFilters>({});
@@ -40,15 +40,15 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
     queryFn: () => getAlertFilterEndpointList()
   });
 
-  function handleChangeStatus(selectedStatus: AlertRuleStatus) {
-    setStatus((prev) => {
-      const temp = prev.includes(selectedStatus)
-        ? prev.filter((item) => item !== selectedStatus)
-        : [...prev, selectedStatus];
-      onChange("status", temp);
-      return temp;
-    });
-  }
+  // function handleChangeStatus(selectedStatus: AlertRuleStatus) {
+  //   setStatus((prev) => {
+  //     const temp = prev.includes(selectedStatus)
+  //       ? prev.filter((item) => item !== selectedStatus)
+  //       : [...prev, selectedStatus];
+  //     onChange("status", temp);
+  //     return temp;
+  //   });
+  // }
 
   function handleChange(
     key: keyof IAlertRuleFilters,
