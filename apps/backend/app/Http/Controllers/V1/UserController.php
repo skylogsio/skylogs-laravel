@@ -31,8 +31,10 @@ class UserController extends Controller
         $data = User::query();
 
         $data = $data->paginate($perPage);
-
-        return UserResource::collection($data);
+        foreach ($data as &$value) {
+            $value->roles = $value->roles()->pluck('name')->toArray();
+        }
+        return response()->json($data);
     }
 
     public function Show(Request $request, $id)

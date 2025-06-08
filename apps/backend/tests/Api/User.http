@@ -1,4 +1,4 @@
-GET {{domain}}/user/
+GET {{domain}}/user?perPage=50
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
