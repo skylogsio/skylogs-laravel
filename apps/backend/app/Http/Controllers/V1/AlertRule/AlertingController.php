@@ -34,7 +34,9 @@ use Str;
 class AlertingController extends Controller
 {
 
-    public function __construct(protected AlertRuleService $alertRuleService){}
+    public function __construct(protected AlertRuleService $alertRuleService)
+    {
+    }
 
     public function Index(Request $request)
     {
@@ -283,7 +285,7 @@ class AlertingController extends Controller
         if (!empty($alert->dataSourceIds)) {
             $alert->dataSourceLabels = DataSource::whereIn("id", $alert->dataSourceIds)->get()->pluck("name")->toArray();
         }
-        if(!empty($alert->extraFields)){
+        if (!empty($alert->extraFields)) {
             $extraFields = [];
             foreach ($alert->extraFields as $key => $value) {
                 $extraFields[] = [
@@ -291,8 +293,8 @@ class AlertingController extends Controller
                     "value" => $value,
                 ];
             }
+            $alert->extraFields = $extraFields;
         }
-        $alert->extraFields =  $extraFields;
 
         $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
