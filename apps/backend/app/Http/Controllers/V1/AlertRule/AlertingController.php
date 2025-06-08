@@ -283,6 +283,16 @@ class AlertingController extends Controller
         if (!empty($alert->dataSourceIds)) {
             $alert->dataSourceLabels = DataSource::whereIn("id", $alert->dataSourceIds)->get()->pluck("name")->toArray();
         }
+        if(!empty($alert->extraFields)){
+            $extraFields = [];
+            foreach ($alert->extraFields as $key => $value) {
+                $extraFields[] = [
+                    "key" => $key,
+                    "value" => $value,
+                ];
+            }
+        }
+        $alert->extraFields =  $extraFields;
 
         $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
