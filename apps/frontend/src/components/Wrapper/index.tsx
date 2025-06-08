@@ -13,16 +13,16 @@ import TopBar from "./TopBar";
 export default function Wrapper({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
-  const { hasRole } = useRole();
+  const { userInfo, hasRole } = useRole();
 
   if (pathname.includes("/auth")) return children;
 
-  if (pathname.includes("/data-source") && !hasRole(["owner", "manager"])) {
-    router.back();
+  if (pathname.includes("/data-source") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
     return null;
   }
-  if (pathname.includes("/users") && !hasRole(["owner", "manager"])) {
-    router.back();
+  if (pathname.includes("/users") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
     return null;
   }
 
