@@ -13,7 +13,7 @@ import { createEndpoint, updateEndpoint } from "@/api/endpoint";
 import ModalContainer from "@/components/Modal";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
-const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call"] as const;
+const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call", "email"] as const;
 
 const createEndpointSchema = z.object({
   name: z
