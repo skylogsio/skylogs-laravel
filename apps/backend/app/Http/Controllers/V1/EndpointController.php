@@ -79,6 +79,7 @@ class EndpointController extends Controller
                     'type' => $request->type,
                     'chatId' => $value,
                     'threadId' => $request->threadId,
+                    "botToken" => $request->botToken,
                     'isPublic' => $isPublic,
                 ]);
             } else {
@@ -147,6 +148,7 @@ class EndpointController extends Controller
                     'type' => $request->type,
                     'chatId' => $value,
                     'threadId' => $request->threadId,
+                    "botToken" => $request->botToken,
                     "isPublic" => $isPublic,
                 ]);
             } else {

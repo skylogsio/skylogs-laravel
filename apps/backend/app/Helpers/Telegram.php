@@ -30,7 +30,7 @@ class Telegram
         $result = Http::pool(function (Pool $pool) use ($chatIds, $alert) {
             foreach ($chatIds as $chat)
                 $pool->acceptJson()->post(self::Url(), [
-                    'apiToken' => self::token(),
+                    'apiToken' => $chat['botToken'] ?? self::token(),
                     'chatID' => $chat['chatId'],
                     'message' => $alert->telegramMessage(),
                     "thread_id" => $chat['threadId']
