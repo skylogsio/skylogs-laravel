@@ -45,15 +45,17 @@ export default function DeleteEndPointModal({
           {renderEndPointChip(type, "small")}
         </Typography>
       </Grid>
-      <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
-        <Typography variant="body1" fontWeight="bold">
-          Value:
-        </Typography>
-      </Grid>
-      <Grid size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}>
-        <Typography variant="body1" fontWeight="normal">
-          {type === "telegram" ? chatId : value}
-        </Typography>
+      <Grid size={12} container>
+        <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
+          <Typography variant="body1" fontWeight="bold">
+            Value:
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}>
+          <Typography variant="body1" fontWeight="normal" sx={{ wordBreak: "break-word" }}>
+            {type === "telegram" ? chatId : value}
+          </Typography>
+        </Grid>
       </Grid>
     </DeleteModalContainer>
   );
