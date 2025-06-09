@@ -5,7 +5,7 @@ Authorization: Bearer {{authToken}}
 
 
 ###
-GET {{domain}}/endpoint/67ab9d887ad723b5b807db12
+GET {{domain}}/endpoint/680d668e20f7ecb5bc026722
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -37,6 +37,7 @@ Authorization: Bearer {{authToken}}
     "type" : "telegram",
     "value" : "-100",
     "threadId" : "11",
+    "botToken" : "",
     "isPublic" : false
 }
 
@@ -51,6 +52,7 @@ Authorization: Bearer {{authToken}}
     "type" : "telegram",
     "chatId" : "-100",
     "threadId" : "2",
+    "botToken" : "",
     "isPublic" : true
 }
 

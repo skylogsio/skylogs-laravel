@@ -35,12 +35,15 @@ class EndpointController extends Controller
 
     public function Show(Request $request, $id)
     {
-        $model = Endpoint::where('_id', $id);
+        $model = Endpoint::where('id', $id);
         $isAdmin = auth()->user()->isAdmin();
-        if ($isAdmin) {
+        if (!$isAdmin) {
             $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
+
+        $model->botToken = $model->botToken ?? "";
+
         return response()->json($model);
     }
 
