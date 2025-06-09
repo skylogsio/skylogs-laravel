@@ -70,7 +70,11 @@ class AlertingController extends Controller
         }
         if ($request->filled("silentStatus")) {
             $silent = $request->silentStatus == 'silent' ? 1 : 0;
-            $data = $data->where("silent", $silent);
+            if ($silent) {
+                $data = $data->whereIn("silentUserIds", [$currentUser->id]);
+            }else{
+                $data = $data->whereNotIn("silentUserIds", [$currentUser->id]);
+            }
         }
 
         if ($request->filled("endpointId")) {
