@@ -59,11 +59,7 @@ const generalAlertRuleSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
   dataSourceIds: z.array(z.string()).min(1, "Select at least one Data Source."),
   queryType: z.enum(QUERY_TYPE),
-  dataSourceAlertName: z
-    .string({ required_error: "This Field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    })
+  dataSourceAlertName: z.optional(z.string()).nullable()
 });
 
 type GeneralAlertRuleType = z.infer<typeof generalAlertRuleSchema>;

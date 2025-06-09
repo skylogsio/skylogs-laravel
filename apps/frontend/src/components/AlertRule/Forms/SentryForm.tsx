@@ -43,11 +43,7 @@ const sentryAlertRuleSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  dataSourceAlertName: z
-    .string({ required_error: "This Field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    })
+  dataSourceAlertName: z.optional(z.string()).nullable()
 });
 
 type SentryAlertRuleType = z.infer<typeof sentryAlertRuleSchema>;
