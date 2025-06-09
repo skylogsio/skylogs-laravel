@@ -152,6 +152,21 @@ Route::prefix('v1')->group(function () {
 
             });
 
+
+//        Route::prefix("/asset")
+//            ->middleware("role:" . Constants::ROLE_OWNER->value)
+//            ->group(function () {
+//                Route::prefix("/asset")
+//                    ->group(function () {
+//                        Route::get('/', 'Index');
+//                        Route::get('/{id}', 'Show');
+//                        Route::post('/', 'Create');
+//                        Route::put('/{id}', 'Update');
+//                        Route::delete('/{id}', 'Delete');
+//                    });
+//            });
+
+
     });
 
 

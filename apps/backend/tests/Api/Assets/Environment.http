@@ -1,0 +1,44 @@
+GET {{domain}}/asset/environment/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+GET {{domain}}/asset/environment/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
+###
+POST {{domain}}/asset/environment/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "Stage"
+}
+
+###
+PUT {{domain}}/asset/environment/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "Stage"
+}
+
+
+###
+DELETE {{domain}}/asset/environment/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+
+
