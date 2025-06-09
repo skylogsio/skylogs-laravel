@@ -30,7 +30,8 @@ const createEndpointSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  threadId: z.optional(z.string())
+  threadId: z.optional(z.string()).nullable(),
+  botToken: z.optional(z.string()).nullable()
 });
 
 type EndpointFormType = z.infer<typeof createEndpointSchema> & { chatId?: string };
@@ -157,6 +158,17 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
               error={!!errors.threadId}
               helperText={errors.threadId?.message}
               {...register("threadId")}
+            />
+          </Grid>
+        )}
+        {watch("type") === "telegram" && (
+          <Grid size={12}>
+            <TextField
+              label="Bot Token"
+              variant="filled"
+              error={!!errors.botToken}
+              helperText={errors.botToken?.message}
+              {...register("botToken")}
             />
           </Grid>
         )}
