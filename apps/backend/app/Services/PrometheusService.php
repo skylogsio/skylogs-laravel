@@ -61,9 +61,13 @@ class PrometheusService
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
                     $alertRuleDataSourcesArray = is_array($alertRule['dataSourceIds']) ? $alertRule['dataSourceIds'] : [$alertRule['dataSourceIds'],];
 
-                    if ((empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) && $alert['labels']['alertname'] == $alertRule['dataSourceAlertName']) {
+                    if (empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) {
 
-                        if (!empty($alertRule->extraField))
+                        if(!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']){
+                            $isMatch = false;
+                        }
+
+                        if (!empty($alertRule->extraField)) {
                             foreach ($alertRule->extraField as $key => $patterns) {
                                 if ((!empty($alert['labels'][$key]) && Utilities::CheckPatternsString($patterns, $alert['labels'][$key]))) {
                                     $matchLabels[$key] = $patterns;
@@ -74,7 +78,7 @@ class PrometheusService
                                     break;
                                 }
                             }
-
+                        }
                     } else {
                         $isMatch = false;
                     }
@@ -82,8 +86,8 @@ class PrometheusService
                 } else {
                     // TEXT QUERY
 
-                    if (!empty($alertRule->prometheus_query_object)) {
-                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->prometheus_query_object);
+                    if (!empty($alertRule->queryObject)) {
+                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->queryObject);
                         if (!$matchedFilterResult) {
                             $isMatch = false;
                         }

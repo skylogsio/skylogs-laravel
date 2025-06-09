@@ -72,7 +72,7 @@ class AlertingController extends Controller
             $silent = $request->silentStatus == 'silent' ? 1 : 0;
             if ($silent) {
                 $data = $data->whereIn("silentUserIds", [$currentUser->id]);
-            }else{
+            } else {
                 $data = $data->whereNotIn("silentUserIds", [$currentUser->id]);
             }
         }
@@ -174,7 +174,7 @@ class AlertingController extends Controller
                         ...$commonFields,
                     ]);
                     $alert->queryType = $request->queryType;
-                    $extraFields = [];
+                    $extraField = [];
                     $queryText = "";
                     $dataSourceIds = [];
                     $dataSourceAlertname = "";
@@ -185,7 +185,7 @@ class AlertingController extends Controller
                             foreach ($request->extraField as $value) {
                                 if (!empty($value)) {
                                     if (!empty($value["key"]) && !empty($value["value"]))
-                                        $extraFields[$value["key"]] = $value['value'];
+                                        $extraField[$value["key"]] = $value['value'];
                                 }
                             }
                     } else {
@@ -197,7 +197,7 @@ class AlertingController extends Controller
                     $alert->dataSourceAlertName = $dataSourceAlertname;
                     $alert->queryText = $queryText;
 
-                    $alert->extraField = $extraFields;
+                    $alert->extraField = $extraField;
 
                     $alert->save();
 
@@ -289,16 +289,16 @@ class AlertingController extends Controller
         if (!empty($alert->dataSourceIds)) {
             $alert->dataSourceLabels = DataSource::whereIn("id", $alert->dataSourceIds)->get()->pluck("name")->toArray();
         }
-        if (!empty($alert->extraFields)) {
-            $extraFields = [];
-            foreach ($alert->extraFields as $key => $value) {
-                $extraFields[] = [
+        $extraField = [];
+        if (!empty($alert->extraField)) {
+            foreach ($alert->extraField as $key => $value) {
+                $extraField[] = [
                     "key" => $key,
                     "value" => $value,
                 ];
             }
-            $alert->extraFields = $extraFields;
         }
+        $alert->extraField = $extraField;
 
         $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
@@ -333,7 +333,7 @@ class AlertingController extends Controller
             case AlertRuleType::GRAFANA:
             case AlertRuleType::PMM:
             case AlertRuleType::PROMETHEUS:
-                $extraFields = [];
+                $extraField = [];
                 $queryText = "";
                 $dataSourceIds = [];
                 $dataSourceAlertname = "";
@@ -346,10 +346,10 @@ class AlertingController extends Controller
                         foreach ($request->extraField as $value) {
                             if (!empty($value)) {
                                 if (!empty($value["key"]) && !empty($value["value"]))
-                                    $extraFields[$value["key"]] = $value['value'];
+                                    $extraField[$value["key"]] = $value['value'];
                             }
                         }
-                    $model->extraField = $extraFields;
+                    $model->extraField = $extraField;
                 } else {
                     $queryText = $request->queryText;
                     $model->queryObject = $request->queryObject;
