@@ -69,7 +69,14 @@ function Table<T>(
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams, searchValue, searchKey],
     queryFn: () =>
-      fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams, searchKey, searchValue }),
+      fetchTableData<T>({
+        url,
+        pageIndex,
+        pageSize,
+        filterSearchParams,
+        searchKey: searchKey as string,
+        searchValue
+      }),
     refetchInterval
   });
 
