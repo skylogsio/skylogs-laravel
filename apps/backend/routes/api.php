@@ -7,6 +7,9 @@ use App\Http\Controllers\V1\AlertRule\NotifyController;
 use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
+use App\Http\Controllers\V1\Profile\AssetController;
+use App\Http\Controllers\V1\Profile\EnvironmentController;
+use App\Http\Controllers\V1\Profile\ServiceController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
@@ -153,18 +156,20 @@ Route::prefix('v1')->group(function () {
             });
 
 
-//        Route::prefix("/asset")
-//            ->middleware("role:" . Constants::ROLE_OWNER->value)
-//            ->group(function () {
-//                Route::prefix("/asset")
-//                    ->group(function () {
-//                        Route::get('/', 'Index');
-//                        Route::get('/{id}', 'Show');
-//                        Route::post('/', 'Create');
-//                        Route::put('/{id}', 'Update');
-//                        Route::delete('/{id}', 'Delete');
-//                    });
-//            });
+        Route::prefix("/profile")
+            ->middleware("role:" . Constants::ROLE_OWNER->value)
+            ->group(function () {
+                Route::prefix("/asset")
+                    ->controller(AssetController::class)
+                    ->group(function () {
+                        Route::get('/', 'Index');
+                        Route::get('/{id}', 'Show');
+                        Route::post('/', 'Create');
+                        Route::put('/{id}', 'Update');
+                        Route::delete('/{id}', 'Delete');
+                    });
+
+            });
 
 
     });

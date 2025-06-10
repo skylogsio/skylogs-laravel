@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Asset;
+namespace App\Models\Profile;
 
 use App\Interfaces\Messageable;
 use App\Models\AlertRule;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class ServiceEnv extends BaseModel
+class ProfileEnvironment extends BaseModel
 {
     const TITLE = "environment";
 

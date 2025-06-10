@@ -1,38 +1,43 @@
-GET {{domain}}/asset/service/
+GET {{domain}}/profile/asset/
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 
 ###
-GET {{domain}}/asset/service/67ab9d887ad723b5b807db12
+GET {{domain}}/profile/asset/67ab9d887ad723b5b807db12
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ###
-POST {{domain}}/asset/service/
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer {{authToken}}
-
-{
-    "name": "Stage"
-}
-
-###
-PUT {{domain}}/asset/service/67ab9d887ad723b5b807db12
+POST {{domain}}/profile/asset/
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "Stage"
+    "name": "Settlement",
+    "userId": "6848762bf0b0e838ca0d9df7",
+    "config": "{}"
+}
+
+###
+PUT {{domain}}/profile/asset/67ab9d887ad723b5b807db12
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+{
+    "name": "MyService",
+    "userId": "a",
+    "config": "{\"ABC\":\"POI\"}"
 }
 
 
 ###
-DELETE {{domain}}/asset/service/67ab9d887ad723b5b807db12
+DELETE {{domain}}/profile/asset/67ab9d887ad723b5b807db12
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

@@ -58,6 +58,11 @@ class DataSourceService
         return $dataSources;
     }
 
+    public function byToken($token) : ?DataSource
+    {
+        return DataSource::query()->where("webhookToken",$token)->firstOrFail();
+    }
+
     public static function flushCache()
     {
         cache()->tags(['dataSource'])->flush();
