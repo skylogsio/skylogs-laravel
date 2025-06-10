@@ -12,11 +12,11 @@ import {
   Typography,
   useTheme
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 // import { FaCheck } from "react-icons/fa6";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 
-import { getAlertFilterEndpointList } from "@/api/alertRule";
+import { getAlertFilterEndpointList, getAlertRuleTags } from "@/api/alertRule";
 import type { TableFilterComponentProps } from "@/components/Table/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
@@ -26,6 +26,8 @@ type AlertRuleSilentStatus = "silent" | "not-silent" | "";
 interface IAlertRuleFilters {
   alertname?: string;
   types?: Array<AlertRuleType>;
+  endpointId?: string | string[];
+  tags?: string | string[];
 }
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
@@ -35,9 +37,22 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
 
   const [filter, setFilter] = useState<IAlertRuleFilters>({});
 
-  const { data: endpointList } = useQuery({
-    queryKey: ["alert-rule-filter-endpoint-list"],
-    queryFn: () => getAlertFilterEndpointList()
+  // const { data: endpointList } = useQuery({
+  //   queryKey: ["alert-rule-filter-endpoint-list"],
+  //   queryFn: () => getAlertFilterEndpointList()
+  // });
+
+  const [{ data: tagsList }, { data: endpointList }] = useQueries({
+    queries: [
+      {
+        queryKey: ["all-alert-rule-tags"],
+        queryFn: () => getAlertRuleTags()
+      },
+      {
+        queryKey: ["alert-rule-filter-endpoint-list"],
+        queryFn: () => getAlertFilterEndpointList()
+      }
+    ]
   });
 
   // function handleChangeStatus(selectedStatus: AlertRuleStatus) {
@@ -52,10 +67,20 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
 
   function handleChange(
     key: keyof IAlertRuleFilters,
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string | string[]
   ) {
-    onChange(key, event.target.value);
-    setFilter((prev) => ({ ...prev, [key]: event.target.value }));
+    if (typeof event === "string" || Array.isArray(event)) {
+      onChange(key, event);
+      setFilter((prev) => ({ ...prev, [key]: event }));
+    } else {
+      onChange(key, event.target.value);
+      setFilter((prev) => ({ ...prev, [key]: event.target.value }));
+    }
+  }
+
+  function handleSilentFilter(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    onChange("silentStatus", event.target.value);
+    setSilentStatus(event.target.value as AlertRuleSilentStatus);
   }
 
   function renderAlertRuleList() {
@@ -109,18 +134,20 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           {renderAlertRuleList()}
         </TextField>
       </Grid>
-      <Grid size={6}>
-        {/*fieldName:tags*/}
-        <TextField size="small" label="Tags" variant="filled" />
-      </Grid>
+
       <Grid size={3}>
-        {/*fieldName:endpointId []*/}
         <Autocomplete
           multiple
-          id="endpoints"
+          id="endpoints-filter"
           size="small"
           options={endpointList ?? []}
           getOptionLabel={(option) => option.name}
+          onChange={(_, value) =>
+            handleChange(
+              "endpointId",
+              value.map((item) => item.id)
+            )
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -136,14 +163,13 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         />
       </Grid>
       <Grid size={3}>
-        {/*fieldName:silentStatus*/}
         <TextField
           label="Silent Status"
           variant="filled"
           select
           size="small"
           value={silentStatus}
-          onChange={(event) => setSilentStatus(event.target.value as AlertRuleSilentStatus)}
+          onChange={handleSilentFilter}
         >
           <MenuItem value="">
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -156,13 +182,41 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
               <Typography component="span">Silent</Typography>
             </Stack>
           </MenuItem>
-          <MenuItem value="not-silent">
+          <MenuItem value="unsilent">
             <Stack direction="row" alignItems="center" spacing={1}>
               <IoNotifications color={palette.warning.main} size="1.4rem" />
               <Typography component="span">Not Silent</Typography>
             </Stack>
           </MenuItem>
         </TextField>
+      </Grid>
+      <Grid size={9}>
+        <Autocomplete
+          multiple
+          id="alert-tags-filter"
+          size="small"
+          options={tagsList ?? []}
+          freeSolo
+          onChange={(_, value) => handleChange("tags", value)}
+          renderTags={(value: readonly string[], getItemProps) =>
+            value.map((option: string, index: number) => {
+              const { key, ...itemProps } = getItemProps({ index });
+              return <Chip variant="filled" label={option} key={key} {...itemProps} />;
+            })
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              slotProps={{
+                input: params.InputProps,
+                inputLabel: params.InputLabelProps,
+                htmlInput: params.inputProps
+              }}
+              variant="filled"
+              label="Tags"
+            />
+          )}
+        />
       </Grid>
       {/*<Grid size={4}>*/}
       {/*  /!*fieldName:status*!/*/}
