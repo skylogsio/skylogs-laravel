@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 
 import {
   Table as MuiTable,
@@ -126,6 +126,14 @@ function Table<T>(
     manualPagination: true
   });
 
+  const handleSearch = useCallback(
+    (search: string) => {
+      setSearchValue(search);
+      table.setPageIndex(defaultPage);
+    },
+    [defaultPage, table]
+  );
+
   function handleChangeFilter(key: string, value: unknown) {
     setFilter((prev) => ({ ...prev, [key]: value }));
   }
@@ -139,6 +147,7 @@ function Table<T>(
 
   function handleSetFilter() {
     const temp = new URLSearchParams(filter as Record<string, string>);
+    table.setPageIndex(defaultPage);
     setFilterSearchParams(temp.toString());
   }
 
@@ -157,7 +166,7 @@ function Table<T>(
           </Typography>
         )}
         <Stack direction="row" spacing={1}>
-          <SearchBox title={title} onSearch={(searchText) => setSearchValue(searchText)} />
+          <SearchBox title={title} onSearch={handleSearch} />
           <Button
             startIcon={<HiFilter />}
             size="small"
