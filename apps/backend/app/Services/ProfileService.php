@@ -41,12 +41,6 @@ class ProfileService
         return $createdAlerts;
     }
 
-    public function updateAlertRules(ProfileAsset $profileAsset)
-    {
-
-
-    }
-
     private function generateGrafanaPrometheusPmmAlert($type,$userId, $service, $env, $dataSourceToken, $config)
     {
         $dataSource = $this->dataSourceService->byToken($dataSourceToken);
@@ -79,7 +73,9 @@ class ProfileService
 
                 }
 
-                $resultAlerts[] = AlertRule::create([
+                $resultAlerts[] =  AlertRule::firstOrCreate([
+                    "name" => $alertRuleName,
+                ],[
                     ...$commonFields,
                     "name" => $alertRuleName,
                     "dataSourceAlertName" => $dataSourceAlertname,
@@ -91,7 +87,9 @@ class ProfileService
             $alertRuleName = $service . "-" . $env . "-" . $dataSource->name;
 
 
-            $resultAlerts[] = AlertRule::create([
+            $resultAlerts[] = AlertRule::firstOrCreate([
+                "name" => $alertRuleName,
+            ],[
                 ...$commonFields,
                 "name" => $alertRuleName,
                 "dataSourceAlertName" => "",

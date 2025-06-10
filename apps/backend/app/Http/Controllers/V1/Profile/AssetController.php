@@ -20,7 +20,7 @@ class AssetController extends Controller
     {
         $perPage = $request->perPage ?? 25;
 
-        $data = ProfileAsset::latest();
+        $data = ProfileAsset::latest()->with("user");
         if ($request->filled('name')) {
             $data->where('name', 'like', '%' . $request->name . '%');
         }
@@ -32,7 +32,7 @@ class AssetController extends Controller
 
     public function Show($id)
     {
-        $model = ProfileAsset::where('_id', $id);
+        $model = ProfileAsset::where('_id', $id)->with("user");
         $model = $model->firstOrFail();
         return response()->json($model);
     }
@@ -98,7 +98,8 @@ class AssetController extends Controller
             ];
 
             $model->update($modelArray);
-            $this->profileService->updateAlertRules($model);
+            $model->createdAlertRuleIds = $this->profileService->createAlertRules($model);
+            $model->save();
             return response()->json([
                 'status' => true,
                 'data' => $model,
