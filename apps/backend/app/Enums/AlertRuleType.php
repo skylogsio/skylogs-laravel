@@ -37,9 +37,9 @@ enum AlertRuleType: string
     public static function GetDataSourceAlertNeed()
     {
         return collect([
-            self::PROMETHEUS,
-            self::GRAFANA,
-            self::PMM,
+//            self::PROMETHEUS,
+//            self::GRAFANA,
+//            self::PMM,
             self::SPLUNK,
             self::SENTRY,
             self::METABASE,
