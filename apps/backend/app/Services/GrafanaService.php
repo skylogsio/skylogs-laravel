@@ -59,7 +59,12 @@ class GrafanaService
                 $matchAnnotations = [];
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
 
-                    if (in_array($alert['dataSourceId'], $alertRule['dataSourceIds']) && $alert['labels']['alertname'] == $alertRule['dataSourceAlertName']) {
+                    if (in_array($alert['dataSourceId'], $alertRule['dataSourceIds'])) {
+
+                        if(!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']){
+                            $isMatch = false;
+                        }
+
 
                         if (!empty($alertRule->extraField))
                             foreach ($alertRule->extraField as $key => $patterns) {
