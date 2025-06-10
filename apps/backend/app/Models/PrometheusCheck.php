@@ -87,7 +87,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function telegramMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -104,15 +104,7 @@ class PrometheusCheck extends BaseModel implements Messageable
             }
         }
 
-//        if (!empty($alertRule->instance)) {
-//            $text .= "Instance: " . $alertRule->instance . "\n\n";
-//        }
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
 
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
@@ -148,7 +140,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function teamsMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -166,12 +158,8 @@ class PrometheusCheck extends BaseModel implements Messageable
         }
 
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
-        if (!empty($this->alerts) ) {
+
+        if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
                 if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
@@ -202,9 +190,9 @@ class PrometheusCheck extends BaseModel implements Messageable
 
         return $text;
     }
-    public function emailMessage(): string
+    public function emailMessage():  string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -222,12 +210,8 @@ class PrometheusCheck extends BaseModel implements Messageable
         }
 
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
-        if (!empty($this->alerts) ) {
+
+        if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
                 if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
@@ -259,9 +243,9 @@ class PrometheusCheck extends BaseModel implements Messageable
         return $text;
     }
 
-    public function smsMessage(): string
+    public function smsMessage():  string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -279,11 +263,7 @@ class PrometheusCheck extends BaseModel implements Messageable
         }
 
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
                 if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
@@ -318,7 +298,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function callMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -335,11 +315,8 @@ class PrometheusCheck extends BaseModel implements Messageable
             }
         }
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->dataSourceAlertName . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
                 if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
@@ -365,7 +342,6 @@ class PrometheusCheck extends BaseModel implements Messageable
                 $text .= "\n************\n\n";
             }
         }
-
 
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
