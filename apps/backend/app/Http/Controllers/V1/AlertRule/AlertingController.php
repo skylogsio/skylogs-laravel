@@ -194,7 +194,7 @@ class AlertingController extends Controller
                     }
 
                     $alert->dataSourceIds = $dataSourceIds;
-                    $alert->dataSourceAlertName = $dataSourceAlertname;
+                    $alert->dataSourceAlertName = $dataSourceAlertname ?? "";
                     $alert->queryText = $queryText;
 
                     $alert->extraField = $extraField;
@@ -355,7 +355,7 @@ class AlertingController extends Controller
                     $model->queryObject = $request->queryObject;
                 }
                 $model->dataSourceIds = $dataSourceIds;
-                $model->dataSourceAlertName = $dataSourceAlertname;
+                $model->dataSourceAlertName = $dataSourceAlertname ?? "";
                 $model->queryText = $queryText;
 
                 $model->state = null;
