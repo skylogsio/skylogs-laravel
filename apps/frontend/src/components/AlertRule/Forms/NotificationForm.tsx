@@ -1,25 +1,24 @@
-import { type ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
-  Box,
   Button,
   Chip,
   Grid2 as Grid,
-  MenuItem,
   Stack,
   TextField,
   Typography
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
+import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule";
+import AlertRuleEndpointUserSelector from "@/components/AlertRule/Forms/AlertRuleEndpointUserSelector";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const clientApiSchema = z.object({
@@ -49,20 +48,19 @@ const defaultValues: NotificationFormType = {
 };
 
 export default function NotificationForm({ onClose, onSubmit, data }: NotificationModalProps) {
-  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    control,
+    getValues,
     reset,
     formState: { errors }
   } = useForm<NotificationFormType>({
     resolver: zodResolver(clientApiSchema),
     defaultValues
   });
-
-  const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
   const { mutate: createNotificationMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: NotificationFormType) => createAlertRule(body),
@@ -103,38 +101,6 @@ export default function NotificationForm({ onClose, onSubmit, data }: Notificati
     }
   }
 
-  function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
-    const selectedEndpoints = requiredData?.endpoints.filter((item) =>
-      (selectedEndpointIds as string[]).includes(item.id)
-    );
-    if (selectedEndpoints && selectedEndpoints.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedEndpoints.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
-  }
-
-  function renderUsersChip(selectedUserIds: unknown): ReactNode {
-    const selectedUsers = requiredData?.users.filter((item) =>
-      (selectedUserIds as string[]).includes(item.id)
-    );
-    if (selectedUsers && selectedUsers.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedUsers.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
-  }
-
   useEffect(() => {
     if (data === "NEW") {
       reset(defaultValues);
@@ -164,54 +130,10 @@ export default function NotificationForm({ onClose, onSubmit, data }: Notificati
             {...register("name")}
           />
         </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Endpoints"
-            id="endpoints"
-            variant="filled"
-            error={!!errors.endpointIds}
-            helperText={errors.endpointIds?.message}
-            {...register("endpointIds")}
-            value={watch("endpointIds") ?? []}
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderEndpointsChip
-              }
-            }}
-            select
-          >
-            {requiredData?.endpoints.map((endpoint) => (
-              <MenuItem key={endpoint.id} value={endpoint.id}>
-                {endpoint.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Users"
-            id="access-users"
-            variant="filled"
-            error={!!errors.userIds}
-            helperText={errors.userIds?.message}
-            {...register("userIds")}
-            value={watch("userIds") ?? []}
-            select
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderUsersChip
-              }
-            }}
-          >
-            {requiredData?.users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
+        <AlertRuleEndpointUserSelector<NotificationFormType>
+          methods={{ control, getValues, setValue }}
+          errors={errors}
+        />
         <Grid size={12}>
           <Autocomplete
             multiple
