@@ -87,7 +87,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function telegramMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -140,7 +140,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function teamsMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -192,7 +192,7 @@ class PrometheusCheck extends BaseModel implements Messageable
     }
     public function emailMessage():  string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -245,7 +245,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function smsMessage():  string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
@@ -298,7 +298,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function callMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason","alertname"];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
