@@ -30,3 +30,4 @@ tests/Api/http-client.private.env.json
 
 supervisord.log
 supervisord.pid
+"laradumps.yaml" 

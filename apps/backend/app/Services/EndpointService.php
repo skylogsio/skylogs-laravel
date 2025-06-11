@@ -54,13 +54,13 @@ class EndpointService
         return $selectableEndpoints->pluck("id")->intersect($alertEndpoints)->count();
     }
 
-    public static function RefreshAlertRuleEndpoints(Endpoint $endpoint) :void
+    public function refreshAlertRuleEndpoints(Endpoint $endpoint) :void
     {
         foreach (AlertRuleService::GetAlertsDB() as $alertRule) {
             $alertRule->pull('endpointIds',$endpoint->_id);
         }
     }
-    public static function FlushCache(): void
+    public function flushCache(): void
     {
         Cache::tags(['endpoint'])->flush();
     }

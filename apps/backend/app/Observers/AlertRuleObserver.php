@@ -9,23 +9,23 @@ use App\Services\AlertRuleService;
 class AlertRuleObserver {
 
     public function created(AlertRule $alertRule): void {
-        AlertRuleService::FlushCache();
+        app(AlertRuleService::class)->flushCache();
     }
 
     public function updated(AlertRule $alertRule): void {
-        AlertRuleService::FlushCache();
+        app(AlertRuleService::class)->flushCache();
     }
 
     public function deleted(AlertRule $alertRule): void {
-        AlertRuleService::FlushCache();
+        app(AlertRuleService::class)->flushCache();
     }
 
     public function restored(AlertRule $alertRule): void {
-        AlertRuleService::FlushCache();
+        app(AlertRuleService::class)->flushCache();
     }
 
     public function forceDeleted(AlertRule $alertRule): void {
-        AlertRuleService::FlushCache();
+        app(AlertRuleService::class)->flushCache();
     }
 
 }

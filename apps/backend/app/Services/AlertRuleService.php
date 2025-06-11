@@ -7,6 +7,8 @@ use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
+use App\Models\ElasticCheck;
+use App\Models\PrometheusCheck;
 use App\Models\User;
 use App\Helpers\Call;
 use App\Helpers\Constants;
@@ -498,9 +500,29 @@ class AlertRuleService
             return AlertRule::get();
     }
 
-    public static function FlushCache(): void
+    public function flushCache(): void
     {
         Cache::tags(['alertRule'])->flush();
+    }
+
+    public function delete(AlertRule $alertRule)
+    {
+        $alertRuleId = $alertRule->_id;
+        $type = $alertRule->type;
+        $alertRule->delete();
+        switch ($type) {
+            case AlertRuleType::API:
+            case AlertRuleType::NOTIFICATION:
+                AlertInstance::where("alertRuleId", $alertRuleId)->delete();
+                break;
+            case AlertRuleType::PROMETHEUS:
+                PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
+                break;
+            case AlertRuleType::ELASTIC:
+                ElasticCheck::where("alertRuleId", $alertRuleId)->delete();
+                break;
+        }
+
     }
 
 }

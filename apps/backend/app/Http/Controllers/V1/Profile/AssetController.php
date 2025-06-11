@@ -42,6 +42,7 @@ class AssetController extends Controller
         $model = ProfileAsset::where('_id', $id);
         $model = $model->firstOrFail();
         $model->delete();
+        $this->profileService->delete($model);
         return response()->json($model);
     }
 

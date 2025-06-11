@@ -1,5 +1,5 @@
 // status_label can be 1. resolved 2.unknown 3. critical 4.warning
-GET {{domain}}/alert-rule?alertname=&types=grafana&endpointId=
+GET {{domain}}/alert-rule?alertname=&types=&endpointId=
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
@@ -43,7 +43,7 @@ Authorization: Bearer {{authToken}}
 
 
 ###
-GET {{domain}}/alert-rule/68178152e4876e3b9b004e16
+GET {{domain}}/alert-rule/684989606c8712ca9400aa78
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

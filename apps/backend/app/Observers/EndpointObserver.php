@@ -9,24 +9,24 @@ use App\Services\EndpointService;
 class EndpointObserver {
 
     public function created(Endpoint $endpoint): void {
-        EndpointService::FlushCache();
+        app(EndpointService::class)->flushCache();
     }
 
     public function updated(Endpoint $endpoint): void {
-        EndpointService::FlushCache();
+        app(EndpointService::class)->flushCache();
     }
 
     public function deleted(Endpoint $endpoint): void {
-        EndpointService::RefreshAlertRuleEndpoints($endpoint);
-        EndpointService::FlushCache();
+        app(EndpointService::class)->refreshAlertRuleEndpoints($endpoint);
+        app(EndpointService::class)->flushCache();
     }
 
     public function restored(Endpoint $endpoint): void {
-        EndpointService::FlushCache();
+        app(EndpointService::class)->flushCache();
     }
 
     public function forceDeleted(Endpoint $endpoint): void {
-        EndpointService::FlushCache();
+        app(EndpointService::class)->flushCache();
     }
 
 }

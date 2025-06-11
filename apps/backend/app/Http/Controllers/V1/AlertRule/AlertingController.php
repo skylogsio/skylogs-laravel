@@ -571,22 +571,7 @@ class AlertingController extends Controller
         $alert = AlertRule::where('_id', $request->id)->firstOrFail();
         $userId = \Auth::user()->_id;
         if ($alert->userId == $userId || \Auth::user()->isAdmin()) {
-            $alertRuleId = $alert->_id;
-            $type = $alert->type;
-            $alert->delete();
-            switch ($type) {
-                case AlertRuleType::API:
-                case AlertRuleType::NOTIFICATION:
-                    AlertInstance::where("alertRuleId", $alertRuleId)->delete();
-                    break;
-                case AlertRuleType::PROMETHEUS:
-                    PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
-                    break;
-                case AlertRuleType::ELASTIC:
-                    ElasticCheck::where("alertRuleId", $alertRuleId)->delete();
-                    break;
-            }
-
+            $this->alertRuleService->delete($alert);
         } else {
             $alert->pull("userIds", $userId);
             if (!empty($alert->endpointIds)) {
