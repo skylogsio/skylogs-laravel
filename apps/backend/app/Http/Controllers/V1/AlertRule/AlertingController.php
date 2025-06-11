@@ -102,6 +102,17 @@ class AlertingController extends Controller
             $alert->is_silent = $isSilent;
             $alert->countEndpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
             $alert->count_endpoints = $alert->countEndpoints;
+
+            $extraField = [];
+            if (!empty($alert->extraField)) {
+                foreach ($alert->extraField as $key => $value) {
+                    $extraField[] = [
+                        "key" => $key,
+                        "value" => $value,
+                    ];
+                }
+            }
+            $alert->extraField = $extraField;
         }
 
         return response()->json($data);
