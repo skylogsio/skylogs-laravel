@@ -18,7 +18,7 @@ Authorization: Bearer {{authToken}}
 
 {
     "name": "Settlement",
-    "userId": "6848762bf0b0e838ca0d9df7",
+    "ownerId": "67a59178042804ad0d0a5076",
     "config": "{}"
 }
 
@@ -31,7 +31,7 @@ Authorization: Bearer {{authToken}}
 
 {
     "name": "MyService",
-    "userId": "a",
+    "ownerId": "a",
     "config": "{\"ABC\":\"POI\"}"
 }
 

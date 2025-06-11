@@ -51,7 +51,7 @@ class AssetController extends Controller
             $request->all(),
             [
                 'name' => "required",
-                'userId' => "required",
+                'ownerId' => "required",
                 'config' => "required",
             ],
         );
@@ -59,7 +59,7 @@ class AssetController extends Controller
 
             $modelArray = [
                 "name" => $request->name,
-                "userId" => $request->userId,
+                "ownerId" => $request->ownerId,
                 "config" => $request->config,
             ];
             $model = ProfileAsset::create($modelArray);
@@ -85,7 +85,7 @@ class AssetController extends Controller
             $request->all(),
             [
                 'name' => "required",
-                'userId' => "required",
+                'ownerId' => "required",
                 'config' => "required",
             ],
         );
@@ -93,7 +93,7 @@ class AssetController extends Controller
         if ($va->passes()) {
             $modelArray = [
                 "name" => $request->name,
-                "userId" => $request->userId,
+                "ownerId" => $request->ownerId,
                 "config" => $request->config,
             ];
 

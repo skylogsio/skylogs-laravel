@@ -63,11 +63,11 @@ class ProfileService
 
             foreach ($config['alertnames'] as $alertConfig) {
                 if(is_array($alertConfig)){
-                    $alertRuleName =$alertConfig['name']."-". $service . "-" . $env . "-" . $dataSource->name;
+                    $alertRuleName =$alertConfig['name']."-". $service . "-" . $env;
                     $dataSourceAlertname = $alertConfig['name'];
                     $extraField = $commonLabels->merge($alertConfig['labels']);
                 }else{
-                    $alertRuleName =$alertConfig."-". $service . "-" . $env . "-" . $dataSource->name;
+                    $alertRuleName =$alertConfig."-". $service . "-" . $env ;
                     $dataSourceAlertname = $alertConfig;
                     $extraField = $commonLabels->toArray();
 
@@ -84,7 +84,7 @@ class ProfileService
             }
 
         } else {
-            $alertRuleName = $service . "-" . $env . "-" . $dataSource->name;
+            $alertRuleName = $dataSource->name . "-" . $service . "-" . $env ;
 
 
             $resultAlerts[] = AlertRule::firstOrCreate([
