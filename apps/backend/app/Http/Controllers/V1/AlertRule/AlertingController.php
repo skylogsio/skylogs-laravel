@@ -68,7 +68,7 @@ class AlertingController extends Controller
             $tags = explode(',', $request->tags);
             $data = $data->whereIn("tags", $tags);
         }
-        if ($request->filled("silentStatus")) {
+        if ($request->has("silentStatus")) {
             $silent = $request->silentStatus == 'silent' ? 1 : 0;
             if ($silent) {
                 $data = $data->whereIn("silentUserIds", [$currentUser->id]);

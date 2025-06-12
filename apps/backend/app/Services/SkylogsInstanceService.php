@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Predis\Connection\ConnectionException;
 use Queue;
-use Redis;
+
 
 class SkylogsInstanceService
 {
