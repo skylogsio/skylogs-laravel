@@ -88,6 +88,10 @@ class AlertingController extends Controller
             $data = $data->where("userId", $request->userId);
         }
 
+        if ($request->filled("status")) {
+            $data = $data->where("state", $request->status);
+        }
+
         $data = $data->paginate($perPage);
 
         foreach ($data as &$alert) {
