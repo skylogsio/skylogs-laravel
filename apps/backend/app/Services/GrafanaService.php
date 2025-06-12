@@ -47,7 +47,7 @@ class GrafanaService
 
     }
 
-    public static function CheckMatchedAlerts($webhook, $alerts, $alertRules,): array
+    public static function CheckMatchedAlerts($webhook, $alerts, $alertRules): array
     {
 
         $status = $webhook['status'];
@@ -61,7 +61,7 @@ class GrafanaService
 
                     if (in_array($alert['dataSourceId'], $alertRule['dataSourceIds'])) {
 
-                        if(!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']){
+                        if (!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']) {
                             $isMatch = false;
                         }
 
@@ -121,7 +121,7 @@ class GrafanaService
 
     }
 
-    public static function SaveMatchedAlerts($dataSource,$webhook, $matchedAlerts)
+    public static function SaveMatchedAlerts($dataSource, $webhook, $matchedAlerts)
     {
         $status = $webhook['status'];
         foreach ($matchedAlerts as $alertRuleId => $alerts) {
@@ -132,33 +132,15 @@ class GrafanaService
             $model->alertRuleId = $alertRuleId;
             $model->status = $status;
 
-            if(!empty($webhook['groupLabels'])){
-                $model->groupLabels = $webhook['groupLabels'];
-            }
-            if(!empty($webhook['commonLabels'])){
-                $model->commonLabels = $webhook['commonLabels'];
-            }
-            if(!empty($webhook['commonAnnotations'])){
-                $model->commonAnnotations = $webhook['commonAnnotations'];
-            }
-            if(!empty($webhook['externalURL'])){
-                $model->externalURL = $webhook['externalURL'];
-            }
-            if(!empty($webhook['groupKey'])){
-                $model->groupKey = $webhook['groupKey'];
-            }
-            if(!empty($webhook['truncatedAlerts'])){
-                $model->truncatedAlerts = $webhook['truncatedAlerts'];
-            }
-            if(!empty($webhook['orgId'])){
-                $model->orgId = $webhook['orgId'];
-            }
-            if(!empty($webhook['title'])){
-                $model->title = $webhook['title'];
-            }
-            if(!empty($webhook['message'])){
-                $model->message = $webhook['message'];
-            }
+            $model->groupLabels = $webhook['groupLabels'] ?? "";
+            $model->commonLabels = $webhook['commonLabels'] ?? "";
+            $model->commonAnnotations = $webhook['commonAnnotations'] ?? "";
+            $model->externalURL = $webhook['externalURL'] ?? "";
+            $model->groupKey = $webhook['groupKey'] ?? "";
+            $model->truncatedAlerts = $webhook['truncatedAlerts'] ?? "";
+            $model->orgId = $webhook['orgId'] ?? "";
+            $model->title = $webhook['title'] ?? "";
+            $model->message = $webhook['message'] ?? "";
 
             $alertRule = $model->alertRule;
 

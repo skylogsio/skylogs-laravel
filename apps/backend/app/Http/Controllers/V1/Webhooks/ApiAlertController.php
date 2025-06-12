@@ -11,13 +11,17 @@ use Illuminate\Http\Request;
 class ApiAlertController extends Controller
 {
 
+    public function __construct(protected ApiService $apiService)
+    {
+    }
+
     public function FireAlert(Request $request)
     {
         if (!$request->has('instance')) {
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        return ApiService::FireAlert($post);
+        return $this->apiService->fireAlert($post);
     }
     public function ResolveAlert(Request $request)
     {
@@ -25,7 +29,7 @@ class ApiAlertController extends Controller
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        return ApiService::ResolveAlert($post);
+        return $this->apiService->resolveAlert($post);
     }
 
     public function StatusAlert(Request $request)
@@ -34,7 +38,7 @@ class ApiAlertController extends Controller
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        return ApiService::StatusAlert($post);
+        return $this->apiService->statusAlert($post);
     }
 
     public function NotificationAlert(Request $request)
@@ -43,7 +47,7 @@ class ApiAlertController extends Controller
             abort(404, "wrong parameters!");
         }
         $post = $request->all();
-        return ApiService::NotificationAlert($post);
+        return $this->apiService->notificationAlert($post);
     }
 
 }

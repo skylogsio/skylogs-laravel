@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Cache;
 class ApiService
 {
 
-    public static function FireAlert($post): array
+    public function __construct(protected AlertRuleService $alertRuleService)
+    {
+    }
+
+    public function fireAlert($post): array
     {
         $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
@@ -27,41 +31,26 @@ class ApiService
             ->first();
 
         if ($alert) {
-            if ($alert->state == AlertInstance::RESOLVED) {
+            $isCurrentStateResolved = $alert->state == AlertInstance::RESOLVED;
 
-                $alert->state = AlertInstance::FIRE;
-                $alert->description = $post['description'] ?? "";
-                $alert->summary = $post['summary'] ?? "";
+            $alert->state = AlertInstance::FIRE;
+            $alert->description = $post['description'] ?? "";
+            $alert->summary = $post['summary'] ?? "";
 
-                $alert->save();
+            $alert->save();
 
-                SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
 
-                $apiHistory = $alert->createHistory();
-                $alert->createStatusHistory($apiHistory);
+            $this->refreshStatus($alert);
+            $apiHistory = $alert->createHistory();
+            $alert->createStatusHistory($apiHistory);
 
-                return [
-                    'status' => true,
-                    'message' => 'Activated'
-                ];
-            } else if ($alert->state == AlertInstance::FIRE) {
 
-                $alert->state = AlertInstance::FIRE;
-                $alert->description = $post['description'] ?? "";
-                $alert->summary = $post['summary'] ?? "";
+            return [
+                'status' => true,
+                'message' => $isCurrentStateResolved ? 'Activated' : 'Already Active'
+            ];
 
-                $alert->save();
-
-                SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
-
-                $apiHistory = $alert->createHistory();
-                $alert->createStatusHistory($apiHistory);
-
-                return [
-                    'status' => true,
-                    'message' => 'Already Active'
-                ];
-            }
         } else {
 
             $model = new AlertInstance();
@@ -76,31 +65,21 @@ class ApiService
             $model->summary = $post['summary'] ?? "";
 
 
-            if ($model->save()) {
+            SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model, $alertRule->_id);
+            $this->refreshStatus($model);
+            $apiHistory = $model->createHistory();
+            $model->createStatusHistory($apiHistory);
+            return [
+                'status' => true,
+                'message' => 'Activated'
+            ];
 
-                SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model, $alertRule->_id);
-
-                $apiHistory = $model->createHistory();
-                $model->createStatusHistory($apiHistory);
-                return [
-                    'status' => true,
-                    'message' => 'Activated'
-                ];
-            } else {
-                return [
-                    'status' => false,
-                    'message' => 'error'
-                ];
-            }
         }
 
-        return [
-            'status' => false,
-        ];
 
     }
 
-    public static function ResolveAlert(mixed $post)
+    public function resolveAlert(mixed $post)
     {
         $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
@@ -118,7 +97,7 @@ class ApiService
                 $alert->save();
                 SendNotifyService::CreateNotify(SendNotifyJob::API_RESOLVE, $alert, $alert->alertRule->_id);
 
-
+                $this->refreshStatus($alert);
                 $apiHistory = $alert->createHistory();
                 $alert->createStatusHistory($apiHistory);
                 return [
@@ -141,7 +120,7 @@ class ApiService
         }
     }
 
-    public static function StatusAlert(mixed $post)
+    public function statusAlert(mixed $post)
     {
         $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
@@ -170,7 +149,7 @@ class ApiService
         }
     }
 
-    public static function NotificationAlert(mixed $post)
+    public function notificationAlert(mixed $post)
     {
 
         $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
@@ -204,11 +183,10 @@ class ApiService
 
     }
 
-    public static function AlertRuleByToken($token,AlertRuleType $type)
+    public function alertRuleByToken($token, AlertRuleType $type)
     {
-        $alertRules = Cache::tags(['alertRule',$type->value])->rememberForever("alertRule:$type->value", function () use($type) {
-            return AlertRule::where("type", $type)->get();
-        });
+
+        $alertRules = $this->alertRuleService->getAlerts($type);
 
         $alert = $alertRules->where("apiToken", $token)->first();
 
@@ -219,4 +197,13 @@ class ApiService
         return null;
     }
 
+    public function refreshStatus(AlertInstance $alert)
+    {
+        $count = AlertInstance::where('alertRuleId', $alert->alertRuleId)
+            ->where("state", AlertInstance::FIRE)->count();
+        $alertRule = $alert->alertRule;
+        $alertRule->state = $count == 0 ? AlertRule::RESOlVED : AlertRule::CRITICAL;
+        $alertRule->fireCount = $count;
+        $alertRule->save();
+    }
 }

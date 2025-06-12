@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiAlertAuth
 {
+    public function __construct(protected ApiService $apiService)
+    {
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -22,9 +26,9 @@ class ApiAlertAuth
 
         $alert = null;
         if($request->routeIs("webhook.notification")) {
-            $alert = ApiService::AlertRuleByToken($bearerToken,AlertRuleType::NOTIFICATION);
+            $alert = $this->apiService->alertRuleByToken($bearerToken,AlertRuleType::NOTIFICATION);
         }elseif($request->routeIs("webhook.api.*")) {
-            $alert = ApiService::AlertRuleByToken($bearerToken,AlertRuleType::API);
+            $alert = $this->apiService->alertRuleByToken($bearerToken,AlertRuleType::API);
         }
         if ($alert) {
             return $next($request->merge(['alert' => $alert, "apiToken" => $bearerToken]));

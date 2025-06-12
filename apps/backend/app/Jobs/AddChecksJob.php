@@ -27,7 +27,7 @@ class AddChecksJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(protected AlertRuleService $alertRuleService)
     {
 
     }
@@ -40,7 +40,7 @@ class AddChecksJob implements ShouldQueue
     public function handle()
     {
 
-        $alertRules = AlertRuleService::GetAlerts(AlertRuleType::ELASTIC);
+        $alertRules = $this->alertRuleService->getAlerts(AlertRuleType::ELASTIC);
 
         foreach ($alertRules as $alert) {
             CheckElasticJob::dispatch($alert);

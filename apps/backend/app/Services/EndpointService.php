@@ -56,7 +56,7 @@ class EndpointService
 
     public function refreshAlertRuleEndpoints(Endpoint $endpoint) :void
     {
-        foreach (AlertRuleService::GetAlertsDB() as $alertRule) {
+        foreach (app(AlertRuleService::class)->getAlertsDB() as $alertRule) {
             $alertRule->pull('endpointIds',$endpoint->_id);
         }
     }

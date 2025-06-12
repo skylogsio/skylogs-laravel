@@ -34,7 +34,7 @@ class AlertRule extends BaseModel implements Messageable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class,"userId");
+        return $this->belongsTo(User::class, "userId");
     }
 
     public function dataSource(): ?BelongsTo
@@ -120,36 +120,14 @@ class AlertRule extends BaseModel implements Messageable
         $alertState = self::UNKNOWN;
         switch ($this->type) {
             case AlertRuleType::API:
-                $alertCount = AlertInstance::where('alertRuleId', $this->id)
-                    ->where("state", AlertInstance::FIRE)->count();
-                if ($alertCount == 0) {
-                    $alertState = self::RESOlVED;
-                } else {
-                    $alertState = self::CRITICAL;
-                }
-                break;
-            case AlertRuleType::PROMETHEUS:
-                $alert = PrometheusCheck::where('alertRuleId', $this->_id)->first();
-                if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
-                    $alertState = self::RESOlVED;
-                } else {
-                    if (!empty($alert->alerts)) {
-                        $alertState = self::CRITICAL;
-                        $alertCount = count($alert->alerts);
-                    } else {
-                        $alertState = self::CRITICAL;
-                    }
-                }
+                $alertState = $this->state ?? self::RESOlVED;
+                $alertCount = $alert->fireCount ?? 0;
                 break;
             case AlertRuleType::GRAFANA:
             case AlertRuleType::SENTRY:
             case AlertRuleType::METABASE:
             case AlertRuleType::ZABBIX:
-                if (empty($this->state)) {
-                    $alertState = self::UNKNOWN;
-                } else {
-                    $alertState = $this->state;
-                }
+                $alertState = $this->state ?? self::UNKNOWN;
                 break;
             case AlertRuleType::HEALTH:
                 $check = HealthCheck::where('alertRuleId', $this->_id)->first();

@@ -475,7 +475,7 @@ class AlertRuleService
         return false;
     }
 
-    public static function GetAlerts(AlertRuleType $type = null)
+    public function getAlerts(AlertRuleType $type = null)
     {
         $tagsArray = ['alertRule'];
         $keyName = 'alertRule';
@@ -484,15 +484,11 @@ class AlertRuleService
             $keyName .= ':' . $type->value;
         }
 
-        return Cache::tags($tagsArray)->rememberForever($keyName, function () use ($type) {
-            if ($type) {
-                return AlertRule::where('type', $type)->get();
-            } else
-                return AlertRule::get();
-        });
+        return Cache::tags($tagsArray)->rememberForever($keyName,fn() => $this->getAlertsDB($type) );
+
     }
 
-    public static function GetAlertsDB(AlertRuleType $type = null)
+    public function getAlertsDB(AlertRuleType $type = null)
     {
         if ($type) {
             return AlertRule::where('type', $type)->get();

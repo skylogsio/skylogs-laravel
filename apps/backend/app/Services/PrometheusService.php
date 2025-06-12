@@ -204,9 +204,11 @@ class PrometheusService
             if ($firedAlerts->isEmpty()) {
                 $check->state = PrometheusCheck::RESOLVED;
                 $alertRule->state = AlertRule::RESOlVED;
+                $alertRule->fireCount = 0;
             } else {
                 $check->state = PrometheusCheck::FIRE;
                 $alertRule->state = AlertRule::CRITICAL;
+                $alertRule->fireCount = $firedAlerts->count();
             }
 
 
