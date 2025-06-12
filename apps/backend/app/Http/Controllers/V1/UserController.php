@@ -40,6 +40,7 @@ class UserController extends Controller
         }
         return response()->json($data);
     }
+
     public function All()
     {
         $data = User::all();
@@ -55,9 +56,12 @@ class UserController extends Controller
 
     public function Delete(Request $request, $id)
     {
-        $model = User::whereNot('username','admin')->where('_id', $id)->firstOrFail();
+        $model = User::whereNot('username', 'admin')->where('_id', $id)->firstOrFail();
 
-        if ($model->hasRole(Constants::ROLE_OWNER) && !auth()->user()->hasRole(Constants::ROLE_OWNER)) {
+        $currentUser = auth()->user();
+        if (($model->hasRole(Constants::ROLE_OWNER) && !$currentUser->hasRole(Constants::ROLE_OWNER)) ||
+            (!$model->hasRole(Constants::ROLE_MEMBER) && $currentUser->hasRole(Constants::ROLE_MANAGER))
+        ) {
             abort(403);
         }
 
@@ -90,7 +94,6 @@ class UserController extends Controller
         }
 
 
-
         $model->delete();
         return response()->json($model);
     }
@@ -120,13 +123,13 @@ class UserController extends Controller
             'password' => \Hash::make($request->post('password')),
         ]);
 
-        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
+        if (auth()->user()->hasRole(Constants::ROLE_OWNER)) {
             $role = match ($request->post('role')) {
                 Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
                 Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
                 default => Constants::ROLE_MEMBER,
             };
-        }else{
+        } else {
             $role = Constants::ROLE_MEMBER->value;
         }
 
@@ -150,7 +153,9 @@ class UserController extends Controller
 
         $model = User::where('_id', $id)->firstOrFail();
         $currentUser = auth()->user();
-        if (!$currentUser->hasRole(Constants::ROLE_OWNER) && $model->hasRole(Constants::ROLE_OWNER)) {
+        if (($model->hasRole(Constants::ROLE_OWNER) && !$currentUser->hasRole(Constants::ROLE_OWNER)) ||
+            (!$model->hasRole(Constants::ROLE_MANAGER) && $currentUser->hasRole(Constants::ROLE_MANAGER))
+        ) {
             abort(403);
         }
 
@@ -159,23 +164,23 @@ class UserController extends Controller
             'name' => $request->post('name'),
         ]);
 
+        if (!$model->username != "admin") {
+            foreach ($model->roles as $role) {
+                $model->removeRole($role);
+            }
 
-        foreach ($model->roles as $role) {
-            $model->removeRole($role);
+            if (auth()->user()->hasRole(Constants::ROLE_OWNER)) {
+                $role = match ($request->post('role')) {
+                    Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
+                    Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
+                    default => Constants::ROLE_MEMBER,
+                };
+            } else {
+                $role = Constants::ROLE_MEMBER->value;
+            }
+
+            $model->syncRoles($role);
         }
-
-        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
-            $role = match ($request->post('role')) {
-                Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
-                Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
-                default => Constants::ROLE_MEMBER,
-            };
-        }else{
-            $role = Constants::ROLE_MEMBER->value;
-        }
-
-        $model->syncRoles($role);
-
         return response()->json([
             'status' => true,
             'data' => $model,
@@ -200,7 +205,7 @@ class UserController extends Controller
         }
 
         $model->update([
-            'password' =>   Hash::make($request->post('confirmPassword')),
+            'password' => Hash::make($request->post('confirmPassword')),
         ]);
 
         return response()->json([
