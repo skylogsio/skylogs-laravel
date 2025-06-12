@@ -40,6 +40,11 @@ class UserController extends Controller
         }
         return response()->json($data);
     }
+    public function All()
+    {
+        $data = User::all();
+        return response()->json($data);
+    }
 
     public function Show(Request $request, $id)
     {

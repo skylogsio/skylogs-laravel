@@ -59,6 +59,7 @@ Route::prefix('v1')->group(function () {
             ->middleware("role:" . Constants::ROLE_OWNER->value . "|" . Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
+                Route::get('/all', 'All');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/pass/{id}', 'ChangePassword');
