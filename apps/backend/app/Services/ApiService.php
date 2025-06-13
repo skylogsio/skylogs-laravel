@@ -64,6 +64,7 @@ class ApiService
             $model->description = $post['description'] ?? "";
             $model->summary = $post['summary'] ?? "";
 
+            $model->save();
 
             SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model, $alertRule->_id);
             $this->refreshStatus($model);
