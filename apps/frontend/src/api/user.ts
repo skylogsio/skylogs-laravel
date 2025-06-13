@@ -1,10 +1,20 @@
 "use server";
 
 import type { ServerResponse } from "@/@types/global";
+import type { IUser } from "@/@types/user";
 import axios from "@/lib/axios";
 
 const USER_URL = "user";
 const USER_PASSWORD_URL = "user/pass";
+
+export async function getAllUsers(): Promise<IUser[]> {
+  try {
+    const response = await axios.get<IUser[]>(`${USER_URL}/all`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export async function createUser(body: unknown) {
   try {

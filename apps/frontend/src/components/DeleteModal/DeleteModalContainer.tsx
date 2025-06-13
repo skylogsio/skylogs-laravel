@@ -26,9 +26,12 @@ export default function DeleteModalContainer({
           This process can not be undone.
         </Typography>
         <Grid
+          minWidth="100%"
+          boxSizing="border-box"
           container
           padding={2}
           spacing={1}
+          sx={{ minWidth: "100% !important", boxSizing: "border-box" }}
           alignItems="center"
           bgcolor={alpha(palette.secondary.light, 0.3)}
           borderRadius={3}

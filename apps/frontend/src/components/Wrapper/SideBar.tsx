@@ -13,7 +13,8 @@ const URLS: Array<URLType> = [
   { pathname: "/endpoints", label: "Endpoints" },
   { pathname: "/users", label: "Users", role: ["owner", "manager"] },
   { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"] },
-  { pathname: "/alert-rule", label: "Alert Rules" }
+  { pathname: "/alert-rule", label: "Alert Rules" },
+  { pathname: "/profile-services", label: "Profile Services", role: "owner" }
 ];
 
 function ListItem(url: URLType) {
