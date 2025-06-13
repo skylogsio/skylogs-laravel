@@ -41,7 +41,7 @@ class ApiService
 
             SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
 
-            $this->refreshStatus($alert);
+            $this->refreshStatus($alert->alertRule);
             $apiHistory = $alert->createHistory();
             $alert->createStatusHistory($apiHistory);
 
@@ -67,7 +67,7 @@ class ApiService
             $model->save();
 
             SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model, $alertRule->_id);
-            $this->refreshStatus($model);
+            $this->refreshStatus($model->alertRule);
             $apiHistory = $model->createHistory();
             $model->createStatusHistory($apiHistory);
             return [
@@ -98,7 +98,7 @@ class ApiService
                 $alert->save();
                 SendNotifyService::CreateNotify(SendNotifyJob::API_RESOLVE, $alert, $alert->alertRule->_id);
 
-                $this->refreshStatus($alert);
+                $this->refreshStatus($alert->alertRule);
                 $apiHistory = $alert->createHistory();
                 $alert->createStatusHistory($apiHistory);
                 return [
@@ -198,11 +198,10 @@ class ApiService
         return null;
     }
 
-    public function refreshStatus(AlertInstance $alert)
+    public function refreshStatus(AlertRule $alertRule)
     {
-        $count = AlertInstance::where('alertRuleId', $alert->alertRuleId)
+        $count = AlertInstance::where('alertRuleId', $alertRule->id)
             ->where("state", AlertInstance::FIRE)->count();
-        $alertRule = $alert->alertRule;
         $alertRule->state = $count == 0 ? AlertRule::RESOlVED : AlertRule::CRITICAL;
         $alertRule->fireCount = $count;
         $alertRule->save();
