@@ -16,11 +16,6 @@ class AutoResolveApiAlertsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(
-        protected AlertRuleService $alertRuleService,
-        protected ApiService       $apiService)
-    {
-    }
 
     /**
      * Execute the job.
@@ -29,7 +24,7 @@ class AutoResolveApiAlertsJob implements ShouldQueue
      */
     public function handle()
     {
-        $alerts = $this->alertRuleService->getAlerts(AlertRuleType::API);
+        $alerts = app(AlertRuleService::class)->getAlerts(AlertRuleType::API);
         $now = time();
         if ($alerts->isNotEmpty()) {
             foreach ($alerts as $alert) {
@@ -46,7 +41,7 @@ class AutoResolveApiAlertsJob implements ShouldQueue
                                 "instance" => $instance->instance,
                                 "description" => "Alert Resolved Automatically"
                             ];
-                            $this->apiService->resolveAlert($post);
+                            app(ApiService::class)->resolveAlert($post);
                         }
                     }
                 }
