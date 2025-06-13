@@ -30,7 +30,7 @@ class   ProfileAsset extends BaseModel
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'userId');
+        return $this->belongsTo(User::class, 'ownerId');
     }
 
     public function service()
