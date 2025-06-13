@@ -62,6 +62,7 @@ class AssetController extends Controller
                 "name" => $request->name,
                 "ownerId" => $request->ownerId,
                 "config" => $request->config,
+                "createdAlertRuleIds" => []
             ];
             $model = ProfileAsset::create($modelArray);
             $createdAlerts = $this->profileService->createAlertRules($model);

@@ -17,7 +17,7 @@ Accept: application/json
 Authorization: Bearer {{authToken}}
 
 {
-    "name": "Settlement",
+    "name": "MyService",
     "ownerId": "67a59178042804ad0d0a5076",
     "config": "{}"
 }
