@@ -25,6 +25,10 @@ export default function Wrapper({ children }: PropsWithChildren) {
     router.replace("/");
     return null;
   }
+  if (pathname.includes("/settings/telegram") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
+    return null;
+  }
 
   return (
     <Box

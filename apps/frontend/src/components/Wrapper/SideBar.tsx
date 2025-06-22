@@ -14,7 +14,8 @@ const URLS: Array<URLType> = [
   { pathname: "/users", label: "Users", role: ["owner", "manager"] },
   { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"] },
   { pathname: "/alert-rule", label: "Alert Rules" },
-  { pathname: "/profile-services", label: "Profile Services", role: "owner" }
+  { pathname: "/profile-services", label: "Profile Services", role: "owner" },
+  { pathname: "/settings/telegram", label: "Settings", role: "owner" }
 ];
 
 function ListItem(url: URLType) {
