@@ -1,10 +1,11 @@
 import { type ReactNode, useState } from "react";
 
 import {
-  // alpha,
   Autocomplete,
   Box,
+  Checkbox,
   Chip,
+  FormControlLabel,
   Grid2 as Grid,
   MenuItem,
   Stack,
@@ -13,18 +14,17 @@ import {
   useTheme
 } from "@mui/material";
 import { useQueries } from "@tanstack/react-query";
-// import { FaCheck } from "react-icons/fa6";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 
 import { getAlertFilterEndpointList, getAlertRuleTags } from "@/api/alertRule";
 import type { TableFilterComponentProps } from "@/components/Table/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
-// type AlertRuleStatus = "resolved" | "warning" | "fire" | "";
 type AlertRuleSilentStatus = "silent" | "not-silent" | "";
 
 interface IAlertRuleFilters {
   alertname?: string;
+  status?: string;
   types?: Array<AlertRuleType>;
   endpointId?: string | string[];
   tags?: string | string[];
@@ -32,15 +32,9 @@ interface IAlertRuleFilters {
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
   const { palette } = useTheme();
-  // const [status, setStatus] = useState<AlertRuleStatus[]>([]);
   const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
 
   const [filter, setFilter] = useState<IAlertRuleFilters>({});
-
-  // const { data: endpointList } = useQuery({
-  //   queryKey: ["alert-rule-filter-endpoint-list"],
-  //   queryFn: () => getAlertFilterEndpointList()
-  // });
 
   const [{ data: tagsList }, { data: endpointList }] = useQueries({
     queries: [
@@ -54,16 +48,6 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
       }
     ]
   });
-
-  // function handleChangeStatus(selectedStatus: AlertRuleStatus) {
-  //   setStatus((prev) => {
-  //     const temp = prev.includes(selectedStatus)
-  //       ? prev.filter((item) => item !== selectedStatus)
-  //       : [...prev, selectedStatus];
-  //     onChange("status", temp);
-  //     return temp;
-  //   });
-  // }
 
   function handleChange(
     key: keyof IAlertRuleFilters,
@@ -218,45 +202,17 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           )}
         />
       </Grid>
-      {/*<Grid size={4}>*/}
-      {/*  /!*fieldName:status*!/*/}
-      {/*  <Stack direction="row" height="100%" alignItems="center" spacing={1}>*/}
-      {/*    <Typography variant="body2">Status: </Typography>*/}
-      {/*    <Chip*/}
-      {/*      icon={status.includes("resolved") ? <FaCheck /> : undefined}*/}
-      {/*      label="Resolved"*/}
-      {/*      onClick={() => handleChangeStatus("resolved")}*/}
-      {/*      variant="outlined"*/}
-      {/*      color="success"*/}
-      {/*      sx={({ palette }) => ({*/}
-      {/*        backgroundColor: alpha(palette.success.light, 0.1),*/}
-      {/*        borderColor: status.includes("resolved") ? palette.success.light : "transparent"*/}
-      {/*      })}*/}
-      {/*    />*/}
-      {/*    <Chip*/}
-      {/*      icon={status.includes("warning") ? <FaCheck /> : undefined}*/}
-      {/*      label="Warning"*/}
-      {/*      onClick={() => handleChangeStatus("warning")}*/}
-      {/*      variant="outlined"*/}
-      {/*      color="warning"*/}
-      {/*      sx={({ palette }) => ({*/}
-      {/*        backgroundColor: alpha(palette.warning.light, 0.1),*/}
-      {/*        borderColor: status.includes("warning") ? palette.warning.light : "transparent"*/}
-      {/*      })}*/}
-      {/*    />*/}
-      {/*    <Chip*/}
-      {/*      icon={status.includes("fire") ? <FaCheck /> : undefined}*/}
-      {/*      label="Fire"*/}
-      {/*      onClick={() => handleChangeStatus("fire")}*/}
-      {/*      variant="outlined"*/}
-      {/*      color="error"*/}
-      {/*      sx={({ palette }) => ({*/}
-      {/*        backgroundColor: alpha(palette.error.light, 0.1),*/}
-      {/*        borderColor: status.includes("fire") ? palette.error.light : "transparent"*/}
-      {/*      })}*/}
-      {/*    />*/}
-      {/*  </Stack>*/}
-      {/*</Grid>*/}
+      <Grid size={3}>
+        <FormControlLabel
+          sx={{ margin: 0 }}
+          label="Only Show Fired Alerts"
+          control={
+            <Checkbox
+              onChange={(_, checked) => handleChange("status", checked ? "critical" : "")}
+            />
+          }
+        />
+      </Grid>
     </Grid>
   );
 }
