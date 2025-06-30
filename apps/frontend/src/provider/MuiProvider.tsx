@@ -2,7 +2,7 @@
 
 import { useMemo, type PropsWithChildren } from "react";
 
-import { alpha, inputBaseClasses } from "@mui/material";
+import { alpha, inputBaseClasses, menuItemClasses } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { extendTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -102,6 +102,15 @@ export default function MuiProvider({ children }: PropsWithChildren<object>) {
             },
             defaultProps: {
               disableUnderline: true
+            }
+          },
+          MuiMenuItem: {
+            styleOverrides: {
+              root: {
+                [`&.${menuItemClasses.selected}`]: {
+                  backgroundColor: alpha("#6F9BFF", 0.2)
+                }
+              }
             }
           },
           MuiButton: {

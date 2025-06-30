@@ -3,18 +3,32 @@ import { usePathname } from "next/navigation";
 
 import { Box, List, ListItem as MUIListItem, ListItemButton, Stack } from "@mui/material";
 
-const URLS = [
+import { useRole } from "@/hooks";
+import { RoleType } from "@/utils/userUtils";
+
+type URLType = { pathname: string; label: string; role?: RoleType | RoleType[] };
+
+const URLS: Array<URLType> = [
   { pathname: "/", label: "Home" },
   { pathname: "/endpoints", label: "Endpoints" },
-  { pathname: "/users", label: "Users" },
-  { pathname: "/data-source", label: "Data Sources" },
-  { pathname: "/alert-rule", label: "Alert Rules" }
+  { pathname: "/users", label: "Users", role: ["owner", "manager"] },
+  { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"] },
+  { pathname: "/alert-rule", label: "Alert Rules" },
+  { pathname: "/profile-services", label: "Profile Services", role: "owner" },
+  { pathname: "/settings/telegram", label: "Settings", role: "owner" }
 ];
 
-function ListItem(url: { pathname: string; label: string }) {
+function ListItem(url: URLType) {
   const pathname = usePathname();
+  const { hasRole } = useRole();
+
+  if (url.role) {
+    if (!hasRole(url.role)) return;
+  }
+
   const isActive =
     url.pathname === "/" ? pathname === url.pathname : pathname.includes(url.pathname);
+
   return (
     <MUIListItem
       key={url.pathname}

@@ -58,10 +58,9 @@ export default function AlertRuleFiredInstances({ alertId }: { alertId: IAlertRu
               marginTop={2}
               borderRadius={2}
               maxHeight="60vh"
-              overflow="auto"
               bgcolor={alpha(palette.secondary.light, 0.3)}
             >
-              <Typography>{details.description}</Typography>
+              <Typography sx={{ wordBreak: "break-word" }}>{details.description}</Typography>
             </Stack>
           </Stack>
         </ModalContainer>

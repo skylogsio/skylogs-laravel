@@ -10,7 +10,7 @@ export interface IAlertRuleCreateData {
 export type AlertRuleStatus = "resolved" | "warning" | "critical" | "triggered" | "unknown";
 
 export interface IAlertRule {
-  api_token?: string;
+  apiToken?: string;
   name: string;
   type: AlertRuleType;
   user_id: string;
@@ -21,6 +21,7 @@ export interface IAlertRule {
   endpoint_ids: string[];
   user_ids: string[];
   id: string;
+  ownerName: string;
   hasAdminAccess: boolean;
   status_label: AlertRuleStatus;
   is_silent: boolean;
@@ -38,7 +39,7 @@ export interface IAlertRuleUsers {
   selectableUsers: Array<IUser>;
 }
 
-export interface IAlertRuleHistoryItem {
+export interface IApiAndNotificationAlertRuleHistory {
   alertRuleId: string;
   alertRuleName: string;
   instance: string;
@@ -68,4 +69,26 @@ export interface IAlertRuleInstance {
   updatedAt: string;
   id: string;
   status: AlertRuleStatus;
+}
+
+interface IPrometheusSubAlertRule {
+  dataSourceId: string;
+  dataSourceName: string;
+  alertRuleName: string;
+  dataSourceAlertName: string;
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
+  alertRuleId: string;
+  skylogsStatus: number;
+}
+
+export interface IPrometheusAlertHistory {
+  alertRuleId: string;
+  alerts: IPrometheusSubAlertRule[];
+  state: number;
+  countResolve: number;
+  countFire: number;
+  updatedAt: string;
+  createdAt: string;
+  id: string;
 }

@@ -6,18 +6,18 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { HiChevronDoubleDown } from "react-icons/hi";
 
-import { IAlertRule, IAlertRuleHistoryItem } from "@/@types/alertRule";
+import { IAlertRule, IApiAndNotificationAlertRuleHistory } from "@/@types/alertRule";
 import { getAlertRuleHistory } from "@/api/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import EmptyList from "@/components/EmptyList";
 import DataTable from "@/components/Table/DataTable";
 
-export default function AlertRuleHistory({ alertId }: { alertId: IAlertRule["id"] }) {
+export default function ApiAndNotificationAlertHistory({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ["alertRuleHistory", alertId],
-    queryFn: ({ pageParam }) => getAlertRuleHistory(alertId, pageParam),
+    queryKey: ["api-notification-alert-rule", alertId],
+    queryFn: ({ pageParam }) => getAlertRuleHistory<IApiAndNotificationAlertRuleHistory>(alertId, pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.next_page_url ? lastPage.current_page + 1 : undefined,
@@ -49,7 +49,7 @@ export default function AlertRuleHistory({ alertId }: { alertId: IAlertRule["id"
 
   return (
     <Stack alignItems="center">
-      <DataTable<IAlertRuleHistoryItem>
+      <DataTable<IApiAndNotificationAlertRuleHistory>
         data={allData}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },

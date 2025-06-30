@@ -1,9 +1,8 @@
-import { type ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
-  Box,
   Button,
   Chip,
   Grid2 as Grid,
@@ -12,12 +11,12 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
+import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import {
   createAlertRule,
@@ -26,6 +25,7 @@ import {
   getDataSourceAlertName,
   updateAlertRule
 } from "@/api/alertRule";
+import AlertRuleEndpointUserSelector from "@/components/AlertRule/Forms/AlertRuleEndpointUserSelector";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const sentryAlertRuleSchema = z.object({
@@ -43,20 +43,16 @@ const sentryAlertRuleSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  dataSourceAlertName: z
-    .string({ required_error: "This Field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    })
+  dataSourceAlertName: z.optional(z.string()).nullable()
 });
 
-type SentryAlertRuleType = z.infer<typeof sentryAlertRuleSchema>;
+type SentryFromType = z.infer<typeof sentryAlertRuleSchema>;
 type SentryAlertRuleModalProps = Pick<ModalContainerProps, "onClose"> & {
   data: CreateUpdateModal<IAlertRule>;
   onSubmit: () => void;
 };
 
-const defaultValues: SentryAlertRuleType = {
+const defaultValues: SentryFromType = {
   name: "",
   type: "sentry",
   userIds: [],
@@ -71,20 +67,19 @@ export default function SentryAlertRuleForm({
   onSubmit,
   onClose
 }: SentryAlertRuleModalProps) {
-  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     watch,
     setValue,
     reset,
+    control,
+    getValues,
     formState: { errors }
-  } = useForm<SentryAlertRuleType>({
+  } = useForm<SentryFromType>({
     resolver: zodResolver(sentryAlertRuleSchema),
     defaultValues
   });
-
-  const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
   const [{ data: tagsList }, { data: alertRuleNameList }, { data: dataSourceList }] = useQueries({
     queries: [
@@ -104,7 +99,7 @@ export default function SentryAlertRuleForm({
   });
 
   const { mutate: createPrometheusMutation, isPending: isCreating } = useMutation({
-    mutationFn: (body: SentryAlertRuleType) => createAlertRule(body),
+    mutationFn: (body: SentryFromType) => createAlertRule(body),
     onSuccess: (data) => {
       if (data.status) {
         toast.success("Sentry Alert Rule Created Successfully.");
@@ -118,7 +113,7 @@ export default function SentryAlertRuleForm({
   });
 
   const { mutate: updatePrometheusMutation, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: SentryAlertRuleType }) =>
+    mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: SentryFromType }) =>
       updateAlertRule(id, body),
     onSuccess: (data) => {
       if (data.status) {
@@ -129,7 +124,7 @@ export default function SentryAlertRuleForm({
     }
   });
 
-  function handleSubmitForm(values: SentryAlertRuleType) {
+  function handleSubmitForm(values: SentryFromType) {
     if (data === "NEW") {
       createPrometheusMutation(values);
     } else if (data) {
@@ -137,43 +132,11 @@ export default function SentryAlertRuleForm({
     }
   }
 
-  function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
-    const selectedEndpoints = requiredData?.endpoints.filter((item) =>
-      (selectedEndpointIds as string[]).includes(item.id)
-    );
-    if (selectedEndpoints && selectedEndpoints.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedEndpoints.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
-  }
-
-  function renderUsersChip(selectedUserIds: unknown): ReactNode {
-    const selectedUsers = requiredData?.users.filter((item) =>
-      (selectedUserIds as string[]).includes(item.id)
-    );
-    if (selectedUsers && selectedUsers.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedUsers.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
-  }
-
   useEffect(() => {
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      reset(data as unknown as SentryAlertRuleType);
+      reset(data as unknown as SentryFromType);
     }
   }, [reset, data]);
 
@@ -204,52 +167,10 @@ export default function SentryAlertRuleForm({
             {...register("name")}
           />
         </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Endpoints"
-            variant="filled"
-            error={!!errors.endpointIds}
-            helperText={errors.endpointIds?.message}
-            {...register("endpointIds")}
-            value={watch("endpointIds") ?? []}
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderEndpointsChip
-              }
-            }}
-            select
-          >
-            {requiredData?.endpoints.map((endpoint) => (
-              <MenuItem key={endpoint.id} value={endpoint.id}>
-                {endpoint.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Users"
-            variant="filled"
-            error={!!errors.userIds}
-            helperText={errors.userIds?.message}
-            {...register("userIds")}
-            value={watch("userIds") ?? []}
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderUsersChip
-              }
-            }}
-            select
-          >
-            {requiredData?.users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
+        <AlertRuleEndpointUserSelector<SentryFromType>
+          methods={{ control, getValues, setValue }}
+          errors={errors}
+        />
         <Grid size={6}>
           <TextField
             label="Data Source"
@@ -326,7 +247,7 @@ export default function SentryAlertRuleForm({
           />
         </Grid>
       </Grid>
-      <Stack direction="row" justifyContent="flex-end" spacing={2} paddingY={2}>
+      <Stack direction="row" justifyContent="flex-end" spacing={2} paddingTop={2}>
         <Button variant="outlined" disabled={isCreating || isUpdating} onClick={onClose}>
           Cancel
         </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 
 import {
   Table as MuiTable,
@@ -49,7 +49,8 @@ function Table<T>(
     rowsPerPageOptions = [10, 25, 50, 100],
     onCreate,
     refetchInterval,
-    filterComponent
+    filterComponent,
+    searchKey = "name"
   }: SmartTableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
@@ -63,10 +64,19 @@ function Table<T>(
   const [openFilterBox, setOpenFilterBox] = useState(false);
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [filterSearchParams, setFilterSearchParams] = useState("");
+  const [searchValue, setSearchValue] = useState("");
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
-    queryFn: () => fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams }),
+    queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams, searchValue, searchKey],
+    queryFn: () =>
+      fetchTableData<T>({
+        url,
+        pageIndex,
+        pageSize,
+        filterSearchParams,
+        searchKey: searchKey as string,
+        searchValue
+      }),
     refetchInterval
   });
 
@@ -116,6 +126,14 @@ function Table<T>(
     manualPagination: true
   });
 
+  const handleSearch = useCallback(
+    (search: string) => {
+      setSearchValue(search);
+      table.setPageIndex(defaultPage);
+    },
+    [defaultPage, table]
+  );
+
   function handleChangeFilter(key: string, value: unknown) {
     setFilter((prev) => ({ ...prev, [key]: value }));
   }
@@ -129,6 +147,7 @@ function Table<T>(
 
   function handleSetFilter() {
     const temp = new URLSearchParams(filter as Record<string, string>);
+    table.setPageIndex(defaultPage);
     setFilterSearchParams(temp.toString());
   }
 
@@ -147,7 +166,7 @@ function Table<T>(
           </Typography>
         )}
         <Stack direction="row" spacing={1}>
-          <SearchBox title={title} />
+          <SearchBox title={title} onSearch={handleSearch} />
           <Button
             startIcon={<HiFilter />}
             size="small"

@@ -13,13 +13,13 @@ import {
   ToggleButton,
   Typography
 } from "@mui/material";
-import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries  } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
 import { HiPlus } from "react-icons/hi";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
+import type { IAlertRule  } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import {
   createAlertRule,
@@ -28,6 +28,7 @@ import {
   getDataSourceAlertName,
   updateAlertRule
 } from "@/api/alertRule";
+import AlertRuleEndpointUserSelector from "@/components/AlertRule/Forms/AlertRuleEndpointUserSelector";
 import ExtraField from "@/components/AlertRule/Forms/ExtraField";
 import type { ModalContainerProps } from "@/components/Modal/types";
 import ToggleButtonGroup from "@/components/ToggleButtonGroup";
@@ -59,11 +60,7 @@ const generalAlertRuleSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
   dataSourceIds: z.array(z.string()).min(1, "Select at least one Data Source."),
   queryType: z.enum(QUERY_TYPE),
-  dataSourceAlertName: z
-    .string({ required_error: "This Field is Required." })
-    .refine((data) => data.trim() !== "", {
-      message: "This field is Required."
-    })
+  dataSourceAlertName: z.optional(z.string()).nullable()
 });
 
 type GeneralAlertRuleType = z.infer<typeof generalAlertRuleSchema>;
@@ -93,12 +90,12 @@ export default function GeneralAlertRuleForm({
   onClose,
   type
 }: GeneralAlertRuleModalProps) {
-  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    getValues,
     reset,
     control,
     formState: { errors }
@@ -115,7 +112,6 @@ export default function GeneralAlertRuleForm({
     name: "extraField"
   });
 
-  const requiredData = queryClient.getQueryData<IAlertRuleCreateData>(["alert-rule-create-data"]);
 
   const [{ data: tagsList }, { data: alertRuleNameList }, { data: dataSourceList }] = useQueries({
     queries: [
@@ -166,38 +162,6 @@ export default function GeneralAlertRuleForm({
     } else if (data) {
       updatePrometheusMutation({ id: data.id, body: values });
     }
-  }
-
-  function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
-    const selectedEndpoints = requiredData?.endpoints.filter((item) =>
-      (selectedEndpointIds as string[]).includes(item.id)
-    );
-    if (selectedEndpoints && selectedEndpoints.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedEndpoints.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
-  }
-
-  function renderUsersChip(selectedUserIds: unknown): ReactNode {
-    const selectedUsers = requiredData?.users.filter((item) =>
-      (selectedUserIds as string[]).includes(item.id)
-    );
-    if (selectedUsers && selectedUsers.length > 0) {
-      return (
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-          {selectedUsers.map((value) => (
-            <Chip size="small" key={value.id} label={value.name} />
-          ))}
-        </Box>
-      );
-    }
-    return <></>;
   }
 
   function renderDataSourceChip(selectedDataSourceIds: unknown): ReactNode {
@@ -255,52 +219,10 @@ export default function GeneralAlertRuleForm({
             {...register("name")}
           />
         </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Endpoints"
-            variant="filled"
-            error={!!errors.endpointIds}
-            helperText={errors.endpointIds?.message}
-            {...register("endpointIds")}
-            value={watch("endpointIds") ?? []}
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderEndpointsChip
-              }
-            }}
-            select
-          >
-            {requiredData?.endpoints.map((endpoint) => (
-              <MenuItem key={endpoint.id} value={endpoint.id}>
-                {endpoint.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid size={6}>
-          <TextField
-            label="Users"
-            variant="filled"
-            error={!!errors.userIds}
-            helperText={errors.userIds?.message}
-            {...register("userIds")}
-            value={watch("userIds") ?? []}
-            slotProps={{
-              select: {
-                multiple: true,
-                renderValue: renderUsersChip
-              }
-            }}
-            select
-          >
-            {requiredData?.users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
+        <AlertRuleEndpointUserSelector<GeneralAlertRuleType>
+          methods={{ control, getValues, setValue }}
+          errors={errors}
+        />
         <Grid size={12} display="flex" justifyContent="center">
           <ToggleButtonGroup
             exclusive

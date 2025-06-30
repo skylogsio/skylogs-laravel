@@ -1,10 +1,11 @@
 import { type ReactNode, useState } from "react";
 
 import {
-  alpha,
   Autocomplete,
   Box,
+  Checkbox,
   Chip,
+  FormControlLabel,
   Grid2 as Grid,
   MenuItem,
   Stack,
@@ -12,50 +13,58 @@ import {
   Typography,
   useTheme
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { FaCheck } from "react-icons/fa6";
+import { useQueries } from "@tanstack/react-query";
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 
-import { getAlertFilterEndpointList } from "@/api/alertRule";
+import { getAlertFilterEndpointList, getAlertRuleTags } from "@/api/alertRule";
 import type { TableFilterComponentProps } from "@/components/Table/types";
 import { ALERT_RULE_VARIANTS, type AlertRuleType } from "@/utils/alertRuleUtils";
 
-type AlertRuleStatus = "resolved" | "warning" | "fire" | "";
 type AlertRuleSilentStatus = "silent" | "not-silent" | "";
 
 interface IAlertRuleFilters {
   alertname?: string;
+  status?: string;
   types?: Array<AlertRuleType>;
+  endpointId?: string | string[];
+  tags?: string | string[];
 }
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
   const { palette } = useTheme();
-  const [status, setStatus] = useState<AlertRuleStatus[]>([]);
   const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
 
   const [filter, setFilter] = useState<IAlertRuleFilters>({});
 
-  const { data: endpointList } = useQuery({
-    queryKey: ["alert-rule-filter-endpoint-list"],
-    queryFn: () => getAlertFilterEndpointList()
+  const [{ data: tagsList }, { data: endpointList }] = useQueries({
+    queries: [
+      {
+        queryKey: ["all-alert-rule-tags"],
+        queryFn: () => getAlertRuleTags()
+      },
+      {
+        queryKey: ["alert-rule-filter-endpoint-list"],
+        queryFn: () => getAlertFilterEndpointList()
+      }
+    ]
   });
-
-  function handleChangeStatus(selectedStatus: AlertRuleStatus) {
-    setStatus((prev) => {
-      const temp = prev.includes(selectedStatus)
-        ? prev.filter((item) => item !== selectedStatus)
-        : [...prev, selectedStatus];
-      onChange("status", temp);
-      return temp;
-    });
-  }
 
   function handleChange(
     key: keyof IAlertRuleFilters,
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string | string[]
   ) {
-    onChange(key, event.target.value);
-    setFilter((prev) => ({ ...prev, [key]: event.target.value }));
+    if (typeof event === "string" || Array.isArray(event)) {
+      onChange(key, event);
+      setFilter((prev) => ({ ...prev, [key]: event }));
+    } else {
+      onChange(key, event.target.value);
+      setFilter((prev) => ({ ...prev, [key]: event.target.value }));
+    }
+  }
+
+  function handleSilentFilter(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    onChange("silentStatus", event.target.value);
+    setSilentStatus(event.target.value as AlertRuleSilentStatus);
   }
 
   function renderAlertRuleList() {
@@ -109,18 +118,20 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           {renderAlertRuleList()}
         </TextField>
       </Grid>
-      <Grid size={6}>
-        {/*fieldName:tags*/}
-        <TextField size="small" label="Tags" variant="filled" />
-      </Grid>
+
       <Grid size={3}>
-        {/*fieldName:endpointId []*/}
         <Autocomplete
           multiple
-          id="endpoints"
+          id="endpoints-filter"
           size="small"
           options={endpointList ?? []}
           getOptionLabel={(option) => option.name}
+          onChange={(_, value) =>
+            handleChange(
+              "endpointId",
+              value.map((item) => item.id)
+            )
+          }
           renderInput={(params) => (
             <TextField
               {...params}
@@ -136,14 +147,13 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
         />
       </Grid>
       <Grid size={3}>
-        {/*fieldName:silentStatus*/}
         <TextField
           label="Silent Status"
           variant="filled"
           select
           size="small"
           value={silentStatus}
-          onChange={(event) => setSilentStatus(event.target.value as AlertRuleSilentStatus)}
+          onChange={handleSilentFilter}
         >
           <MenuItem value="">
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -156,7 +166,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
               <Typography component="span">Silent</Typography>
             </Stack>
           </MenuItem>
-          <MenuItem value="not-silent">
+          <MenuItem value="unsilent">
             <Stack direction="row" alignItems="center" spacing={1}>
               <IoNotifications color={palette.warning.main} size="1.4rem" />
               <Typography component="span">Not Silent</Typography>
@@ -164,44 +174,44 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           </MenuItem>
         </TextField>
       </Grid>
-      <Grid size={4}>
-        {/*fieldName:status*/}
-        <Stack direction="row" height="100%" alignItems="center" spacing={1}>
-          <Typography variant="body2">Status: </Typography>
-          <Chip
-            icon={status.includes("resolved") ? <FaCheck /> : undefined}
-            label="Resolved"
-            onClick={() => handleChangeStatus("resolved")}
-            variant="outlined"
-            color="success"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.success.light, 0.1),
-              borderColor: status.includes("resolved") ? palette.success.light : "transparent"
-            })}
-          />
-          <Chip
-            icon={status.includes("warning") ? <FaCheck /> : undefined}
-            label="Warning"
-            onClick={() => handleChangeStatus("warning")}
-            variant="outlined"
-            color="warning"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.warning.light, 0.1),
-              borderColor: status.includes("warning") ? palette.warning.light : "transparent"
-            })}
-          />
-          <Chip
-            icon={status.includes("fire") ? <FaCheck /> : undefined}
-            label="Fire"
-            onClick={() => handleChangeStatus("fire")}
-            variant="outlined"
-            color="error"
-            sx={({ palette }) => ({
-              backgroundColor: alpha(palette.error.light, 0.1),
-              borderColor: status.includes("fire") ? palette.error.light : "transparent"
-            })}
-          />
-        </Stack>
+      <Grid size={9}>
+        <Autocomplete
+          multiple
+          id="alert-tags-filter"
+          size="small"
+          options={tagsList ?? []}
+          freeSolo
+          onChange={(_, value) => handleChange("tags", value)}
+          renderTags={(value: readonly string[], getItemProps) =>
+            value.map((option: string, index: number) => {
+              const { key, ...itemProps } = getItemProps({ index });
+              return <Chip variant="filled" label={option} key={key} {...itemProps} />;
+            })
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              slotProps={{
+                input: params.InputProps,
+                inputLabel: params.InputLabelProps,
+                htmlInput: params.inputProps
+              }}
+              variant="filled"
+              label="Tags"
+            />
+          )}
+        />
+      </Grid>
+      <Grid size={3}>
+        <FormControlLabel
+          sx={{ margin: 0 }}
+          label="Only Show Fired Alerts"
+          control={
+            <Checkbox
+              onChange={(_, checked) => handleChange("status", checked ? "critical" : "")}
+            />
+          }
+        />
       </Grid>
     </Grid>
   );

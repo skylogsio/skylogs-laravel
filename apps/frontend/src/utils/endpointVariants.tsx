@@ -1,5 +1,6 @@
 import { alpha, Chip } from "@mui/material";
 import { BsChatDotsFill, BsMicrosoftTeams, BsTelegram, BsTelephoneFill } from "react-icons/bs";
+import { MdEmail } from "react-icons/md";
 
 export const ENDPOINT_TYPE_CHIP = {
   sms: {
@@ -21,6 +22,11 @@ export const ENDPOINT_TYPE_CHIP = {
     title: "Call",
     color: "#B65DFE",
     icon: <BsTelephoneFill style={{ padding: "0.2rem" }} color="#B65DFE" />
+  },
+  email: {
+    title: "Email",
+    color: "#f6a645",
+    icon: <MdEmail style={{ padding: "0.2rem" }} color="#f6a645" />
   }
 };
 

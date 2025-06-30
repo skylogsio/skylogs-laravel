@@ -13,26 +13,28 @@ import {
   ListItemButton,
   ListItemIcon,
   Popover,
+  Skeleton,
+  Stack,
   Typography
 } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
 import { FaAngleDown } from "react-icons/fa6";
 
-import { getMyInfo } from "@/api/profile";
+import { useRole } from "@/hooks";
 import { useScopedI18n } from "@/locales/client";
 
 import type { ProfileListType } from "./types";
 
 const ListContents: Array<ProfileListType> = [
-  { title: "list.manageAccount", iconSRC: "/static/icons/profile-manage-account.svg" },
-  { title: "list.changePassword", iconSRC: "/static/icons/profile-change-password.svg" },
-  { title: "list.activityLog", iconSRC: "/static/icons/profile-activity-log.svg" },
+  // { title: "list.manageAccount", iconSRC: "/static/icons/profile-manage-account.svg" },
+  // { title: "list.changePassword", iconSRC: "/static/icons/profile-change-password.svg" },
+  // { title: "list.activityLog", iconSRC: "/static/icons/profile-activity-log.svg" },
   { title: "list.logout", iconSRC: "/static/icons/profile-log-out.svg" }
 ];
 
 export default function TopBarProfile() {
   const t = useScopedI18n("wrapper.profile");
+  const { userInfo } = useRole();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -44,11 +46,6 @@ export default function TopBarProfile() {
 
   const open = Boolean(anchorEl);
   const id = open ? "top-bar-profile-popover" : undefined;
-
-  const { data } = useQuery({
-    queryKey: ["profile"],
-    queryFn: () => getMyInfo()
-  });
 
   return (
     <>
@@ -66,21 +63,32 @@ export default function TopBarProfile() {
           height={45}
           style={{ borderRadius: "10rem", width: "auto", height: "auto" }}
         />
-        <Box display="flex" flexDirection="column" marginX="1rem">
-          <Typography
-            variant="body2"
-            fontWeight="bold"
-            sx={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              maxWidth: "100px",
-              textOverflow: "ellipsis"
-            }}
-          >
-            {data?.name}
-          </Typography>
-          <Typography variant="caption">{t("role")}</Typography>
-        </Box>
+        <Stack marginX="1rem">
+          {userInfo ? (
+            <>
+              <Typography
+                variant="body2"
+                fontWeight="bold"
+                sx={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  maxWidth: "100px",
+                  textOverflow: "ellipsis"
+                }}
+              >
+                {userInfo?.name}
+              </Typography>
+              <Typography variant="caption" textTransform="capitalize">
+                {userInfo?.roles[0]}
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Skeleton variant="text" width="60px" />
+              <Skeleton variant="text" width="40px" />
+            </>
+          )}
+        </Stack>
         <IconButton
           sx={{ border: ({ palette }) => `1px solid ${palette.grey[300]}`, padding: "0.2rem" }}
         >

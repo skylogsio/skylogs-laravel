@@ -1,17 +1,34 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { type PropsWithChildren } from "react";
 
 import { Box } from "@mui/material";
 
 import SideBar from "@/components/Wrapper/SideBar";
+import { useRole } from "@/hooks";
 
 import TopBar from "./TopBar";
 
 export default function Wrapper({ children }: PropsWithChildren) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { userInfo, hasRole } = useRole();
+
   if (pathname.includes("/auth")) return children;
+
+  if (pathname.includes("/data-source") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
+    return null;
+  }
+  if (pathname.includes("/users") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
+    return null;
+  }
+  if (pathname.includes("/settings/telegram") && userInfo && !hasRole(["owner", "manager"])) {
+    router.replace("/");
+    return null;
+  }
 
   return (
     <Box

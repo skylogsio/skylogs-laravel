@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Box, Collapse, IconButton, TextField, useTheme } from "@mui/material";
 import { HiOutlineSearch, HiOutlineX } from "react-icons/hi";
@@ -9,10 +9,26 @@ import { useScopedI18n } from "@/locales/client";
 
 import type { SearchBoxProps } from "./types";
 
-export default function SearchBox({ title }: SearchBoxProps) {
+export default function SearchBox({ title, onSearch }: SearchBoxProps) {
   const { palette } = useTheme();
   const t = useScopedI18n("table");
+
   const [isSearchBoxOpen, setIsSearchBoxOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(() => {
+      onSearch?.(searchTerm);
+    }, 300);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [searchTerm, onSearch]);
 
   return (
     <>
@@ -39,6 +55,8 @@ export default function SearchBox({ title }: SearchBoxProps) {
         <Box>
           <TextField
             size="small"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
             sx={{
               "& .MuiInputBase-root": {
                 backgroundColor: `${palette.background.paper} !important`,

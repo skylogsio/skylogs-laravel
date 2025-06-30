@@ -13,7 +13,7 @@ import { createEndpoint, updateEndpoint } from "@/api/endpoint";
 import ModalContainer from "@/components/Modal";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
-const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call"] as const;
+const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call", "email"] as const;
 
 const createEndpointSchema = z.object({
   name: z
@@ -30,7 +30,8 @@ const createEndpointSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
-  threadId: z.optional(z.string())
+  threadId: z.optional(z.string()).nullable(),
+  botToken: z.optional(z.string()).nullable()
 });
 
 type EndpointFormType = z.infer<typeof createEndpointSchema> & { chatId?: string };
@@ -95,7 +96,12 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
   }, [data, open, reset]);
 
   return (
-    <ModalContainer title="Create New EndPoint" open={open} onClose={onClose} disableEscapeKeyDown>
+    <ModalContainer
+      title={`${data === "NEW" ? "Create New" : "Update"} Endpoint`}
+      open={open}
+      onClose={onClose}
+      disableEscapeKeyDown
+    >
       <Grid
         component="form"
         onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
@@ -155,6 +161,17 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
             />
           </Grid>
         )}
+        {watch("type") === "telegram" && (
+          <Grid size={12}>
+            <TextField
+              label="Bot Token"
+              variant="filled"
+              error={!!errors.botToken}
+              helperText={errors.botToken?.message}
+              {...register("botToken")}
+            />
+          </Grid>
+        )}
         <Grid size={12} marginTop="1rem">
           <Button
             disabled={isCreating || isUpdating}
@@ -163,7 +180,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
             size="large"
             fullWidth
           >
-            Create
+            {data === "NEW" ? "Create" : "Update"}
           </Button>
         </Grid>
       </Grid>
