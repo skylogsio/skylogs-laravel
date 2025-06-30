@@ -7,7 +7,7 @@ use App\Jobs\RefreshPrometheusCheckJob;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
 use App\Models\PrometheusCheck;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 
 class PrometheusService
 {
@@ -49,7 +49,7 @@ class PrometheusService
         throw new \Exception("invalid token type");
     }
 
-    public static function CheckPrometheusFiredAlerts($alerts, $alertRules,): array
+    public static function CheckPrometheusFiredAlerts($alerts, $alertRules): array
     {
 
         $fireAlertsByRule = [];
@@ -59,11 +59,15 @@ class PrometheusService
                 $matchLabels = [];
                 $matchAnnotations = [];
                 if (empty($alertRule["queryType"]) || $alertRule['queryType'] == AlertRule::DYNAMIC_QUERY_TYPE) {
-                    $alertRuleInstanceArray = is_array($alertRule['instance']) ? $alertRule['instance'] : [$alertRule['instance'],];
+                    $alertRuleDataSourcesArray = is_array($alertRule['dataSourceIds']) ? $alertRule['dataSourceIds'] : [$alertRule['dataSourceIds'],];
 
-                    if (in_array($alert['instance'], $alertRuleInstanceArray) && $alert['labels']['alertname'] == $alertRule['prometheus_alertname']) {
+                    if (empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) {
 
-                        if (!empty($alertRule->extraField))
+                        if(!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']){
+                            $isMatch = false;
+                        }
+
+                        if (!empty($alertRule->extraField)) {
                             foreach ($alertRule->extraField as $key => $patterns) {
                                 if ((!empty($alert['labels'][$key]) && Utilities::CheckPatternsString($patterns, $alert['labels'][$key]))) {
                                     $matchLabels[$key] = $patterns;
@@ -74,7 +78,7 @@ class PrometheusService
                                     break;
                                 }
                             }
-
+                        }
                     } else {
                         $isMatch = false;
                     }
@@ -82,8 +86,8 @@ class PrometheusService
                 } else {
                     // TEXT QUERY
 
-                    if (!empty($alertRule->prometheus_query_object)) {
-                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->prometheus_query_object);
+                    if (!empty($alertRule->queryObject)) {
+                        $matchedFilterResult = self::CheckAlertFilter($alert, $alertRule->queryObject);
                         if (!$matchedFilterResult) {
                             $isMatch = false;
                         }
@@ -101,12 +105,13 @@ class PrometheusService
                     }
 
                     $fireAlertsByRule[$alertRule->_id][] = [
-                        "instance" => $alert['instance'],
-                        "alertname" => $alertRule->alertname,
-                        "prometheus_alertname" => $alert['labels']['alertname'],
+                        "dataSourceId" => $alert['dataSourceId'],
+                        "dataSourceName" => $alert['dataSourceName'],
+                        "alertRuleName" => $alertRule->name,
+                        "dataSourceAlertName" => $alert['labels']['alertname'],
                         "labels" => $alert['labels'],
                         "annotations" => $alert['annotations'],
-                        "alert_rule_id" => $alertRule->_id,
+                        "alertRuleId" => $alertRule->_id,
 //                        "state" => PrometheusCheck::FIRE,
                     ];
 
@@ -122,7 +127,7 @@ class PrometheusService
     {
         foreach ($alertRules as $alertRule) {
             $check = PrometheusCheck::firstOrCreate([
-                "alert_rule_id" => $alertRule->_id,
+                "alertRuleId" => $alertRule->_id,
             ], [
                 "alerts" => [],
                 "state" => PrometheusCheck::RESOLVED,
@@ -132,7 +137,7 @@ class PrometheusService
             $resolvedAlertsArray = collect();
             $commonAlertsArray = collect();
             $updatedAlertsArray = collect();
-            $prometheusAlerts = empty($prometheusFiredAlerts[$alertRule->id])  ? [] : $prometheusFiredAlerts[$alertRule->id];
+            $prometheusAlerts = empty($prometheusFiredAlerts[$alertRule->id]) ? [] : $prometheusFiredAlerts[$alertRule->id];
             foreach ($prometheusAlerts as $prometheusAlert) {
                 $isExists = false;
                 foreach ($check->alerts as $alert) {
@@ -154,7 +159,6 @@ class PrometheusService
             }
 
 
-
             if ($commonAlertsArray->count() != collect($check->alerts)->count()) {
                 foreach ($check->alerts as $savedAlert) {
                     $isResolved = true;
@@ -173,25 +177,25 @@ class PrometheusService
 //            $updatedAlertsArray = $commonAlertsArray->clone();
 
             foreach ($commonAlertsArray as $commonAlert) {
-                $commonAlert['skylogs_status'] = empty($commonAlert['skylogs_status']) ? PrometheusCheck::FIRE : $commonAlert['skylogs_status'];
+                $commonAlert['skylogsStatus'] = empty($commonAlert['skylogsStatus']) ? PrometheusCheck::FIRE : $commonAlert['skylogsStatus'];
                 $updatedAlertsArray->add($commonAlert);
             }
 
             foreach ($newFiredAlertsArray as $newFiredAlert) {
-                $newFiredAlert['skylogs_status'] = PrometheusCheck::FIRE;
+                $newFiredAlert['skylogsStatus'] = PrometheusCheck::FIRE;
                 $updatedAlertsArray->add($newFiredAlert);
             }
 
             foreach ($resolvedAlertsArray as $resolvedAlert) {
-                $resolvedAlert['skylogs_status'] = PrometheusCheck::RESOLVED;
+                $resolvedAlert['skylogsStatus'] = PrometheusCheck::RESOLVED;
                 $updatedAlertsArray->add($resolvedAlert);
             }
 
             $firedAlerts = $updatedAlertsArray->filter(function ($alert) {
-                return empty($alert['skylogs_status']) || $alert['skylogs_status'] == PrometheusCheck::FIRE;
+                return empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == PrometheusCheck::FIRE;
             });
 
-            if($updatedAlertsArray->isEmpty()) continue;
+            if ($updatedAlertsArray->isEmpty()) continue;
 
             $check->alerts = $updatedAlertsArray->toArray();
 
@@ -200,13 +204,15 @@ class PrometheusService
             if ($firedAlerts->isEmpty()) {
                 $check->state = PrometheusCheck::RESOLVED;
                 $alertRule->state = AlertRule::RESOlVED;
+                $alertRule->fireCount = 0;
             } else {
                 $check->state = PrometheusCheck::FIRE;
                 $alertRule->state = AlertRule::CRITICAL;
+                $alertRule->fireCount = $firedAlerts->count();
             }
 
 
-            if($check->state == PrometheusCheck::RESOLVED && empty($check->alerts)) {
+            if ($check->state == PrometheusCheck::RESOLVED && empty($check->alerts)) {
                 continue;
             }
 
@@ -226,14 +232,13 @@ class PrometheusService
 
     }
 
-
     public static function CleanChecks()
     {
         $checks = PrometheusCheck::get();
         foreach ($checks as $check) {
             $alerts = collect($check->alerts);
             $alerts = $alerts->filter(function ($alert) {
-                return empty($alert["skylogs_status"]) || $alert["skylogs_status"] == PrometheusCheck::FIRE;
+                return empty($alert["skylogsStatus"]) || $alert["skylogsStatus"] == PrometheusCheck::FIRE;
             });
             $check->alerts = $alerts->toArray();
             $check->save();

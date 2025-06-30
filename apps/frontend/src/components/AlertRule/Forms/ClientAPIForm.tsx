@@ -2,6 +2,7 @@ import { ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -12,14 +13,14 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
 import type { IAlertRule, IAlertRuleCreateData } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import { createAlertRule, updateAlertRule } from "@/api/alertRule";
+import { createAlertRule, getAlertRuleTags, updateAlertRule } from "@/api/alertRule";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 const clientApiSchema = z
@@ -35,8 +36,9 @@ const clientApiSchema = z
       required_error: "This field is Required.",
       invalid_type_error: "This field is Required."
     }),
-    endpoints: z.array(z.string()).optional().default([]),
-    accessUsers: z.array(z.string()).optional().default([])
+    endpointIds: z.array(z.string()).optional().default([]),
+    userIds: z.array(z.string()).optional().default([]),
+    tags: z.array(z.string()).optional().default([])
   })
   .superRefine((data, ctx) => {
     if (data.enableAutoResolve) {
@@ -65,10 +67,11 @@ type ClientAPIModalProps = Pick<ModalContainerProps, "onClose"> & {
 const defaultValues: ClientAPIFormType = {
   name: "",
   type: "api",
-  accessUsers: [],
-  endpoints: [],
+  userIds: [],
+  endpointIds: [],
   enableAutoResolve: false,
-  autoResolveMinutes: 0
+  autoResolveMinutes: 0,
+  tags: []
 };
 
 export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModalProps) {
@@ -96,6 +99,9 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         onSubmit();
         onClose?.();
       }
+    },
+    onError: (error) => {
+      console.log(error);
     }
   });
 
@@ -109,6 +115,11 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         onClose?.();
       }
     }
+  });
+
+  const { data: tagsList } = useQuery({
+    queryKey: ["all-alert-rule-tags"],
+    queryFn: () => getAlertRuleTags()
   });
 
   function handleAutoResolve(event: React.ChangeEvent<HTMLInputElement>) {
@@ -126,8 +137,6 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
       updateClientAPIMutation({ id: data.id, body: values });
     }
   }
-
-  console.log("data:", data);
 
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
     const selectedEndpoints = requiredData?.endpoints.filter((item) =>
@@ -165,19 +174,12 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
     if (data === "NEW") {
       reset(defaultValues);
     } else if (data) {
-      reset({
-        name: data.name,
-        type: "api",
-        accessUsers: data.user_ids,
-        endpoints: data.endpoint_ids,
-        enableAutoResolve: data.enableAutoResolve,
-        autoResolveMinutes: data.autoResolveMinutes
-      });
+      reset(data as unknown as ClientAPIFormType);
     }
   }, [reset, data]);
 
   return (
-    <Stack component="form" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
+    <Stack component="form" height="100%" onSubmit={handleSubmit(handleSubmitForm)} padding={2}>
       <Grid container spacing={2} flex={1} alignContent="flex-start">
         <Typography variant="h6" color="textPrimary" fontWeight="bold" component="div">
           {data === "NEW" ? "Create" : "Update"} Client API Alert
@@ -194,11 +196,12 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         <Grid size={6}>
           <TextField
             label="Endpoints"
+            id="endpoints"
             variant="filled"
-            error={!!errors.endpoints}
-            helperText={errors.endpoints?.message}
-            {...register("endpoints")}
-            value={watch("endpoints") ?? []}
+            error={!!errors.endpointIds}
+            helperText={errors.endpointIds?.message}
+            {...register("endpointIds")}
+            value={watch("endpointIds") ?? []}
             slotProps={{
               select: {
                 multiple: true,
@@ -217,18 +220,19 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
         <Grid size={6}>
           <TextField
             label="Users"
+            id="access-users"
             variant="filled"
-            error={!!errors.accessUsers}
-            helperText={errors.accessUsers?.message}
-            {...register("accessUsers")}
-            value={watch("accessUsers") ?? []}
+            error={!!errors.userIds}
+            helperText={errors.userIds?.message}
+            {...register("userIds")}
+            value={watch("userIds") ?? []}
+            select
             slotProps={{
               select: {
                 multiple: true,
                 renderValue: renderUsersChip
               }
             }}
-            select
           >
             {requiredData?.users.map((user) => (
               <MenuItem key={user.id} value={user.id}>
@@ -257,9 +261,36 @@ export default function ClientAPIForm({ onClose, onSubmit, data }: ClientAPIModa
             })}
           />
         </Grid>
-        <Grid size={12} marginTop="auto" flex={1}></Grid>
+        <Grid size={12}>
+          <Autocomplete
+            multiple
+            id="api-alert-tags"
+            options={tagsList ?? []}
+            freeSolo
+            value={watch("tags")}
+            onChange={(_, value) => setValue("tags", value)}
+            renderTags={(value: readonly string[], getItemProps) =>
+              value.map((option: string, index: number) => {
+                const { key, ...itemProps } = getItemProps({ index });
+                return <Chip variant="filled" label={option} key={key} {...itemProps} />;
+              })
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                slotProps={{
+                  input: params.InputProps,
+                  inputLabel: params.InputLabelProps,
+                  htmlInput: params.inputProps
+                }}
+                variant="filled"
+                label="Tags"
+              />
+            )}
+          />
+        </Grid>
       </Grid>
-      <Stack direction="row" justifyContent="flex-end" spacing={2}>
+      <Stack direction="row" justifyContent="flex-end" spacing={2} marginTop={2}>
         <Button disabled={isCreating || isUpdating} variant="outlined" onClick={onClose}>
           Cancel
         </Button>

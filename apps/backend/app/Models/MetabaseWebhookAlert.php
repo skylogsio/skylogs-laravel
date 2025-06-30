@@ -4,14 +4,14 @@ namespace App\Models;
 
 use App\Helpers\Utilities;
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class MetabaseWebhookAlert extends Model implements Messageable
+class MetabaseWebhookAlert extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -41,9 +41,9 @@ class MetabaseWebhookAlert extends Model implements Messageable
 
             $alert = AlertRule::where("alertname", $this->alert_name)->first();
             if ($alert) {
-                $this->alert_rule_id = $alert->_id;
+                $this->alertRuleId = $alert->_id;
                 $alert->state = AlertRule::UNKNOWN;
-                $alert->notify_at = time();
+                $alert->notifyAt = time();
                 $alert->save();
             }
 

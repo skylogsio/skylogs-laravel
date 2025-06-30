@@ -8,7 +8,7 @@ use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 
-class AlertRulePrometheus extends Model implements Messageable
+class AlertRulePrometheus extends BaseModel implements Messageable
 {
 
     public $timestamps = true;

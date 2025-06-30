@@ -53,17 +53,28 @@ class AuthController extends Controller
     {
         return response()->json([
             'access_token' => $accessToken,
+            'accessToken' => $accessToken,
             'refresh_token' => $refreshToken,
+            'refreshToken' => $refreshToken,
             'token_type' => 'bearer',
+            'tokenType' => 'bearer',
+            'roles' => auth()->user()->roles->pluck('name')->toArray(),
             'expires_in' => config("jwt.ttl") * 60,
+            'expiresIn' => config("jwt.ttl") * 60,
             'refresh_expires_in' => config("jwt.refresh_ttl") * 60,
+            'refreshExpiresIn' => config("jwt.refresh_ttl") * 60,
         ]);
     }
 
 
     public function me()
     {
-        return response()->json(auth()->user());
+
+        $user = auth()->user();
+        $result = $user->toArray();
+        $result['roles'] = $user->roles->pluck('name')->toArray();
+        $result['permissions'] = $user->permissions->pluck('name')->toArray();
+        return response()->json($result);
     }
 
 

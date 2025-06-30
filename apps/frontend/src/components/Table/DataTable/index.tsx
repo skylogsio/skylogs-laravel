@@ -63,14 +63,14 @@ export default function DataTable<T>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel()
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true
   });
 
   return (
     <Box display="flex" flexDirection="column" width="100%" minHeight="100%">
       <Box
         width="100%"
-        maxHeight="70vh"
         bgcolor="background.paper"
         borderRadius="1rem"
         border="1px solid"
@@ -78,7 +78,7 @@ export default function DataTable<T>({
         overflow="hidden"
         marginTop={1}
       >
-        <TableContainer sx={{ width: "100%", maxHeight: "100%", overflow: "auto" }}>
+        <TableContainer sx={{ width: "100%", maxHeight: "70vh", overflow: "auto" }}>
           <MuiTable stickyHeader sx={{ width: "100%" }}>
             <TableHead>
               {table.getHeaderGroups().map((headerGroup) => (

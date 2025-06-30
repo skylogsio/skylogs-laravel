@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
+use App\Models\DataSource\DataSource;
+use App\Observers\AlertRuleObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class AlertRule extends Model implements Messageable
+#[ObservedBy(AlertRuleObserver::class)]
+class AlertRule extends BaseModel implements Messageable
 {
 
     public const UNKNOWN = "unknown";
@@ -31,43 +34,51 @@ class AlertRule extends Model implements Messageable
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, "userId");
+    }
+
+    public function dataSource(): ?BelongsTo
+    {
+        if ($this->type == AlertRuleType::ELASTIC)
+            return $this->belongsTo(DataSource::class, "dataSourceId", "_id");
+        else
+            return null;
     }
 
     public function prometheusCheck()
     {
-        return $this->hasOne(PrometheusCheck::class, "alert_rule_id", "_id");
+        return $this->hasOne(PrometheusCheck::class, "alertRuleId", "_id");
     }
 
     public function grafanaWebhook()
     {
 
-        if ($this->type == Constants::GRAFANA && $this->state == self::CRITICAL) {
-            return $this->hasOne(GrafanaWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+        if ($this->type == AlertRuleType::GRAFANA && $this->state == self::CRITICAL) {
+            return $this->hasOne(GrafanaWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
 
     public function sentryWebhook()
     {
-        if ($this->type == Constants::SENTRY && $this->state == self::CRITICAL) {
-            return $this->hasOne(SentryWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+        if ($this->type == AlertRuleType::SENTRY && $this->state == self::CRITICAL) {
+            return $this->hasOne(SentryWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
 
     public function metabaseWebhook()
     {
-        if ($this->type == Constants::METABASE) {
-            return $this->hasOne(MetabaseWebhookAlert::class, "alert_rule_id", "_id")->orderByDesc("_id");
+        if ($this->type == AlertRuleType::METABASE) {
+            return $this->hasOne(MetabaseWebhookAlert::class, "alertRuleId", "_id")->orderByDesc("_id");
         }
         return null;
     }
 
     public function apiInstances()
     {
-        if ($this->type == Constants::API) {
-            $instances = AlertInstance::where('alertname', $this->alertname)->orderByDesc("state")->orderByDesc("_id")->get();
+        if ($this->type == AlertRuleType::API) {
+            $instances = AlertInstance::where('alertRuleId', $this->_id)->orderByDesc("state")->orderByDesc("_id")->get();
             return $instances;
         }
         return null;
@@ -76,8 +87,8 @@ class AlertRule extends Model implements Messageable
 
     public function notificationInstances()
     {
-        if ($this->type == Constants::NOTIFICATION) {
-            $instances = AlertInstance::where('alertname', $this->alertname)
+        if ($this->type == AlertRuleType::NOTIFICATION) {
+            $instances = AlertInstance::where('alertRuleId', $this->_id)
                 ->where("state", AlertInstance::NOTIFICATION)
                 ->orderByDesc("_id")->limit(10)->get();
             return $instances;
@@ -88,96 +99,63 @@ class AlertRule extends Model implements Messageable
 
     public function isSilent(): bool
     {
-        if (empty($this->silent_user_ids)) return false;
-        if (in_array(\Auth::user()->_id, $this->silent_user_ids)) return true;
-        return false;
+        return !empty($this->silentUserIds) && in_array(\Auth::user()->_id, $this->silentUserIds);
     }
 
     public function silent()
     {
-        $this->push("silent_user_ids", \Auth::user()->_id, true);
+        $this->push("silentUserIds", \Auth::user()->_id, true);
         $this->save();
     }
 
     public function unSilent()
     {
-        $this->pull("silent_user_ids", \Auth::user()->_id);
+        $this->pull("silentUserIds", \Auth::user()->_id);
         $this->save();
     }
 
-    public function getStatus(): string|int
+    public function getStatus(): array
     {
-
+        $alertCount = 0;
+        $alertState = self::UNKNOWN;
         switch ($this->type) {
             case AlertRuleType::API:
-                $alertCount = AlertInstance::where('alertname', $this->alertname)
-                    ->where("state", AlertInstance::FIRE)->count();
-                if ($alertCount == 0) {
-                    return self::RESOlVED;
-                }
-                return $alertCount;
-            case AlertRuleType::SENTRY:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-
-            case AlertRuleType::METABASE:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-            case AlertRuleType::ZABBIX:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
-
-            case AlertRuleType::PROMETHEUS:
-                $alert = PrometheusCheck::where('alert_rule_id', $this->_id)->first();
-                if (!$alert || $alert->state == PrometheusCheck::RESOLVED) {
-                    return self::RESOlVED;
-                } else {
-                    if (!empty($alert->alerts))
-                        return count($alert->alerts);
-                    else {
-                        return self::CRITICAL;
-                    }
-                }
+                $alertState = $this->state ?? self::RESOlVED;
+                $alertCount = $alert->fireCount ?? 0;
+                break;
             case AlertRuleType::GRAFANA:
-                if (empty($this->state)) {
-                    return self::UNKNOWN;
-                } else {
-                    return $this->state;
-                }
+            case AlertRuleType::PROMETHEUS:
+            case AlertRuleType::SENTRY:
+            case AlertRuleType::METABASE:
+            case AlertRuleType::ZABBIX:
+                $alertState = $this->state ?? self::UNKNOWN;
+                break;
             case AlertRuleType::HEALTH:
-                $check = HealthCheck::where('alert_rule_id', $this->_id)->first();
+                $check = HealthCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == HealthCheck::UP) {
-                    return self::RESOlVED;
+                    $alertState = self::RESOlVED;
                 } else {
-                    return self::CRITICAL;
+                    $alertState = self::CRITICAL;
                 }
+                break;
+
             case AlertRuleType::ELASTIC:
-                $check = ElasticCheck::where('alert_rule_id', $this->_id)->first();
+                $check = ElasticCheck::where('alertRuleId', $this->_id)->first();
                 if (empty($check) || $check->state == ElasticCheck::RESOLVED) {
-                    return self::RESOlVED;
+                    $alertState = self::RESOlVED;
                 } else {
-                    return self::CRITICAL;
+                    $alertState = self::CRITICAL;
                 }
+                break;
             case AlertRuleType::NOTIFICATION:
-                return self::UNKNOWN;
             case AlertRuleType::PMM:
                 // TODO
-                return self::UNKNOWN;
             case AlertRuleType::SPLUNK:
                 // TODO
-                return self::UNKNOWN;
+                break;
 
         }
-        return self::UNKNOWN;
+        return [$alertState, $alertCount];
     }
 
     public function accessUsers()
@@ -212,35 +190,35 @@ class AlertRule extends Model implements Messageable
     //########### ONLY FOR MANUALLY RESOLVE
     public function telegramMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function teamsMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function emailMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function smsMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
 
     public function callMessage()
     {
-        $text = $this->alertname;
+        $text = $this->name;
         $text .= " resolved manually.";
         return $text;
     }
@@ -248,7 +226,7 @@ class AlertRule extends Model implements Messageable
     public function testMessage()
     {
         $text = "Testing ";
-        $text .= $this->alertname;
+        $text .= $this->name;
         $text .= " Alert.";
         return $text;
     }

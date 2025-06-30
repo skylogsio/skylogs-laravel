@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertRule;
+use App\Models\Endpoint;
 use App\Models\User;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
@@ -25,13 +26,25 @@ class UserController extends Controller
 
     public function Index(Request $request)
     {
-        $perPage = $request->per_page ?? 25;
+        $perPage = $request->perPage ?? 25;
 
         $data = User::query();
 
-        $data = $data->paginate($perPage);
+        if ($request->filled('username')) {
+            $data->where('username', 'like', '%' . $request->username . '%');
+        }
 
-        return UserResource::collection($data);
+        $data = $data->paginate($perPage);
+        foreach ($data as &$value) {
+            $value->roles = $value->roles()->pluck('name')->toArray();
+        }
+        return response()->json($data);
+    }
+
+    public function All()
+    {
+        $data = User::all();
+        return response()->json($data);
     }
 
     public function Show(Request $request, $id)
@@ -43,11 +56,44 @@ class UserController extends Controller
 
     public function Delete(Request $request, $id)
     {
-        $model = User::whereNot('username','admin')->where('_id', $id)->firstOrFail();
+        $model = User::whereNot('username', 'admin')->where('_id', $id)->firstOrFail();
 
-        if ($model->hasRole(Constants::ROLE_OWNER) && !auth()->user()->hasRole(Constants::ROLE_OWNER)) {
+        $currentUser = auth()->user();
+        if (($model->hasRole(Constants::ROLE_OWNER) && !$currentUser->hasRole(Constants::ROLE_OWNER)) ||
+            (!$model->hasRole(Constants::ROLE_MEMBER) && $currentUser->hasRole(Constants::ROLE_MANAGER))
+        ) {
             abort(403);
         }
+
+        $admin = User::where('username', "admin")->firstOrFail();
+        $adminId = $admin->_id;
+        $alertRules = AlertRule::get();
+        $modelUserEndpoints = Endpoint::where("userId", $model->_id)->get();
+
+        foreach ($modelUserEndpoints as $modelUserEndpoint) {
+            $modelUserEndpoint->userId = $adminId;
+            $modelUserEndpoint->save();
+        }
+
+        foreach ($alertRules as $rule) {
+            $ruleUserIds = $rule->userIds ?? [];
+            $needToUpdate = false;
+
+
+            if (!empty($ruleUserIds) && in_array($model->_id, $ruleUserIds)) {
+                $rule->pull("userIds", $rule->_id);
+                $needToUpdate = true;
+            }
+            if ($rule->userId == $model->_id) {
+                $rule->userId = $adminId;
+                $needToUpdate = true;
+            }
+            if ($needToUpdate) {
+                $rule->save();
+            }
+        }
+
+
         $model->delete();
         return response()->json($model);
     }
@@ -77,13 +123,13 @@ class UserController extends Controller
             'password' => \Hash::make($request->post('password')),
         ]);
 
-        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
+        if (auth()->user()->hasRole(Constants::ROLE_OWNER)) {
             $role = match ($request->post('role')) {
                 Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
                 Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
                 default => Constants::ROLE_MEMBER,
             };
-        }else{
+        } else {
             $role = Constants::ROLE_MEMBER->value;
         }
 
@@ -107,32 +153,40 @@ class UserController extends Controller
 
         $model = User::where('_id', $id)->firstOrFail();
         $currentUser = auth()->user();
-        if (!$currentUser->hasRole(Constants::ROLE_OWNER) && $model->hasRole(Constants::ROLE_OWNER)) {
+        if (($model->hasRole(Constants::ROLE_OWNER) && !$currentUser->hasRole(Constants::ROLE_OWNER)) ||
+            (!$model->hasRole(Constants::ROLE_MANAGER) && $currentUser->hasRole(Constants::ROLE_MANAGER))
+        ) {
             abort(403);
         }
 
-        $model->update([
-            'username' => $request->post('username'),
-            'name' => $request->post('name'),
-        ]);
 
+        if ($model->username != Constants::ADMIN->value) {
 
-        foreach ($model->roles as $role) {
-            $model->removeRole($role);
+            $model->update([
+                'username' => $request->post('username'),
+                'name' => $request->post('name'),
+            ]);
+
+            foreach ($model->roles as $role) {
+                $model->removeRole($role);
+            }
+
+            if (auth()->user()->hasRole(Constants::ROLE_OWNER)) {
+                $role = match ($request->post('role')) {
+                    Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
+                    Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
+                    default => Constants::ROLE_MEMBER,
+                };
+            } else {
+                $role = Constants::ROLE_MEMBER->value;
+            }
+
+            $model->syncRoles($role);
+        } else {
+            $model->update([
+                'name' => $request->post('name'),
+            ]);
         }
-
-        if(auth()->user()->hasRole(Constants::ROLE_OWNER)){
-            $role = match ($request->post('role')) {
-                Constants::ROLE_OWNER->value => Constants::ROLE_OWNER->value,
-                Constants::ROLE_MANAGER->value => Constants::ROLE_MANAGER->value,
-                default => Constants::ROLE_MEMBER,
-            };
-        }else{
-            $role = Constants::ROLE_MEMBER->value;
-        }
-
-        $model->syncRoles($role);
-
         return response()->json([
             'status' => true,
             'data' => $model,
@@ -157,7 +211,7 @@ class UserController extends Controller
         }
 
         $model->update([
-            'password' =>   Hash::make($request->post('confirmPassword')),
+            'password' => Hash::make($request->post('confirmPassword')),
         ]);
 
         return response()->json([

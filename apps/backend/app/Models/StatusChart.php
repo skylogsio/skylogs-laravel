@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
@@ -11,7 +11,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class StatusChart extends Model
+class StatusChart extends BaseModel
 {
 
     public $timestamps = true;
@@ -28,7 +28,7 @@ class StatusChart extends Model
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
     public static function GenerateArrays($statusCharts): array

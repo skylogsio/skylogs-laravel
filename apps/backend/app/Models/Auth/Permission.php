@@ -3,6 +3,7 @@
 
 namespace App\Models\Auth;
 
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use MongoDB\Laravel\Eloquent\Model;
@@ -15,10 +16,10 @@ use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\RefreshesPermissionCache;
 
 /**
- * @property ?\Illuminate\Support\Carbon $created_at
- * @property ?\Illuminate\Support\Carbon $updated_at
+ * @property ?\Illuminate\Support\Carbon $createdAt
+ * @property ?\Illuminate\Support\Carbon $updatedAt
  */
-class Permission extends Model implements PermissionContract
+class Permission extends BaseModel implements PermissionContract
 {
     use HasRoles;
     use RefreshesPermissionCache;

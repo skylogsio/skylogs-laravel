@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class GrafanaWebhookAlert extends Model implements Messageable
+class GrafanaWebhookAlert extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -47,67 +47,42 @@ class GrafanaWebhookAlert extends Model implements Messageable
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class,"alert_rule_id","_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
     public function telegramMessage(): string
     {
-        $needLabelArray = [
-            "severity",
-            "namespace",
-            "pod",
-            "reason",
-            "agent_type",
-            "agent_id",
-            "agent_type",
-            "container_name",
-            "instance",
-            "machine_id",
-            "node_id",
-            "node_name",
-            "node_type",
-            "percona_alerting",
-            "service_id",
-            "service_name",
-            "service_type",
-            "template_name",
-            ];
-        $needLabelAnotArray = [ "summary","description"];
+
+        $needLabelAnotArray = ["summary", "description"];
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name . "\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
                 case AlertRule::RESOlVED:
-                    $text .= "State: Resolved ✅". "\n\n";
+                    $text .= "State: Resolved ✅" . "\n\n";
                     break;
                 case AlertRule::CRITICAL:
-                    $text .= "State: Fire 🔥". "\n\n";
+                    $text .= "State: Fire 🔥" . "\n\n";
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
 
 
-        if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+        $text .= "Data Source: " . $this->dataSourceName . "\n\n";
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
+                    foreach ($alert['labels'] as $label => $labelValue) {
+                        $text .= "$label : $labelValue\n";
+
+
                     }
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
@@ -127,62 +102,37 @@ class GrafanaWebhookAlert extends Model implements Messageable
 
     public function smsMessage(): string
     {
-        $needLabelArray = [
-            "severity",
-            "namespace",
-            "pod",
-            "reason",
-            "agent_type",
-            "agent_id",
-            "agent_type",
-            "container_name",
-            "instance",
-            "machine_id",
-            "node_id",
-            "node_name",
-            "node_type",
-            "percona_alerting",
-            "service_id",
-            "service_name",
-            "service_type",
-            "template_name",
-        ];
-        $needLabelAnotArray = [ "summary","description"];
+
+        $needLabelAnotArray = ["summary", "description"];
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name . "\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
                 case AlertRule::RESOlVED:
-                    $text .= "State: Resolved ✅". "\n\n";
+                    $text .= "State: Resolved ✅" . "\n\n";
                     break;
                 case AlertRule::CRITICAL:
-                    $text .= "State: Fire 🔥". "\n\n";
+                    $text .= "State: Fire 🔥" . "\n\n";
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
 
 
-        if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+        $text .= "Data Source: " . $this->dataSourceName . "\n\n";
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
+                    foreach ($alert['labels'] as $label => $labelValue) {
+                        $text .= "$label : $labelValue\n";
+
+
                     }
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
@@ -202,62 +152,37 @@ class GrafanaWebhookAlert extends Model implements Messageable
 
     public function callMessage(): string
     {
-        $needLabelArray = [
-            "severity",
-            "namespace",
-            "pod",
-            "reason",
-            "agent_type",
-            "agent_id",
-            "agent_type",
-            "container_name",
-            "instance",
-            "machine_id",
-            "node_id",
-            "node_name",
-            "node_type",
-            "percona_alerting",
-            "service_id",
-            "service_name",
-            "service_type",
-            "template_name",
-        ];
-        $needLabelAnotArray = [ "summary","description"];
+
+        $needLabelAnotArray = ["summary", "description"];
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name . "\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
                 case AlertRule::RESOlVED:
-                    $text .= "State: Resolved ✅". "\n\n";
+                    $text .= "State: Resolved ✅" . "\n\n";
                     break;
                 case AlertRule::CRITICAL:
-                    $text .= "State: Fire 🔥". "\n\n";
+                    $text .= "State: Fire 🔥" . "\n\n";
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
 
 
-        if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+        $text .= "Data Source: " . $this->dataSourceName . "\n\n";
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
+                    foreach ($alert['labels'] as $label => $labelValue) {
+                        $text .= "$label : $labelValue\n";
+
+
                     }
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
@@ -274,64 +199,40 @@ class GrafanaWebhookAlert extends Model implements Messageable
 
         return $text;
     }
-    public function teamsMessage()
+
+    public function teamsMessage(): string
     {
-        $needLabelArray = [
-            "severity",
-            "namespace",
-            "pod",
-            "reason",
-            "agent_type",
-            "agent_id",
-            "agent_type",
-            "container_name",
-            "instance",
-            "machine_id",
-            "node_id",
-            "node_name",
-            "node_type",
-            "percona_alerting",
-            "service_id",
-            "service_name",
-            "service_type",
-            "template_name",
-        ];
-        $needLabelAnotArray = [ "summary","description"];
+
+        $needLabelAnotArray = ["summary", "description"];
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name . "\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
                 case AlertRule::RESOlVED:
-                    $text .= "State: Resolved ✅". "\n\n";
+                    $text .= "State: Resolved ✅" . "\n\n";
                     break;
                 case AlertRule::CRITICAL:
-                    $text .= "State: Fire 🔥". "\n\n";
+                    $text .= "State: Fire 🔥" . "\n\n";
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
 
 
-        if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+        $text .= "Data Source: " . $this->dataSourceName . "\n\n";
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
+                    foreach ($alert['labels'] as $label => $labelValue) {
+                        $text .= "$label : $labelValue\n";
+
+
                     }
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
@@ -348,64 +249,40 @@ class GrafanaWebhookAlert extends Model implements Messageable
 
         return $text;
     }
-    public function emailMessage()
+
+    public function emailMessage(): string
     {
-        $needLabelArray = [
-            "severity",
-            "namespace",
-            "pod",
-            "reason",
-            "agent_type",
-            "agent_id",
-            "agent_type",
-            "container_name",
-            "instance",
-            "machine_id",
-            "node_id",
-            "node_name",
-            "node_type",
-            "percona_alerting",
-            "service_id",
-            "service_name",
-            "service_type",
-            "template_name",
-        ];
-        $needLabelAnotArray = [ "summary","description"];
+
+        $needLabelAnotArray = ["summary", "description"];
 
         $alert = $this->alertRule;
 
-        $text = $this->alertname."\n\n";
+        $text = $alert->name . "\n\n";
 
         if (!empty($alert->state)) {
             switch ($alert->state) {
                 case AlertRule::RESOlVED:
-                    $text .= "State: Resolved ✅". "\n\n";
+                    $text .= "State: Resolved ✅" . "\n\n";
                     break;
                 case AlertRule::CRITICAL:
-                    $text .= "State: Fire 🔥". "\n\n";
+                    $text .= "State: Fire 🔥" . "\n\n";
                     break;
             }
         }
-        if (!empty($this->instance)) {
-            $text .= "Instance: ".$this->instance . "\n\n";
-        }
 
 
-        if ($alert->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alert->grafana_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+        $text .= "Data Source: " . $this->dataSourceName . "\n\n";
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
+//                $text .= "Grafana Instance: " . $alert['dataSourceName'] . "\n";
 
-
-                $text .= "Grafana Instance: " . $alert['instance'] . "\n";
                 if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
+                    foreach ($alert['labels'] as $label => $labelValue) {
+                        $text .= "$label : $labelValue\n";
+
+
                     }
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {

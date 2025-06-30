@@ -10,4 +10,7 @@ enum Constants: string
 
     case PERMISSION_MANAGE_ADMIN_USER = 'manage_admin_user';
     case PERMISSION_MANAGE_MEMBER_USER = 'manage_member_user';
+
+    case ADMIN = "admin";
+
 }

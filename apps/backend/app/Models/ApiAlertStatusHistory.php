@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class ApiAlertStatusHistory extends Model
+class ApiAlertStatusHistory extends BaseModel
 {
 
     public $timestamps = true;

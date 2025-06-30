@@ -1,24 +1,25 @@
 "use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
-
-import { Stack } from "@mui/material";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
-import ActionColumn from "@/components/ActionColumn";
+import AlertRuleActionColumn from "@/app/[locale]/alert-rule/AlertRuleActionColumn";
+import TagsCell from "@/app/[locale]/alert-rule/TagsCell";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
+import AlertRuleNotifyModal from "@/components/AlertRule/Notify/AlertRuleNotifyModal";
 import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
 
 import AlertRuleFilter from "./AlertRuleFilter";
 import AlertRuleModal from "./AlertRuleModal";
 import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
-import NotifyModal from "./NotifyModal";
-import AlertRuleUserModal from "./UserModal";
 
 export default function AlertRule() {
   const tableRef = useRef<TableComponentRef>(null);
+  const pathname = usePathname();
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
   const [deleteModalData, setDeleteModalData] = useState<IAlertRule | null>(null);
 
@@ -43,7 +44,12 @@ export default function AlertRule() {
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
-          { header: "Name", accessorKey: "name" },
+          {
+            header: "Name",
+            cell: ({ row }) => (
+              <Link href={`${pathname}/${row.original.id}`}>{row.original.name}</Link>
+            )
+          },
           {
             header: "Type",
             cell: ({ row }) => <AlertRuleType type={row.original.type} />
@@ -51,7 +57,7 @@ export default function AlertRule() {
           {
             header: "Notify",
             cell: ({ row }) => (
-              <NotifyModal
+              <AlertRuleNotifyModal
                 alertId={row.original.id}
                 numberOfEndpoints={row.original.count_endpoints}
                 onClose={handleRefreshData}
@@ -61,23 +67,26 @@ export default function AlertRule() {
           {
             header: "Status",
             cell: ({ row }) => (
-              <AlertRuleStatus id={row.original.id} status={row.original.status_label} />
+              <AlertRuleStatus
+                id={row.original.id}
+                status={row.original.status_label}
+                onAfterResolve={handleRefreshData}
+              />
             )
+          },
+          {
+            header: "Tags",
+            cell: ({ row }) => <TagsCell tags={row.original.tags} />
           },
           {
             header: "Action",
             cell: ({ row }) => (
-              <Stack direction="row" spacing={1}>
-                <ActionColumn
-                  rowId={row.original.id}
-                  hasSilent
-                  isSilent={row.original.is_silent}
-                  onEdit={() => setModalData(row.original)}
-                  onDelete={() => setDeleteModalData(row.original)}
-                  hasTest
-                />
-                <AlertRuleUserModal alertId={row.original.id} />
-              </Stack>
+              <AlertRuleActionColumn
+                isSilent={row.original.is_silent}
+                rowId={row.original.id}
+                onEdit={() => setModalData(row.original)}
+                onDelete={() => setDeleteModalData(row.original)}
+              />
             )
           }
         ]}

@@ -8,24 +8,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DataSourceResource;
 use App\Models\DataSource\DataSource;
 use App\Models\Service;
+use App\Services\DataSourceService;
 use Illuminate\Http\Request;
 
 
 class DataSourceController extends Controller
 {
 
+    public function __construct(protected DataSourceService $dataSourceService){}
 
     public function Index(Request $request)
     {
-        $perPage = $request->per_page ?? 25;
+        $perPage = $request->perPage ?? 25;
 
-        $data = DataSource::query();
-
-        $data = $data->paginate($perPage);
-
-        foreach ($data->items() as &$item) {
-            $item['status'] = "connected";
+        $data = DataSource::latest();
+        if ($request->filled('name')) {
+            $data->where('name', 'like', '%' . $request->name . '%');
         }
+        $data = $data->paginate($perPage);
 
         return response()->json($data);
 
@@ -57,19 +57,22 @@ class DataSourceController extends Controller
             ],
         );
         if ($va->passes()) {
+
             $url = rtrim($request->url, "/");
+
+            do {
+                $webhookToken = \Str::random(5);
+            } while (DataSource::where('webhookToken', $webhookToken)->first());
+
             $modelArray = [
                 "type" => $request->type,
                 "name" => $request->name,
                 "url" => $url,
+                "webhookToken" => $webhookToken,
             ];
-            if ($request->has("api_token") && !empty($request->api_token)) {
-                $modelArray["api_token"] = $request->api_token;
-            }
-            if ($request->has("username") && !empty($request->username)) {
-                $modelArray["username"] = $request->username;
-                $modelArray['password'] = $request->password ?? "";
-            }
+            $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["username"] = $request->username ?? "";
+            $modelArray['password'] = $request->password ?? "";
             $model = DataSource::create($modelArray);
             return response()->json([
                 'status' => true,
@@ -104,13 +107,9 @@ class DataSourceController extends Controller
                 "name" => $request->name,
                 "url" => $url,
             ];
-            if ($request->has("api_token") && !empty($request->api_token)) {
-                $modelArray["api_token"] = $request->api_token;
-            }
-            if ($request->has("username") && !empty($request->username)) {
-                $modelArray["username"] = $request->username;
-                $modelArray['password'] = $request->password ?? "";
-            }
+            $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["username"] = $request->username ?? "";
+            $modelArray['password'] = $request->password ?? "";
 
             $model->update($modelArray);
 
@@ -130,5 +129,10 @@ class DataSourceController extends Controller
         return response()->json(DataSourceType::GetTypes());
     }
 
+    public function IsConnected($id)
+    {
+        $isConnected = $this->dataSourceService->isConnected($id);
+        return response()->json(["isConnected" => $isConnected]);
+    }
 
 }

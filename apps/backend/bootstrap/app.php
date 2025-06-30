@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'apiAuth' => \App\Http\Middleware\ApiAlertAuth::class,
+            'webhookAuth' => \App\Http\Middleware\WebhookAuth::class,
+            'horizonBasicAuth' => \App\Http\Middleware\HorizonBasicAuthMiddleware::class,
+
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

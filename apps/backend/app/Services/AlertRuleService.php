@@ -2,15 +2,19 @@
 
 namespace App\Services;
 
+use App\Enums\AlertRuleType;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
+use App\Models\ElasticCheck;
+use App\Models\PrometheusCheck;
 use App\Models\User;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Telegram;
+use App\Helpers\Call;
+use App\Helpers\Constants;
+use App\Helpers\SMS;
+use App\Helpers\Telegram;
+use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use MongoDB\BSON\UTCDateTime;
@@ -18,6 +22,24 @@ use MongoDB\BSON\UTCDateTime;
 class AlertRuleService
 {
 
+    public function firedAlerts(string $alertRuleId)
+    {
+        $alertRule = AlertRule::where("id", $alertRuleId)->firstOrFail();
+        switch ($alertRule->type){
+            case AlertRuleType::API:
+                $firedInstances = AlertInstance::where("alertRuleId", $alertRuleId)
+                    ->where("state",AlertInstance::FIRE)
+                    ->get();
+                return $firedInstances;
+
+            case AlertRuleType::PROMETHEUS:
+                $check = PrometheusCheck::where("alertRuleId", $alertRuleId)->first();
+
+                return $check ? ($check->alerts ?? []) : [];
+        }
+
+
+    }
     public static function GetAllHistory(Request $request)
     {
         if ($request->has("perPage")) {
@@ -82,7 +104,7 @@ class AlertRuleService
 
                 /*       $aggregationArray[] = [
                            '$sort' => [
-                               'created_at' => -1,
+                               'createdAt' => -1,
                            ]
                        ];
 
@@ -101,7 +123,7 @@ class AlertRuleService
 
                     }
                     if (!empty($filterCreatedAtArray)) {
-                        $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                        $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                     }
                     $aggregationArray[] = [
                         '$match' => $matchAggregationArray
@@ -111,7 +133,7 @@ class AlertRuleService
 
                 $aggregationArray[] = [
                     '$sort' => [
-                        'created_at' => -1,
+                        'createdAt' => -1,
                     ]
                 ];
                 $aggregationArray[] = [
@@ -130,11 +152,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -144,7 +166,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -170,11 +192,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -184,7 +206,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -210,11 +232,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -225,7 +247,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -253,11 +275,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -268,7 +290,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -297,11 +319,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -312,7 +334,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -341,11 +363,11 @@ class AlertRuleService
                     if (!empty($alerts) || !empty($filterCreatedAtArray)) {
                         $matchAggregationArray = [];
                         if (!empty($alerts)) {
-                            $matchAggregationArray['alert_rule_id'] = ['$in' => $alerts];
+                            $matchAggregationArray['alertRuleId'] = ['$in' => $alerts];
 
                         }
                         if (!empty($filterCreatedAtArray)) {
-                            $matchAggregationArray['created_at'] = $filterCreatedAtArray;
+                            $matchAggregationArray['createdAt'] = $filterCreatedAtArray;
                         }
                         $pipelineArray[] = [
                             '$match' => $matchAggregationArray
@@ -356,7 +378,7 @@ class AlertRuleService
 
                     $pipelineArray[] = [
                         '$sort' => [
-                            'created_at' => -1,
+                            'createdAt' => -1,
                         ]
                     ];
                     $pipelineArray[] = [
@@ -402,7 +424,7 @@ class AlertRuleService
 
                 $aggregationArray[] = [
                     '$sort' => [
-                        'created_at' => -1,
+                        'createdAt' => -1,
                     ]
                 ];
 
@@ -418,23 +440,18 @@ class AlertRuleService
                 return $collection->aggregate($aggregationArray);
             });
             $result = collect($query)->toArray()[0];
-//            ds(json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]);
             $data = json_decode(json_encode(iterator_to_array($result['data'])), TRUE);
-//            ds($data);
             if (!empty($data)) {
                 $isEnd = json_decode(json_encode(iterator_to_array($result['metadata'])), TRUE)[0]['totalCount'] <= $perPage * $page;
-//            ds(\Arr::dot($data[0]['created_at']));
                 $data = collect($data)->map(function ($array) {
                     $array["id"] = $array['_id']['$oid'];
-                    $array['created_at'] = Carbon::createFromTimestampMs($array['created_at']['$date']['$numberLong'])->format("Y-m-d H:i:s");
-//                ds($array);
+                    $array['createdAt'] = Carbon::createFromTimestampMs($array['createdAt']['$date']['$numberLong'])->format("Y-m-d H:i:s");
                     return $array;
                 });
                 return view("content.pages.alerts.all_history_ajax", compact("data", "isEnd", "page"));
             } else {
                 return "";
             }
-//            ds(\Arr::dot($data[0]));
         } else {
             $from = $request->from ? Carbon::createFromTimestamp($request->from)->format("Y-m-d H:i") : "";
             $to = $request->to ? Carbon::createFromTimestamp($request->to)->format("Y-m-d H:i") : "";
@@ -446,18 +463,63 @@ class AlertRuleService
 
     public static function HasAdminAccessAlert(User $user, AlertRule $alert)
     {
-        if ($user->hasRole("admin")) return true;
-        if ($user->_id == $alert->user_id) return true;
+        if ($user->isAdmin()) return true;
+        if ($user->_id == $alert->userId) return true;
         return false;
     }
 
-    public static function HasUserAccessAlert(User $user, AlertRule $alert):bool
+    public static function HasUserAccessAlert(User $user, AlertRule $alert): bool
     {
         if (self::HasAdminAccessAlert($user, $alert)) return true;
-        $userIds = $alert->user_ids ?? [];
+        $userIds = $alert->userIds ?? [];
         if (in_array($user->_id, $userIds)) return true;
         return false;
     }
 
+    public function getAlerts(AlertRuleType $type = null)
+    {
+        $tagsArray = ['alertRule'];
+        $keyName = 'alertRule';
+        if ($type) {
+            $tagsArray[] = $type->value;
+            $keyName .= ':' . $type->value;
+        }
+
+        return Cache::tags($tagsArray)->rememberForever($keyName,fn() => $this->getAlertsDB($type) );
+
+    }
+
+    public function getAlertsDB(AlertRuleType $type = null)
+    {
+        if ($type) {
+            return AlertRule::where('type', $type)->get();
+        } else
+            return AlertRule::get();
+    }
+
+    public function flushCache(): void
+    {
+        Cache::tags(['alertRule'])->flush();
+    }
+
+    public function delete(AlertRule $alertRule)
+    {
+        $alertRuleId = $alertRule->_id;
+        $type = $alertRule->type;
+        $alertRule->delete();
+        switch ($type) {
+            case AlertRuleType::API:
+            case AlertRuleType::NOTIFICATION:
+                AlertInstance::where("alertRuleId", $alertRuleId)->delete();
+                break;
+            case AlertRuleType::PROMETHEUS:
+                PrometheusCheck::where("alertRuleId", $alertRuleId)->delete();
+                break;
+            case AlertRuleType::ELASTIC:
+                ElasticCheck::where("alertRuleId", $alertRuleId)->delete();
+                break;
+        }
+
+    }
 
 }

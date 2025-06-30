@@ -2,25 +2,15 @@
 
 namespace App\Services;
 
-use App\Interfaces\Messageable;
+use App\Helpers\Call;
+use App\Helpers\Email;
+use App\Helpers\SMS;
+use App\Helpers\Teams;
+use App\Helpers\Telegram;
 use App\Jobs\SendNotifyJob;
-use App\Models\AlertInstance;
 use App\Models\AlertRule;
-use App\Models\AlertRulePrometheus;
 use App\Models\Endpoint;
-use App\Models\GrafanaWebhookAlert;
-use App\Models\Log;
 use App\Models\Notify;
-use App\Models\SentryWebhookAlert;
-use App\Models\SilentRule;
-use App\Models\ZabbixWebhookAlert;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\Email;
-use App\Utility\SMS;
-use App\Utility\Teams;
-use App\Utility\Telegram;
-use Illuminate\Support\Collection;
 
 class SendNotifyService
 {
@@ -28,7 +18,7 @@ class SendNotifyService
     {
         $notify = new Notify();
         $notify->type = $type;
-        $notify->alert_rule_id = $alertRuleId;
+        $notify->alertRuleId = $alertRuleId;
 
         try {
             $notify->alert = $alert->toArray();
@@ -73,21 +63,29 @@ class SendNotifyService
         if (empty($notify->alertRule) || !($notify->alertRule instanceof AlertRule)) {
             return;
         }
-        if (!$isTest && in_array($notify->alertRule->_id, SilentRuleService::getCurrentSilents())) {
+
+        $endpointIds = $notify->alertRule->endpointIds ?? [];
+        $silentUserIds = $notify->alertRule->silentUserIds ?? [];
+
+        if (!$isTest && (
+            in_array($notify->alertRule->userId, $silentUserIds) ||
+            in_array(app(UserService::class)->admin()->id, $silentUserIds)
+//            in_array($notify->alertRule->_id, SilentRuleService::getCurrentSilents())
+        )) {
             $notify->status = Notify::STATUS_SILENT;
             $notify->save();
             return;
         }
 
-//        $endpointIds = GroupService::GetEndpointsByAlertId($notify->alertRule);
 
 
-        $endpointIds = $notify->alertRule->endpoint_ids ?? [];
-        $silentUserIds = $notify->alertRule->silent_user_ids ?? [];
+        $endpointsQuery = Endpoint::whereIn("_id", $endpointIds);
+        if (!$isTest) {
+            $endpointsQuery = $endpointsQuery->whereNotIn("userId", $silentUserIds);
+        }
+        $endpoints = $endpointsQuery->get();
 
 
-        $endpoints = Endpoint::whereIn("_id", $endpointIds)->whereNotIn("user_id", $silentUserIds)->get();
-//        ds($endpoints,);
         $phones = $endpoints->where("type", "sms")->pluck("value");
         $phonesCalls = $endpoints->where("type", "call")->pluck("value");
         $teamsUrls = $endpoints->where("type", "teams")->pluck("value");

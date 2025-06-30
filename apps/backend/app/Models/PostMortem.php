@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class PostMortem extends Model
+class PostMortem extends BaseModel
 {
 
     public $timestamps = true;

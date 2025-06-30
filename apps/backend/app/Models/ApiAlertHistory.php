@@ -8,8 +8,9 @@ use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
+use function Laravel\Prompts\select;
 
-class ApiAlertHistory extends Model
+class ApiAlertHistory extends BaseModel
 {
 
     public $timestamps = true;
@@ -22,12 +23,21 @@ class ApiAlertHistory extends Model
     public const FIRE = 2;
     public const NOTIFICATION = 3;
 
+    protected $appends = ['status'];
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class,"alertname","alertname");
+        return $this->belongsTo(AlertRule::class, "alertname", "alertname");
     }
 
+    public function getStatusAttribute()
+    {
+        return match ($this->state) {
+            self::FIRE => AlertRule::CRITICAL,
+            self::RESOLVED => AlertRule::RESOlVED,
+            default => AlertRule::UNKNOWN,
+        };
+    }
 
 
 }

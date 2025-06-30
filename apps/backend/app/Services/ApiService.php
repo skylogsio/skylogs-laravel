@@ -2,23 +2,23 @@
 
 namespace App\Services;
 
+use App\Enums\AlertRuleType;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
-use App\Models\SentryWebhookAlert;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Telegram;
+use Illuminate\Support\Facades\Cache;
 
 class ApiService
 {
 
-    public static function FireAlert($post): array
+    public function __construct(protected AlertRuleService $alertRuleService)
     {
+    }
 
-        $alertRule = AlertRule::where('alertname', $post['alertname'])->where("type", Constants::API)
-            ->first();
+    public function fireAlert($post): array
+    {
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
+
         if (!$alertRule) {
             return [
                 "status" => false,
@@ -26,79 +26,36 @@ class ApiService
             ];
         }
 
-        $alert = AlertInstance::where('alertname', $post['alertname'])
+        $alert = AlertInstance::where('alertRuleId', $alertRule->id)
             ->where('instance', $post['instance'])
             ->first();
 
         if ($alert) {
-            if ($alert->state == AlertInstance::RESOLVED) {
+            $isCurrentStateResolved = $alert->state == AlertInstance::RESOLVED;
 
-                $alert->state = AlertInstance::FIRE;
-                $alert->description = $post['description'] ?? "";
-                $alert->summary = $post['summary'] ?? "";
+            $alert->state = AlertInstance::FIRE;
+            $alert->description = $post['description'] ?? "";
+            $alert->summary = $post['summary'] ?? "";
 
+            $alert->save();
 
-                $file = !empty($post['file']) ? $post['file'] : null;
+            SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
 
-                if (!empty($file)) {
-                    $filename = $file->getClientOriginalName();
-                    $path = $file->storeAs("api_alert_files", $file->hashName());
-                    $alert->file = $path;
-                    $alert->fileName = $filename;
-                } else {
-                    $alert->file = null;
-                    $alert->fileName = null;
-                }
-
-                $alert->save();
-
-                SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert,$alertRule->_id);
-
-                $apiHistory = $alert->createHistory();
-                $alert->createStatusHistory($apiHistory);
-
-                return [
-                    'status' => true,
-                    'message' => 'Activated'
-                ];
-            } else if ($alert->state == AlertInstance::FIRE) {
+            $this->refreshStatus($alert->alertRule);
+            $apiHistory = $alert->createHistory();
+            $alert->createStatusHistory($apiHistory);
 
 
-                if (!empty($alertRule->repeatOnFire) && $alertRule->repeatOnFire) {
-                    $alert->state = AlertInstance::FIRE;
-                    $alert->description = $post['description'] ?? "";
-                    $alert->summary = $post['summary'] ?? "";
+            return [
+                'status' => true,
+                'message' => $isCurrentStateResolved ? 'Activated' : 'Already Active'
+            ];
 
-                    $file = !empty($post['file']) ? $post['file'] : null;
-
-                    if (!empty($file)) {
-                        $filename = $file->getClientOriginalName();
-                        $path = $file->storeAs("api_alert_files", $file->hashName());
-                        $alert->file = $path;
-                        $alert->fileName = $filename;
-                    } else {
-                        $alert->file = null;
-                        $alert->fileName = null;
-                    }
-
-                    $alert->save();
-
-                    SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert,$alertRule->_id);
-
-                    $apiHistory = $alert->createHistory();
-                    $alert->createStatusHistory($apiHistory);
-                }
-                return [
-                    'status' => true,
-                    'message' => 'Already Active'
-                ];
-            }
         } else {
 
             $model = new AlertInstance();
-            $model->alertRule_id = $alertRule->_id;
-            $model->alert_rule_id = $alertRule->_id;
-            $model->alertname = $post['alertname'];
+            $model->alertRuleId = $alertRule->_id;
+            $model->alertRuleName = $alertRule->name;
             $model->instance = $post['instance'];
             $model->job = $post['job'] ?? "";
 
@@ -107,47 +64,27 @@ class ApiService
             $model->description = $post['description'] ?? "";
             $model->summary = $post['summary'] ?? "";
 
+            $model->save();
 
-            $file = !empty($post['file']) ? $post['file'] : null;
+            SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model, $alertRule->_id);
+            $this->refreshStatus($model->alertRule);
+            $apiHistory = $model->createHistory();
+            $model->createStatusHistory($apiHistory);
+            return [
+                'status' => true,
+                'message' => 'Activated'
+            ];
 
-            if (!empty($file)) {
-                $filename = $file->getClientOriginalName();
-                $path = $file->storeAs("api_alert_files", $file->hashName());
-                $model->file = $path;
-                $model->fileName = $filename;
-            } else {
-                $model->file = null;
-                $model->fileName = null;
-            }
-
-
-            if ($model->save()) {
-
-                SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $model,$alertRule->_id);
-
-                $apiHistory = $model->createHistory();
-                $model->createStatusHistory($apiHistory);
-                return [
-                    'status' => true,
-                    'message' => 'Activated'
-                ];
-            } else {
-                return [
-                    'status' => false,
-                    'message' => 'error'
-                ];
-            }
         }
 
-        return [
-            'status' => false,
-        ];
 
     }
 
-    public static function StopAlert(mixed $post)
+    public function resolveAlert(mixed $post)
     {
-        $alert = AlertInstance::where('alertname', $post['alertname'])
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
+
+        $alert = AlertInstance::where('alertRuleId', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -158,22 +95,10 @@ class ApiService
                 $alert->description = $post['description'] ?? "";
                 $alert->summary = $post['summary'] ?? "";
 
-                $file = !empty($post['file']) ? $post['file'] : null;
-
-                if (!empty($file)) {
-                    $filename = $file->getClientOriginalName();
-                    $path = $file->storeAs("api_alert_files", $file->hashName());
-                    $alert->file = $path;
-                    $alert->fileName = $filename;
-                } else {
-                    $alert->file = null;
-                    $alert->fileName = null;
-                }
-
                 $alert->save();
-                SendNotifyService::CreateNotify(SendNotifyJob::API_RESOLVE, $alert,$alert->alertRule->_id);
+                SendNotifyService::CreateNotify(SendNotifyJob::API_RESOLVE, $alert, $alert->alertRule->_id);
 
-
+                $this->refreshStatus($alert->alertRule);
                 $apiHistory = $alert->createHistory();
                 $alert->createStatusHistory($apiHistory);
                 return [
@@ -196,11 +121,10 @@ class ApiService
         }
     }
 
-    public static function StatusAlert(mixed $post)
+    public function statusAlert(mixed $post)
     {
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
-        $alertRule = AlertRule::where('alertname', $post['alertname'])->where("type", Constants::API)
-            ->first();
 
         if (!$alertRule) {
             return [
@@ -209,7 +133,7 @@ class ApiService
             ];
         }
 
-        $alert = AlertInstance::where('alertname', $post['alertname'])
+        $alert = AlertInstance::where('alertRuleId', $alertRule['id'])
             ->where('instance', $post['instance'])
             ->first();
 
@@ -226,12 +150,11 @@ class ApiService
         }
     }
 
-    public static function NotificationAlert(mixed $post)
+    public function notificationAlert(mixed $post)
     {
 
+        $alertRule = AlertRule::firstWhere('apiToken', $post['apiToken']);
 
-        $alertRule = AlertRule::where('alertname', $post['alertname'])->where("type", Constants::NOTIFICATION)
-            ->first();
         if (!$alertRule) {
             return [
                 "status" => false,
@@ -241,28 +164,15 @@ class ApiService
 
 
         $alert = AlertInstance::updateOrCreate([
-            "alertRule_id" => $alertRule->_id,
-            "alert_rule_id" => $alertRule->_id,
-            "alertname" => $post['alertname'],
+            "alertRuleId" => $alertRule->_id,
+            "alertRuleName" => $alertRule['name'],
             "instance" => $post['instance'],
         ], [
             "state" => AlertInstance::NOTIFICATION,
             "description" => $post['description'] ?? null,
         ]);
 
-        $file = !empty($post['file']) ? $post['file'] : null;
-
-        if (!empty($file)) {
-            $filename = $file->getClientOriginalName();
-            $path = $file->storeAs("notification_alert_files", $file->hashName());
-            $alert->file = $path;
-            $alert->fileName = $filename;
-        } else {
-            $alert->file = null;
-            $alert->fileName = null;
-        }
-
-        SendNotifyService::CreateNotify(SendNotifyJob::API_NOTIFICATION, $alert,$alertRule->_id);
+        SendNotifyService::CreateNotify(SendNotifyJob::API_NOTIFICATION, $alert, $alertRule->_id);
 
         $alert->createHistory();
 
@@ -274,4 +184,26 @@ class ApiService
 
     }
 
+    public function alertRuleByToken($token, AlertRuleType $type)
+    {
+
+        $alertRules = $this->alertRuleService->getAlerts($type);
+
+        $alert = $alertRules->where("apiToken", $token)->first();
+
+        if ($alert) {
+            return $alert;
+        }
+
+        return null;
+    }
+
+    public function refreshStatus(AlertRule $alertRule)
+    {
+        $count = AlertInstance::where('alertRuleId', $alertRule->id)
+            ->where("state", AlertInstance::FIRE)->count();
+        $alertRule->state = $count == 0 ? AlertRule::RESOlVED : AlertRule::CRITICAL;
+        $alertRule->fireCount = $count;
+        $alertRule->save();
+    }
 }

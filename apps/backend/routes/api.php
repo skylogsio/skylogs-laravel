@@ -1,13 +1,22 @@
 <?php
 
 use App\Enums\Constants;
+use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
+use App\Http\Controllers\V1\AlertRule\CreateDataController;
+use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
+use App\Http\Controllers\V1\Config\TelegramController;
+use App\Http\Controllers\V1\Profile\AssetController;
+use App\Http\Controllers\V1\Profile\EnvironmentController;
+use App\Http\Controllers\V1\Profile\ServiceController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
 use App\Http\Controllers\V1\UserController;
+use App\Http\Controllers\V1\Webhooks\ApiAlertController;
+use App\Http\Controllers\V1\Webhooks\WebhookAlertsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +24,26 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
 
     Route::post("auth/login", [AuthController::class, "login"]);
+
+    Route::middleware("apiAuth")->controller(ApiAlertController::class)->group(function () {
+        Route::post("fire-alert", "FireAlert")->name("webhook.api.fire");
+        Route::post("resolve-alert", "ResolveAlert")->name("webhook.api.resolve");
+        Route::post("status-alert", "StatusAlert")->name("webhook.api.status");
+        Route::post("notification-alert", "NotificationAlert")->name("webhook.notification");
+        Route::post("stop-alert", "ResolveAlert")->name("webhook.api.stop");
+    });
+
+
+    Route::middleware('webhookAuth')->controller(WebhookAlertsController::class)->group(function () {
+
+//        Route::post("/metabase-alert/{token}", 'MetabaseWebhook')->name("webhook.metabase");
+        Route::post("/sentry-alert/{token}", 'SentryWebhook')->name("webhook.sentry");
+        Route::post("/splunk-alert/{token}", 'SplunkWebhook')->name("webhook.splunk");
+        Route::post("/zabbix-alert/{token}", 'ZabbixWebhook')->name("webhook.zabbix");
+        Route::post("/grafana-alert/{token}", 'GrafanaWebhook')->name("webhook.grafana");
+        Route::post("/pmm-alert/{token}", 'PmmWebhook')->name("webhook.pmm");
+
+    });
 
     Route::middleware('auth')->group(function () {
 
@@ -28,8 +57,10 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix("/user")
             ->controller(UserController::class)
+            ->middleware("role:" . Constants::ROLE_OWNER->value . "|" . Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
+                Route::get('/all', 'All');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/pass/{id}', 'ChangePassword');
@@ -44,15 +75,17 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
+                Route::post('/changeOwner/{id}', 'ChangeOwner');
                 Route::delete('/{id}', 'Delete');
             });
 
         Route::prefix("/data-source")
             ->controller(DataSourceController::class)
-            ->middleware("role:".Constants::ROLE_OWNER->value."|".Constants::ROLE_MANAGER->value)
+            ->middleware("role:" . Constants::ROLE_OWNER->value . "|" . Constants::ROLE_MANAGER->value)
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
+                Route::get('/status/{id}', 'IsConnected');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
@@ -64,8 +97,20 @@ Route::prefix('v1')->group(function () {
             ->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
+                Route::get('/history/{id}', 'History');
+                Route::get('/triggered/{id}', 'FiredAlerts');
                 Route::get('/filter-endpoints', 'FilterEndpoints');
-                Route::get('/create-data', 'CreateData');
+
+                Route::prefix("/create-data")
+                    ->controller(CreateDataController::class)
+                    ->group(function () {
+                        Route::get('/', 'CreateData');
+                        Route::get('/data-source/{type}', 'DataSources');
+                        Route::get('/rules', 'Rules');
+                        Route::get('/labels', 'Labels');
+                        Route::get('/label-values/{label}', 'LabelValues');
+                    });
+
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Store');
                 Route::post('/silent/{id}', 'Silent');
@@ -74,9 +119,19 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{id}', 'Delete');
             });
 
+        Route::prefix("/prometheus")
+            ->controller(PrometheusController::class)
+            ->group(function () {
+                Route::get('/rules', 'Rules');
+                Route::get('/labels', 'Labels');
+                Route::get('/triggered', 'Triggered');
+                Route::get('/label-values/{label}', 'LabelValues');
+            });
+
         Route::prefix("/alert-rule-tag")
             ->controller(TagsController::class)
             ->group(function () {
+                Route::get('/', 'All');
                 Route::get('/{id}', 'Create');
                 Route::put('/{id}', 'Store');
             });
@@ -93,6 +148,48 @@ Route::prefix('v1')->group(function () {
                 Route::put('/batchAlert', 'StoreBatch');
 
             });
+        Route::prefix("/alert-rule-user")
+            ->controller(AccessUserController::class)
+            ->group(function () {
+                Route::get('/{id}', 'CreateData');
+                Route::put('/{id}', 'Store');
+                Route::delete('/{alertId}/{userId}', 'Delete');
+
+            });
+
+
+        Route::prefix("/profile")
+            ->middleware("role:" . Constants::ROLE_OWNER->value)
+            ->group(function () {
+                Route::prefix("/asset")
+                    ->controller(AssetController::class)
+                    ->group(function () {
+                        Route::get('/', 'Index');
+                        Route::get('/{id}', 'Show');
+                        Route::post('/', 'Create');
+                        Route::put('/{id}', 'Update');
+                        Route::delete('/{id}', 'Delete');
+                    });
+
+            });
+
+        Route::prefix("/config")
+            ->middleware("role:" . Constants::ROLE_OWNER->value)
+            ->group(function () {
+                Route::prefix("/telegram")
+                    ->controller(TelegramController::class)
+                    ->group(function () {
+                        Route::get('/', 'Index');
+                        Route::get('/{id}', 'Show');
+                        Route::post('/', 'Create');
+                        Route::post('/deactivate', 'Deactivate');
+                        Route::post('/activate/{id}', 'Activate');
+                        Route::put('/{id}', 'Update');
+                        Route::delete('/{id}', 'Delete');
+                    });
+
+            });
+
 
     });
 

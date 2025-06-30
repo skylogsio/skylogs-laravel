@@ -6,8 +6,8 @@ import type { CreateUpdateModal } from "@/@types/global";
 import DataSourceModal from "@/app/[locale]/data-source/DataSourceModal";
 import DeleteDataSourceModal from "@/app/[locale]/data-source/DeleteDataSourceModal";
 import ActionColumn from "@/components/ActionColumn";
-import ConnectionStatus from "@/components/ConnectionStatus";
 import DataSourceType from "@/components/DataSource/DataSourceType";
+import DataSourceConnectionStatus from "@/components/DataSourceConnectionStatus";
 import Table from "@/components/Table/SmartTable";
 import { type TableComponentRef } from "@/components/Table/types";
 
@@ -33,9 +33,7 @@ export default function DataSource() {
         ref={tableRef}
         title="Data Sources"
         url="data-source"
-        defaultPage={1}
         defaultPageSize={10}
-        refetchInterval={5000}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
           { header: "Name", accessorKey: "name" },
@@ -45,7 +43,7 @@ export default function DataSource() {
           },
           {
             header: "Status",
-            cell: ({ row }) => <ConnectionStatus status={row.original.status} />
+            cell: ({ row }) => <DataSourceConnectionStatus dataSourceId={row.original.id} />
           },
           {
             header: "Action",

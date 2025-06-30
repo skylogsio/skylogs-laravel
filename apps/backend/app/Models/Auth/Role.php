@@ -3,6 +3,7 @@
 namespace App\Models\Auth;
 
 
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use MongoDB\Laravel\Eloquent\Model;
 use Spatie\Permission\Contracts\Role as RoleContract;
@@ -17,10 +18,10 @@ use Spatie\Permission\Traits\RefreshesPermissionCache;
 
 
 /**
- * @property ?\Illuminate\Support\Carbon $created_at
- * @property ?\Illuminate\Support\Carbon $updated_at
+ * @property ?\Illuminate\Support\Carbon $createdAt
+ * @property ?\Illuminate\Support\Carbon $updatedAt
  */
-class Role extends Model implements RoleContract
+class Role extends BaseModel implements RoleContract
 {
     use HasPermissions;
     use RefreshesPermissionCache;

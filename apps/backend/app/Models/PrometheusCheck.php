@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
+use App\Models\DataSource\DataSource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class PrometheusCheck extends Model implements Messageable
+class PrometheusCheck extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -25,29 +26,37 @@ class PrometheusCheck extends Model implements Messageable
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
-    public function getAlertRulePrometheus(): ?AlertRulePrometheus
+
+    public function dataSource(): BelongsTo
     {
-
-        $alertRulePrometheus = AlertRulePrometheus::where("name", $this['instance'] . "-" . $this['labels']['alertname'])->first();
-
-        if ($alertRulePrometheus) {
-            return $alertRulePrometheus;
-        } else {
-            return null;
-        }
+        return $this->belongsTo(DataSource::class, "dataSourceId", "_id");
     }
+
+
 
     public function createHistory()
     {
 
+        $countResolve = 0;
+        $countFire = 0;
+
+        foreach ($this->alerts as $alert){
+            if($alert['skylogsStatus'] == self::RESOLVED){
+                $countResolve++;
+            }elseif ($alert['skylogsStatus'] == self::FIRE){
+                $countFire++;
+            }
+        }
         PrometheusHistory::create(
             [
-                "alert_rule_id" => $this->alert_rule_id,
+                "alertRuleId" => $this->alertRuleId,
                 "alerts" => $this->alerts,
                 "state" => $this->state,
+                "countResolve" => $countResolve,
+                "countFire" => $countFire,
             ]
         );
     }
@@ -62,7 +71,7 @@ class PrometheusCheck extends Model implements Messageable
         if ($diffs->isNotEmpty() || $diffs2->isNotEmpty()) {
             PrometheusHistory::create(
                 [
-                    "alert_rule_id" => $this->alert_rule_id,
+                    "alertRuleId" => $this->alertRuleId,
                     "alerts" => $this->alerts,
                     "state" => $this->state,
                 ]
@@ -78,12 +87,12 @@ class PrometheusCheck extends Model implements Messageable
 
     public function telegramMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
 
-        $text = $alertRule->alertname . "\n\n";
+        $text = $alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -95,26 +104,18 @@ class PrometheusCheck extends Model implements Messageable
             }
         }
 
-//        if (!empty($alertRule->instance)) {
-//            $text .= "Instance: " . $alertRule->instance . "\n\n";
-//        }
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
 
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
 
                 }
 
-                $text .= "Prometheus Instance: " . $alert['instance'] . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -139,12 +140,12 @@ class PrometheusCheck extends Model implements Messageable
 
     public function teamsMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
 
-        $text = $alertRule->alertname . "\n\n";
+        $text = $alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -157,134 +158,122 @@ class PrometheusCheck extends Model implements Messageable
         }
 
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
-        if (!empty($this->alerts) ) {
-            foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
-                    $text .= "Fire 🔥" . "\n";
-                }else{
-                    $text .= "Resolved ✅" . "\n";
 
-                }
-
-                $text .= "Prometheus Instance: " . $alert['instance'] . "\n";
-                if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
-                    }
-                if (!empty($alert['annotations']))
-                    foreach ($needLabelAnotArray as $label) {
-                        if (!empty($alert['annotations'][$label])) {
-                            $text .= "$label : " . $alert['annotations'][$label] . "\n";
-                        }
-                    }
-                $text .= "\n************\n\n";
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
-    }
-    public function emailMessage(): string
-    {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
-        $needLabelAnotArray = ["summary","description"];
-
-        $alertRule = $this->alertRule;
-
-        $text = $alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅" . "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
-        if (!empty($this->alerts) ) {
-            foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
-                    $text .= "Fire 🔥" . "\n";
-                }else{
-                    $text .= "Resolved ✅" . "\n";
-
-                }
-
-                $text .= "Prometheus Instance: " . $alert['instance'] . "\n";
-                if (!empty($alert['labels']))
-                    foreach ($needLabelArray as $label) {
-                        if (!empty($alert['labels'][$label])) {
-                            $text .= "$label : " . $alert['labels'][$label] . "\n";
-                        }
-                    }
-                if (!empty($alert['annotations']))
-                    foreach ($needLabelAnotArray as $label) {
-                        if (!empty($alert['annotations'][$label])) {
-                            $text .= "$label : " . $alert['annotations'][$label] . "\n";
-                        }
-                    }
-                $text .= "\n************\n\n";
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
-    }
-
-    public function smsMessage(): string
-    {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
-        $needLabelAnotArray = ["summary","description"];
-
-        $alertRule = $this->alertRule;
-
-        $text = $alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅" . "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
 
                 }
 
-                $text .= "Prometheus Instance: " . $alert['instance'] . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
+                if (!empty($alert['labels']))
+                    foreach ($needLabelArray as $label) {
+                        if (!empty($alert['labels'][$label])) {
+                            $text .= "$label : " . $alert['labels'][$label] . "\n";
+                        }
+                    }
+                if (!empty($alert['annotations']))
+                    foreach ($needLabelAnotArray as $label) {
+                        if (!empty($alert['annotations'][$label])) {
+                            $text .= "$label : " . $alert['annotations'][$label] . "\n";
+                        }
+                    }
+                $text .= "\n************\n\n";
+            }
+        }
+
+
+        $text .= "date: " . Jalalian::now()->format("Y/m/d");
+
+        return $text;
+    }
+    public function emailMessage():  string
+    {
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
+        $needLabelAnotArray = ["summary","description"];
+
+        $alertRule = $this->alertRule;
+
+        $text = $alertRule->name . "\n\n";
+        if (!empty($this->state)) {
+            switch ($this->state) {
+                case self::RESOLVED:
+                    $text .= "State: Resolved ✅" . "\n\n";
+                    break;
+                case self::FIRE:
+                    $text .= "State: Fire 🔥" . "\n\n";
+                    break;
+            }
+        }
+
+
+
+        if (!empty($this->alerts)) {
+            foreach ($this->alerts as $alert) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
+                    $text .= "Fire 🔥" . "\n";
+                }else{
+                    $text .= "Resolved ✅" . "\n";
+
+                }
+
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
+                if (!empty($alert['labels']))
+                    foreach ($needLabelArray as $label) {
+                        if (!empty($alert['labels'][$label])) {
+                            $text .= "$label : " . $alert['labels'][$label] . "\n";
+                        }
+                    }
+                if (!empty($alert['annotations']))
+                    foreach ($needLabelAnotArray as $label) {
+                        if (!empty($alert['annotations'][$label])) {
+                            $text .= "$label : " . $alert['annotations'][$label] . "\n";
+                        }
+                    }
+                $text .= "\n************\n\n";
+            }
+        }
+
+
+        $text .= "date: " . Jalalian::now()->format("Y/m/d");
+
+        return $text;
+    }
+
+    public function smsMessage():  string
+    {
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
+        $needLabelAnotArray = ["summary","description"];
+
+        $alertRule = $this->alertRule;
+
+        $text = $alertRule->name . "\n\n";
+        if (!empty($this->state)) {
+            switch ($this->state) {
+                case self::RESOLVED:
+                    $text .= "State: Resolved ✅" . "\n\n";
+                    break;
+                case self::FIRE:
+                    $text .= "State: Fire 🔥" . "\n\n";
+                    break;
+            }
+        }
+
+
+
+        if (!empty($this->alerts)) {
+            foreach ($this->alerts as $alert) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
+                    $text .= "Fire 🔥" . "\n";
+                }else{
+                    $text .= "Resolved ✅" . "\n";
+
+                }
+
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -309,12 +298,12 @@ class PrometheusCheck extends Model implements Messageable
 
     public function callMessage(): string
     {
-        $needLabelArray = ["severity", "job", "namespace", "pod", "reason",];
+        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
         $needLabelAnotArray = ["summary","description"];
 
         $alertRule = $this->alertRule;
 
-        $text = $alertRule->alertname . "\n\n";
+        $text = $alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -326,21 +315,18 @@ class PrometheusCheck extends Model implements Messageable
             }
         }
 
-        if ($alertRule->queryType == AlertRule::DYNAMIC_QUERY_TYPE){
-            $text .= "AlertName: " . $alertRule->prometheus_alertname . "\n\n";
-        }else{
-            $needLabelArray[] = "alertname";
-        }
+
+
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
-                if (empty($alert['skylogs_status']) || $alert['skylogs_status'] == self::FIRE) {
+                if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
                     $text .= "Fire 🔥" . "\n";
                 }else{
                     $text .= "Resolved ✅" . "\n";
 
                 }
 
-                $text .= "Prometheus Instance: " . $alert['instance'] . "\n";
+                $text .= "Data Source: " . $alert['dataSourceName'] . "\n";
                 if (!empty($alert['labels']))
                     foreach ($needLabelArray as $label) {
                         if (!empty($alert['labels'][$label])) {
@@ -358,30 +344,9 @@ class PrometheusCheck extends Model implements Messageable
         }
 
 
-
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
-    }
-
-    public function isPrometheusInstanceOk()
-    {
-        // TODO new approach (multi instance) may not first instance
-        try {
-            if (!empty($this->alerts)) {
-                $proInstance = PrometheusInstance::where("name", $this->alerts[0]["instance"])->first();
-            } elseif (!empty($this->instance)) {
-                $proInstance = PrometheusInstance::where("name", $this->instance)->first();
-            }
-            if ($proInstance)
-                return $proInstance->isOk();
-            else
-                return true;
-
-        } catch (\Exception $e) {
-            return false;
-        }
-
     }
 
 }

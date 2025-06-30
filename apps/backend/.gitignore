@@ -25,15 +25,9 @@ docker-compose.override.yml
 test.json
 test.http
 *.swp
-#/vendor
-#/public/css
-#/public/js
-#/public/mix-manifest.json
-## But not these files...
-#!/public/assets/*
-#/public/assets/js
-#/public/assets/css
-#/public/assets/vendor
-#
+tests/Api/http-client.private.env.json
 
 
+supervisord.log
+supervisord.pid
+"laradumps.yaml" 

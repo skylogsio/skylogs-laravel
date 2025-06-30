@@ -3,7 +3,7 @@
 namespace App\Enums;
 
 
-enum AlertRuleType:string
+enum AlertRuleType: string
 {
     case API = "api";
     case NOTIFICATION = "notification";
@@ -20,17 +20,30 @@ enum AlertRuleType:string
     public static function GetTypes()
     {
         return [
-            self::API ,
-            self::NOTIFICATION ,
-            self::PROMETHEUS ,
-            self::SENTRY ,
-            self::GRAFANA ,
-            self::PMM ,
-            self::ZABBIX ,
-            self::SPLUNK ,
-            self::ELASTIC ,
-            self::HEALTH ,
-            self::METABASE ,
+            self::API,
+            self::NOTIFICATION,
+            self::PROMETHEUS,
+            self::SENTRY,
+            self::GRAFANA,
+            self::PMM,
+            self::ZABBIX,
+            self::SPLUNK,
+            self::ELASTIC,
+            self::HEALTH,
+            self::METABASE,
         ];
+    }
+
+    public static function GetDataSourceAlertNeed()
+    {
+        return collect([
+//            self::PROMETHEUS,
+//            self::GRAFANA,
+//            self::PMM,
+            self::SPLUNK,
+            self::SENTRY,
+            self::METABASE,
+            self::ZABBIX,
+        ]);
     }
 }

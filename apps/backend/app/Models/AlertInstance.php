@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class AlertInstance extends Model implements Messageable
+class AlertInstance extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -18,50 +18,53 @@ class AlertInstance extends Model implements Messageable
 
     protected $guarded = ['id', '_id',];
 
+
     public const RESOLVED = 1;
     public const FIRE = 2;
     public const NOTIFICATION = 3;
 
 
+    protected $appends = ['status'];
+
+    public function getStatusAttribute()
+    {
+        return match ($this->state) {
+            self::FIRE => AlertRule::CRITICAL,
+            self::RESOLVED => AlertRule::RESOlVED,
+            default => AlertRule::UNKNOWN,
+        };
+    }
+
+
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alertname", "alertname");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "id");
     }
 
     public function history(): BelongsTo
     {
-        return $this->belongsTo(ApiAlertHistory::class, "history_id");
+        return $this->belongsTo(ApiAlertHistory::class, "historyId");
     }
 
     public function UpdatedAtString()
     {
-        return Jalalian::fromCarbon($this->updated_at)->format('Y/m/d H:i:s');
+        return Jalalian::fromCarbon($this->updatedAt)->format('Y/m/d H:i:s');
     }
 
     public function createHistory()
     {
         $model = new ApiAlertHistory();
-        $model->alertname = $this->alertname;
+        $model->alertRuleId = $this->alertRuleId;
+        $model->alertRuleName = $this->alertRuleName;
         $model->instance = $this->instance;
         $model->description = $this->description;
         $model->summary = $this->summary;
         $model->state = $this->state;
 
-        if (!empty($this->file)) {
-            $model->file = $this->file;
-            $model->fileName = $this->fileName;
-        } else {
-            $model->file = null;
-            $model->fileName = null;
-        }
 
-        if (!empty($this->alertRule_id)) {
-            $model->alertRule_id = $this->alertRule_id;
-            $model->alert_rule_id = $this->alertRule_id;
-        }
         $model->save();
 
-        $this->history_id = $model->_id;
+        $this->historyId = $model->_id;
         $this->save();
 
         return $model;
@@ -70,7 +73,7 @@ class AlertInstance extends Model implements Messageable
     public function createStatusHistory($history)
     {
         $model = new ApiAlertStatusHistory();
-        $model->alertname = $this->alertname;
+        $model->alertRuleId = $this->alertRuleId;
         $model->instance = $this->instance;
         $model->description = $this->description;
         $model->summary = $this->summary;
@@ -91,28 +94,26 @@ class AlertInstance extends Model implements Messageable
             } else {
                 $model->state = self::FIRE;
                 $model->countAlerts = count($alertFireInstances);
-                $model->fired_instances = $alertFireInstances;
+                $model->firedInstances = $alertFireInstances;
             }
 
         } else
             $model->state = self::RESOLVED;
 
-        if (!empty($this->alertRule_id)) {
-            $model->alertRule_id = $this->alertRule_id;
-            $model->alert_rule_id = $this->alertRule_id;
-        }
+        $model->alertRuleId = $this->alertRuleId;
+
         $model->save();
 
     }
 
     public function telegramMessage(): string
     {
-        $text = $this->alertname;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
             self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification",
+            self::NOTIFICATION => "\nState: Notification 📢",
             default => "\nstate: Unknown",
         };
 
@@ -122,13 +123,6 @@ class AlertInstance extends Model implements Messageable
         if (!empty($this->description))
             $text .= "\nDescription: " . $this->description;
 
-        if (!empty($this->file) && $this->history) {
-            if (!empty($this->alertRule->public) && $this->alertRule->public) {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFilePublic", ["historyId" => $this->history_id]);
-            } else {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFile", ["historyId" => $this->history_id]);
-            }
-        }
         $text .= "\nDate: " . $this->updatedAtString();
 //        $text .= $this->description;
 
@@ -137,12 +131,12 @@ class AlertInstance extends Model implements Messageable
 
     public function smsMessage(): string
     {
-        $text = $this->alertname;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
             self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification",
+            self::NOTIFICATION => "\nState: Notification 📢",
             default => "\nstate: Unknown",
         };
 
@@ -152,25 +146,19 @@ class AlertInstance extends Model implements Messageable
         if (!empty($this->description))
             $text .= "\nDescription: " . $this->description;
 
-        if (!empty($this->file) && $this->history) {
-            if (!empty($this->alertRule->public) && $this->alertRule->public) {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFilePublic", ["historyId" => $this->history_id]);
-            } else {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFile", ["historyId" => $this->history_id]);
-            }
-        }
         $text .= "\nDate: " . $this->updatedAtString();
+
         return $text;
     }
 
     public function callMessage(): string
     {
-        $text = $this->alertname;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nstate: Fire",
             self::RESOLVED => "\nstate: Resolve",
-            self::NOTIFICATION => "\nstate: Notification",
+            self::NOTIFICATION => "\nState: Notification 📢",
             default => "\nstate: Unknown",
         };
 
@@ -189,7 +177,7 @@ class AlertInstance extends Model implements Messageable
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
             self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification",
+            self::NOTIFICATION => "\nState: Notification 📢",
             default => "\nstate: Unknown",
         };
 
@@ -199,26 +187,19 @@ class AlertInstance extends Model implements Messageable
         if (!empty($this->description))
             $text .= "\nDescription: " . $this->description;
 
-        if (!empty($this->file) && $this->history) {
-            if (!empty($this->alertRule->public) && $this->alertRule->public) {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFilePublic", ["historyId" => $this->history_id]);
-            } else {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFile", ["historyId" => $this->history_id]);
-            }
-        }
         $text .= "\nDate: " . $this->updatedAtString();
-//        $text .= $this->description;
 
         return $text;
     }
+
     public function emailMessage()
     {
-        $text = $this->alertname;
+        $text = $this->alertRuleName;
 
         $text .= match ($this->state) {
             self::FIRE => "\nState: Fire 🔥",
             self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification",
+            self::NOTIFICATION => "\nState: Notification 📢",
             default => "\nstate: Unknown",
         };
 
@@ -228,16 +209,9 @@ class AlertInstance extends Model implements Messageable
         if (!empty($this->description))
             $text .= "\nDescription: " . $this->description;
 
-        if (!empty($this->file) && $this->history) {
-            if (!empty($this->alertRule->public) && $this->alertRule->public) {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFilePublic", ["historyId" => $this->history_id]);
-            } else {
-                $text .= "\nLink: " . route("alerts.downloadHistoryFile", ["historyId" => $this->history_id]);
-            }
-        }
         $text .= "\nDate: " . $this->updatedAtString();
-//        $text .= $this->description;
 
         return $text;
     }
+
 }

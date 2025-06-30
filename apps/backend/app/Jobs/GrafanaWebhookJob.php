@@ -7,7 +7,7 @@ use App\Models\AlertRule;
 use App\Models\GrafanaWebhookAlert;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -72,10 +72,10 @@ class GrafanaWebhookJob implements ShouldQueue
                     $alert['grafana_alertname'] = $alert['labels']['alertname'];
                     $alert['alertname'] = $alertRule->alertname;
                     $alert['instance'] = $this->instance;
-                    $model->alert_rule_id = $alertRule->_id;
+                    $model->alertRuleId = $alertRule->_id;
 
                     if ($model->customSave($alert)) {
-                        SendNotifyService::CreateNotify(SendNotifyJob::GRAFANA_WEBHOOK, $model,$model->alert_rule_id);
+                        SendNotifyService::CreateNotify(SendNotifyJob::GRAFANA_WEBHOOK, $model,$model->alertRuleId);
                     }
 
                 }

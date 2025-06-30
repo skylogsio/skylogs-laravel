@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class ElasticCheck extends Model implements Messageable
+class ElasticCheck extends BaseModel implements Messageable
 {
 
     public $timestamps = true;
@@ -28,14 +28,14 @@ class ElasticCheck extends Model implements Messageable
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
 
     public function telegramMessage(): string
     {
 
-        $text = $this->alertRule->alertname . "\n\n";
+        $text = $this->alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -46,8 +46,11 @@ class ElasticCheck extends Model implements Messageable
                     break;
             }
         }
-        if (!empty($this->dataview_name)) {
-            $text .= "Data View: " . $this->dataview_name . "\n\n";
+
+        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
+
+        if (!empty($this->dataviewName)) {
+            $text .= "Data View: " . $this->dataviewName . "\n\n";
         }
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
@@ -58,7 +61,7 @@ class ElasticCheck extends Model implements Messageable
     public function teamsMessage(): string
     {
 
-        $text = $this->alertRule->alertname . "\n\n";
+        $text = $this->alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -69,8 +72,11 @@ class ElasticCheck extends Model implements Messageable
                     break;
             }
         }
-        if (!empty($this->dataview_name)) {
-            $text .= "Data View: " . $this->dataview_name . "\n\n";
+
+        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
+
+        if (!empty($this->dataviewName)) {
+            $text .= "Data View: " . $this->dataviewName . "\n\n";
         }
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
@@ -80,7 +86,7 @@ class ElasticCheck extends Model implements Messageable
     public function emailMessage(): string
     {
 
-        $text = $this->alertRule->alertname . "\n\n";
+        $text = $this->alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -91,8 +97,11 @@ class ElasticCheck extends Model implements Messageable
                     break;
             }
         }
-        if (!empty($this->dataview_name)) {
-            $text .= "Data View: " . $this->dataview_name . "\n\n";
+
+        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
+
+        if (!empty($this->dataviewName)) {
+            $text .= "Data View: " . $this->dataviewName . "\n\n";
         }
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
@@ -103,7 +112,7 @@ class ElasticCheck extends Model implements Messageable
     public function smsMessage(): string
     {
 
-        $text = $this->alertRule->alertname . "\n\n";
+        $text = $this->alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -114,8 +123,11 @@ class ElasticCheck extends Model implements Messageable
                     break;
             }
         }
-        if (!empty($this->dataview_name)) {
-            $text .= "Data View: " . $this->dataview_name . "\n\n";
+
+        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
+
+        if (!empty($this->dataviewName)) {
+            $text .= "Data View: " . $this->dataviewName . "\n\n";
         }
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
@@ -126,7 +138,7 @@ class ElasticCheck extends Model implements Messageable
     public function callMessage(): string
     {
 
-        $text = $this->alertRule->alertname  . "\n\n";
+        $text = $this->alertRule->name . "\n\n";
         if (!empty($this->state)) {
             switch ($this->state) {
                 case self::RESOLVED:
@@ -137,8 +149,11 @@ class ElasticCheck extends Model implements Messageable
                     break;
             }
         }
-        if (!empty($this->dataview_name)) {
-            $text .= "Data View: " . $this->dataview_name . "\n\n";
+
+        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
+
+        if (!empty($this->dataviewName)) {
+            $text .= "Data View: " . $this->dataviewName . "\n\n";
         }
 
         $text .= "date: " . Jalalian::now()->format("Y/m/d");

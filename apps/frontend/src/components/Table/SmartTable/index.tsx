@@ -64,7 +64,7 @@ function Table<T>(
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [filterSearchParams, setFilterSearchParams] = useState("");
 
-  const { data, isFetching, isError, refetch } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams],
     queryFn: () => fetchTableData<T>({ url, pageIndex, pageSize, filterSearchParams }),
     refetchInterval
@@ -231,7 +231,7 @@ function Table<T>(
               ))}
             </TableHead>
             <TableBody>
-              {!data || isFetching
+              {!data || isPending
                 ? Array.from({ length: pageSize }).map((_, index) => (
                     <TableRow key={index}>
                       {Array.from({ length: tableColumns.length }).map((_, cellIndex) => (
@@ -284,7 +284,7 @@ function Table<T>(
       </Box>
       <TablePagination
         component="div"
-        count={table.getPageCount()}
+        count={data?.total ?? 0}
         page={table.getState().pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}
         rowsPerPage={table.getState().pagination.pageSize}

@@ -5,14 +5,14 @@ namespace App\Services;
 
 use App\Models\SkylogsInstance;
 
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use DB;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Predis\Connection\ConnectionException;
 use Queue;
-use Redis;
+
 
 class SkylogsInstanceService
 {

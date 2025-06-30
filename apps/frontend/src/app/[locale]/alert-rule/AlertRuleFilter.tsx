@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import {
   alpha,
@@ -58,6 +58,17 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
     setFilter((prev) => ({ ...prev, [key]: event.target.value }));
   }
 
+  function renderAlertRuleList() {
+    return Object.entries(ALERT_RULE_VARIANTS).map(([key, value]) => (
+      <MenuItem key={key} value={key}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <value.Icon size={value.defaultSize} color={value.defaultColor} />
+          <Typography component="span">{value.label}</Typography>
+        </Stack>
+      </MenuItem>
+    ));
+  }
+
   function renderEndpointsChip(selectedEndpointIds: unknown): ReactNode {
     const selectedEndpoints = filter.types?.filter((item) =>
       (selectedEndpointIds as string[]).includes(item)
@@ -95,14 +106,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           size="small"
           onChange={(event) => handleChange("types", event)}
         >
-          {ALERT_RULE_VARIANTS.map((item) => (
-            <MenuItem key={item.value} value={item.value} sx={{ textTransform: "capitalize" }}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                {item.icon}
-                <Typography component="span">{item.value}</Typography>
-              </Stack>
-            </MenuItem>
-          ))}
+          {renderAlertRuleList()}
         </TextField>
       </Grid>
       <Grid size={6}>

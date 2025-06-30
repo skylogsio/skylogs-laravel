@@ -9,7 +9,7 @@ use App\Models\HealthHistory;
 use App\Models\Log;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,7 +41,7 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
 //        echo "TEST";
         $check = HealthCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
                 "url" => $this->alert->url,
@@ -70,13 +70,13 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
                     if ($check->counter < $check->threshold_up && $check->state == HealthCheck::DOWN) {
 
                         $check->state = HealthCheck::UP;
-                        $check->notify_at = time();
+                        $check->notifyAt = time();
                         $check->save();
                         SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check,$this->alert->_id);
                         HealthHistory::create(
                             [
-                                "alert_rule_id" => $this->alert->_id,
-                                "alert_rule_name" => $this->alert->alertname,
+                                "alertRuleId" => $this->alert->_id,
+                                "alertRuleName" => $this->alert->alertname,
                                 "url" => $this->alert->url,
                                 "threshold_down" => $this->alert->threshold_down,
                                 "threshold_up" => $this->alert->threshold_up,
@@ -103,14 +103,14 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
                     $check->counter += 1;
                 if ($check->counter >= $check->threshold_down && $check->state == HealthCheck::UP) {
                     $check->state = HealthCheck::DOWN;
-                    $check->notify_at = time();
+                    $check->notifyAt = time();
                     $check->save();
                     SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check,$this->alert->_id);
 
                     HealthHistory::create(
                         [
-                            "alert_rule_id" => $this->alert->_id,
-                            "alert_rule_name" => $this->alert->alertname,
+                            "alertRuleId" => $this->alert->_id,
+                            "alertRuleName" => $this->alert->alertname,
                             "url" => $this->alert->url,
                             "threshold_down" => $this->alert->threshold_down,
                             "threshold_up" => $this->alert->threshold_up,

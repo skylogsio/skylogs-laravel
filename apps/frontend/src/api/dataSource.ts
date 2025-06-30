@@ -1,24 +1,53 @@
 "use server";
 
+import type{ IDataSource, IDataSourceStatus } from "@/@types/dataSource";
 import type { ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
 
 const DATA_SOURCE_URL = "data-source";
 
-export async function createDataSource(body: unknown) {
-  return axios
-    .post<ServerResponse<unknown>>(DATA_SOURCE_URL, body)
-    .then((response) => response.data);
+export async function createDataSource(body: unknown): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(DATA_SOURCE_URL, body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function updateDataSource(dataSourceId: unknown, body: unknown) {
-  return axios
-    .put<ServerResponse<unknown>>(`${DATA_SOURCE_URL}/${dataSourceId}`, body)
-    .then((response) => response.data);
+export async function updateDataSource(
+  dataSourceId: IDataSource["id"],
+  body: unknown
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.put<ServerResponse<unknown>>(
+      `${DATA_SOURCE_URL}/${dataSourceId}`,
+      body
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export async function deleteDataSource(dataSourceId: unknown) {
-  return axios
-    .delete<ServerResponse<unknown>>(`${DATA_SOURCE_URL}/${dataSourceId}`)
-    .then((response) => response.data);
+export async function deleteDataSource(
+  dataSourceId: IDataSource["id"]
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.delete(`${DATA_SOURCE_URL}/${dataSourceId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getDataSourceStatus(dataSourceId: IDataSource["id"]): Promise<IDataSourceStatus> {
+  try {
+    const response = await axios.get<IDataSourceStatus>(
+      `${DATA_SOURCE_URL}/status/${dataSourceId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }

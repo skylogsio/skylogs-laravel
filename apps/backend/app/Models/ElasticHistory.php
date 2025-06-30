@@ -9,7 +9,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class ElasticHistory extends Model
+class ElasticHistory extends BaseModel
 {
 
     public $timestamps = true;
@@ -25,7 +25,7 @@ class ElasticHistory extends Model
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
 

@@ -11,7 +11,7 @@ use App\Models\Log;
 use App\Services\ElasticService;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
@@ -42,24 +42,24 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
     {
         $check = ElasticCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
-                "dataview_name" => $this->alert->dataview_name,
-                "dataview_title" => $this->alert->dataview_title,
-                "query_string" => $this->alert->query_string,
+                "dataviewName" => $this->alert->dataviewName,
+                "dataviewTitle" => $this->alert->dataviewTitle,
+                "queryString" => $this->alert->queryString,
                 "minutes" => $this->alert->minutes,
-                "count_document" => $this->alert->count_document,
+                "countDocument" => $this->alert->countDocument,
                 "state" => ElasticCheck::RESOLVED,
             ]
         );
 
         $documents = ElasticService::getDocuments($check);
         $check->refresh();
-        if(empty($this->alert->condition) || $this->alert->condition == ElasticCheck::CONDITION_TYPE_GREATER_OR_EQUAL ){
-            $isFired = count($documents) >= $check->count_document;
+        if(empty($this->alert->conditionType) || $this->alert->conditionType == ElasticCheck::CONDITION_TYPE_GREATER_OR_EQUAL ){
+            $isFired = count($documents) >= $check->countDocument;
         }else{
-            $isFired = count($documents) <= $check->count_document;
+            $isFired = count($documents) <= $check->countDocument;
         }
 
         if ($isFired) {
@@ -67,21 +67,22 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
                 $check->state = ElasticCheck::FIRE;
 
                 $alertRule = $check->alertRule;
-                $alertRule->notify_at = time();
+                $alertRule->notifyAt = time();
                 $alertRule->state = AlertRule::CRITICAL;
                 $alertRule->save();
 
                 $check->save();
 
                 ElasticHistory::create([
-                    "alert_rule_id" => $this->alert->_id,
-                    "alert_rule_name" => $this->alert->alertname,
-                    "dataview_name" => $this->alert->dataview_name,
-                    "dataview_title" => $this->alert->dataview_title,
-                    "query_string" => $this->alert->query_string,
+                    "alertRuleId" => $this->alert->_id,
+                    "alertRuleName" => $this->alert->name,
+                    "dataSourceId" => $this->alert->dataSourceId,
+                    "dataviewName" => $this->alert->dataviewName,
+                    "dataviewTitle" => $this->alert->dataviewTitle,
+                    "queryString" => $this->alert->queryString,
                     "minutes" => $this->alert->minutes,
-                    "count_document" => $this->alert->count_document,
-                    "current_count_document" => count($documents),
+                    "countDocument" => $this->alert->countDocument,
+                    "currentCountDocument" => count($documents),
                     "state" => ElasticCheck::FIRE,
                 ]);
 
@@ -92,21 +93,22 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
             if ($check->state != ElasticCheck::RESOLVED) {
                 $check->state = ElasticCheck::RESOLVED;
                 $alertRule = $check->alertRule;
-                $alertRule->notify_at = time();
+                $alertRule->notifyAt = time();
                 $alertRule->state = AlertRule::RESOlVED;
                 $alertRule->save();
 
                 $check->save();
 
                 ElasticHistory::create([
-                    "alert_rule_id" => $this->alert->_id,
-                    "alert_rule_name" => $this->alert->alertname,
-                    "dataview_name" => $this->alert->dataview_name,
-                    "dataview_title" => $this->alert->dataview_title,
-                    "query_string" => $this->alert->query_string,
+                    "alertRuleId" => $this->alert->_id,
+                    "alertRuleName" => $this->alert->name,
+                    "dataSourceId" => $this->alert->dataSourceId,
+                    "dataviewName" => $this->alert->dataviewName,
+                    "dataviewTitle" => $this->alert->dataviewTitle,
+                    "queryString" => $this->alert->queryString,
                     "minutes" => $this->alert->minutes,
-                    "count_document" => $this->alert->count_document,
-                    "current_count_document" => count($documents),
+                    "countDocument" => $this->alert->countDocument,
+                    "currentCountDocument" => count($documents),
                     "state" => ElasticCheck::RESOLVED,
                 ]);
 

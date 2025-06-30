@@ -3,17 +3,22 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
+use App\Observers\EndpointObserver;
+use App\Services\EndpointService;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
-class Endpoint extends Model
+#[ObservedBy(EndpointObserver::class)]
+class Endpoint extends BaseModel
 {
 
     public $timestamps = true;
     public static $title = "Endpoint";
     public static $KEY = "endpoint";
 
+    public const EMAIL ="email";
     public const SMS ="sms";
     public const CALL ="call";
     public const TELEGRAM ="telegram";
@@ -22,20 +27,30 @@ class Endpoint extends Model
     protected $guarded = ['id','_id',];
 
 
-    public static function boot() {
-        parent::boot();
-
-        static::deleting(function ($endpoint) {
-            // Delete the post from the user's posts
-//            AlertRule::where()->endpoints()->where('_id', $endpoint->_id)->delete();
-        });
-    }
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
     public function alertRules() {
         return $this->belongsToMany(AlertRule::class);
+    }
+
+    public function isVerifiedRequired()
+    {
+        return in_array($this->type,[self::SMS, self::CALL, self::EMAIL]);
+    }
+
+    public function generateOTPMessage()
+    {
+        $text  = "Your verification code is  $this->otpCode .\nSkylogs ";
+        return $text;
+    }
+    public function generateOtpCode()
+    {
+        $this->verfied = false;
+        $this->otpCode = rand(1000, 9999);
+        $this->otpSentAt = time();
+
     }
 
     public static array $types = [

@@ -11,45 +11,43 @@ use Illuminate\Http\Request;
 class ApiAlertController extends Controller
 {
 
+    public function __construct(protected ApiService $apiService)
+    {
+    }
+
     public function FireAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
-            abort(404, "wrong parameters!");
+        if (!$request->has('instance')) {
+            abort(404, "instance is required");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
-        return ApiService::FireAlert($post);
+        return $this->apiService->fireAlert($post);
     }
-    public function StopAlert(Request $request)
+    public function ResolveAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
-            abort(404, "wrong parameters!");
+        if (!$request->has('instance')) {
+            abort(404, "instance is required");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
-        return ApiService::StopAlert($post);
+        return $this->apiService->resolveAlert($post);
     }
 
     public function StatusAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
-            abort(404, "wrong parameters!");
+        if (!$request->has( 'instance')) {
+            abort(404, "instance is required");
         }
         $post = $request->all();
-        return ApiService::StatusAlert($post);
+        return $this->apiService->statusAlert($post);
     }
 
-
-    public function Notification(Request $request)
+    public function NotificationAlert(Request $request)
     {
-        if (!$request->has(['alertname', 'instance'])) {
-            abort(404, "wrong parameters!");
+        if (!$request->has('instance')) {
+            abort(404, "instance is required");
         }
         $post = $request->all();
-        $post['file'] = $request->file('file');
-
-        return ApiService::NotificationAlert($post);
+        return $this->apiService->notificationAlert($post);
     }
-
 
 }

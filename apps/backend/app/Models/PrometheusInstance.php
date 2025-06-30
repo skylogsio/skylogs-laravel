@@ -10,7 +10,7 @@ use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
-class PrometheusInstance extends Model
+class PrometheusInstance extends BaseModel
 {
 
     public $timestamps = true;

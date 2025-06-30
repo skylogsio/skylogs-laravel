@@ -1,8 +1,14 @@
-GET {{domain}}/user/
+GET {{domain}}/user?perPage=50
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
+
+###
+GET {{domain}}/user/all
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
 
 ###
 GET {{domain}}/user/67ae64ca98509c886504e9e2

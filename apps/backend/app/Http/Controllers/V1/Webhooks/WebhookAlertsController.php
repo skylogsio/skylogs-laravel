@@ -5,46 +5,71 @@ namespace App\Http\Controllers\V1\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
-use App\Models\AlertRule;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
 use Illuminate\Http\Request;
 
 
 class WebhookAlertsController extends Controller
 {
 
-    public function GrafanaWebhook(Request $request, $instance)
+    public function GrafanaWebhook(Request $request, $token)
     {
+
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
 
         $alerts = $request->alerts;
 
         foreach ($alerts as &$alert) {
-            $alert['instance'] = $instance;
+            $alert['dataSourceId'] = $dataSource->id;
         }
-        $alertRules = AlertRule::where('type', Constants::GRAFANA)->get();
 
         $matchedAlerts = GrafanaService::CheckMatchedAlerts($request->all(), $alerts, $alertRules,);
-        GrafanaService::SaveMatchedAlerts($instance, $request->all(), $matchedAlerts);
-//        \Log::debug("getAlerts",$request->all());
+        GrafanaService::SaveMatchedAlerts( $dataSource, $request->all(), $matchedAlerts);
+
         return [
             "status" => true,
         ];
     }
 
-    public function SentryWebhook(Request $request)
+    public function PmmWebhook(Request $request, $token)
     {
+
+
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
+
+        $alerts = $request->alerts;
+
+        foreach ($alerts as &$alert) {
+            $alert['dataSourceId'] = $dataSource->id;
+        }
+
+        $matchedAlerts = GrafanaService::CheckMatchedAlerts($request->all(), $alerts, $alertRules,);
+        GrafanaService::SaveMatchedAlerts( $dataSource, $request->all(), $matchedAlerts);
+
+        return [
+            "status" => true,
+        ];
+    }
+
+    public function SentryWebhook(Request $request,$token)
+    {
+
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
+
         $post = $request->post();
 
         $model = new SentryWebhookAlert();
 
-        if ($model->CustomSave($post)) {
+        if ($model->CustomSave($dataSource,$alertRules,$post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::SENTRY_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::SENTRY_WEBHOOK, $model, $model->alertRuleId);
 
             return [
                 "status" => true,
@@ -59,7 +84,7 @@ class WebhookAlertsController extends Controller
         }
     }
 
-    public function ZabbixWebhook(Request $request)
+    public function ZabbixWebhook(Request $request,$token)
     {
 
 //        $file = fopen("text.txt", 'a+');
@@ -78,7 +103,7 @@ class WebhookAlertsController extends Controller
 
         if ($model->CustomSave($post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alertRuleId);
             return response()->json([
                 "status" => true,
             ]);
@@ -92,15 +117,37 @@ class WebhookAlertsController extends Controller
         }
     }
 
-    public function UpdamusWebhook(Request $request)
+    public function SplunkWebhook(Request $request)
     {
+        $post = $request->post();
 
-        return [
-            "status" => true,
-        ];
+        $file = fopen("text.txt", 'a+');
+        fwrite($file, json_encode($request->post()));
+        fwrite($file, "\n\n\n");
+        fclose($file);
+        return response()->json(['status' => true]);
+//        $model = new SplunkWebhookAlert([
+//            ...$post,
+//        ]);
 
+//        if ($model->CustomSave($post)) {
+
+//            SendNotifyService::CreateNotify(SendNotifyJob::SPLUNK_WEBHOOK, $model, $model->alert_rule_id);
+
+//            return [
+//                "status" => true,
+//            ];
+//
+//        } else {
+//
+//            return [
+//                "status" => false,
+//            ];
+//
+//        }
     }
-    public function MetabaseWebhook(Request $request)
+
+    public function MetabaseWebhook(Request $request,$token)
     {
 
 
@@ -110,7 +157,7 @@ class WebhookAlertsController extends Controller
 
         if ($model->CustomSave($post)) {
 
-            SendNotifyService::CreateNotify(SendNotifyJob::METABASE_WEBHOOK, $model, $model->alert_rule_id);
+            SendNotifyService::CreateNotify(SendNotifyJob::METABASE_WEBHOOK, $model, $model->alertRuleId);
 
             return [
                 "status" => true,

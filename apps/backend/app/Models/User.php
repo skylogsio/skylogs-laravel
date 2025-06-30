@@ -17,6 +17,9 @@ class User extends Authenticatable implements JWTSubject
     use HasFactory;
     use Notifiable;
     use HasRoles;
+    const CREATED_AT = 'createdAt';
+    const UPDATED_AT = 'updatedAt';
+    const DELETED_AT = 'deletedAt';
     protected $guard_name = 'api';
 //    protected $guard_name = ['web', 'api'];
 

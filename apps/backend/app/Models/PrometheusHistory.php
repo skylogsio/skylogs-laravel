@@ -10,7 +10,7 @@ use MongoDB\Laravel\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 use Morilog\Jalali\Jalalian;
 
-class PrometheusHistory extends Model
+class PrometheusHistory extends BaseModel
 {
 
     public $timestamps = true;
@@ -27,7 +27,7 @@ class PrometheusHistory extends Model
 
     public function alertRule(): BelongsTo
     {
-        return $this->belongsTo(AlertRule::class, "alert_rule_id", "_id");
+        return $this->belongsTo(AlertRule::class, "alertRuleId", "_id");
     }
 
     public function getAlertRulePrometheus(): ?AlertRulePrometheus

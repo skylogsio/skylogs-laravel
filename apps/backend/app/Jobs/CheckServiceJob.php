@@ -12,7 +12,7 @@ use App\Models\ServiceCheck;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
 use App\Services\ServiceCheckService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +44,7 @@ class CheckServiceJob implements ShouldQueue, ShouldBeUnique
 //        echo "TEST";
         $check = ServiceCheck::firstOrCreate(
             [
-                "alert_rule_id" => $this->alert->_id
+                "alertRuleId" => $this->alert->_id
             ],
             [
                 "service_id" => $this->alert->service_id,

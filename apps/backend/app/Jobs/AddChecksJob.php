@@ -2,12 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Enums\AlertRuleType;
 use App\Interfaces\Messageable;
 use App\Models\AlertRule;
 use App\Models\Log;
+use App\Services\AlertRuleService;
 use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Utility\Constants;
+use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,10 +27,6 @@ class AddChecksJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
-    {
-
-    }
 
     /**
      * Execute the job.
@@ -38,24 +36,10 @@ class AddChecksJob implements ShouldQueue
     public function handle()
     {
 
-        $alertRules = AlertRule::whereIn('type', [
-            Constants::ELASTIC,
-            Constants::HEALTH,
-            Constants::SERVICE,
-        ])->get();
+        $alertRules = app(AlertRuleService::class)->getAlerts(AlertRuleType::ELASTIC);
 
         foreach ($alertRules as $alert) {
-            switch ($alert->type) {
-                case Constants::ELASTIC:
-                    CheckElasticJob::dispatch($alert);
-                    break;
-                case Constants::HEALTH:
-                    CheckHealthJob::dispatch($alert);
-                    break;
-                case Constants::SERVICE:
-                    CheckServiceJob::dispatch($alert);
-                    break;
-            }
+            CheckElasticJob::dispatch($alert);
         }
 
     }
