@@ -71,7 +71,7 @@ export interface IAlertRuleInstance {
   status: AlertRuleStatus;
 }
 
-interface IPrometheusSubAlertRule {
+export interface IPrometheusSubAlertRule {
   dataSourceId: string;
   dataSourceName: string;
   alertRuleName: string;
