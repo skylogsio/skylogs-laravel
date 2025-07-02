@@ -1,6 +1,14 @@
 import { useMemo } from "react";
 
-import { alpha, Chip, CircularProgress, IconButton, Stack, useTheme } from "@mui/material";
+import {
+  alpha,
+  Chip,
+  type ChipProps,
+  CircularProgress,
+  IconButton,
+  Stack,
+  useTheme
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { FaFireExtinguisher } from "react-icons/fa6";
 import { toast } from "react-toastify";
@@ -8,13 +16,18 @@ import { toast } from "react-toastify";
 import { type AlertRuleStatus, IAlertRule } from "@/@types/alertRule";
 import { resolveFiredAlertRule } from "@/api/alertRule";
 
-interface AlertRuleStatusProps {
+interface AlertRuleStatusProps extends Pick<ChipProps, "size"> {
   status: AlertRuleStatus;
   id?: IAlertRule["id"];
   onAfterResolve?: () => void;
 }
 
-export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRuleStatusProps) {
+export default function AlertRuleStatus({
+  status,
+  onAfterResolve,
+  id,
+  size = "medium"
+}: AlertRuleStatusProps) {
   const { palette } = useTheme();
 
   const { mutate: resolveAlertRule, isPending } = useMutation({
@@ -45,6 +58,7 @@ export default function AlertRuleStatus({ status, onAfterResolve, id }: AlertRul
     <Stack direction="row" spacing={1} justifyContent="center">
       <Chip
         label={status}
+        size={size}
         sx={{
           textTransform: "capitalize",
           color: color[status],
