@@ -4,7 +4,6 @@ import type {
   IAlertRule,
   IAlertRuleCreateData,
   IAlertRuleEndpoints,
-  IAlertRuleInstance,
   IAlertRuleUsers
 } from "@/@types/alertRule";
 import type { IEndpoint } from "@/@types/endpoint";
@@ -266,9 +265,9 @@ export async function getAlertRuleHistory<T>(
 
 export async function getFiredInstances(
   alertRuleId: IAlertRule["id"]
-): Promise<IAlertRuleInstance[]> {
+){
   try {
-    const response = await axios.get<IAlertRuleInstance[]>(
+    const response = await axios.get(
       `${ALERT_RULE_URL}/triggered/${alertRuleId}`
     );
     return response.data;
