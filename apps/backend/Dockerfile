@@ -20,14 +20,13 @@ RUN pecl install redis && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
-
+WORKDIR /opt/skylogs
 
 COPY . .
 
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+#RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-#RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

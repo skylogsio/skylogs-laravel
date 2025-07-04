@@ -2,16 +2,19 @@
 
 set -e
 
-if [ ! -f .env ]; then
-    cp .env.example .env
+cp -R /opt/skylogs/. /var/www/
+
+if [ ! -f /var/www/.env ]; then
+    cp /var/www/.env.example /var/www/.env
 fi
 
-composer install --no-dev --optimize-autoloader
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-php artisan migrate --force
+php /var/www/artisan migrate --force
 
-php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
+php /var/www/artisan config:clear
+php /var/www/artisan optimize:clear
+php /var/www/artisan config:cache
+php /var/www/artisan route:cache
 
 exec php-fpm
