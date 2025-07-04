@@ -4,15 +4,15 @@ import { alpha, IconButton, Stack, Typography, useTheme } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { HiInformationCircle } from "react-icons/hi";
 
-import type { IAlertRule, IAlertRuleInstance } from "@/@types/alertRule";
+import type { IAlertRule, IApiAlertRuleInstance } from "@/@types/alertRule";
 import { getFiredInstances } from "@/api/alertRule";
 import ModalContainer from "@/components/Modal";
 import DataTable from "@/components/Table/DataTable";
 import { truncateLongString } from "@/utils/general";
 
-export default function AlertRuleFiredInstances({ alertId }: { alertId: IAlertRule["id"] }) {
+export default function ApiFiredInstances({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
-  const [details, setDetails] = useState<IAlertRuleInstance | null>(null);
+  const [details, setDetails] = useState<IApiAlertRuleInstance | null>(null);
 
   const { data } = useQuery({
     queryKey: ["fired-instances", alertId],
@@ -23,7 +23,7 @@ export default function AlertRuleFiredInstances({ alertId }: { alertId: IAlertRu
 
   return (
     <>
-      <DataTable<IAlertRuleInstance>
+      <DataTable<IApiAlertRuleInstance>
         data={data}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },

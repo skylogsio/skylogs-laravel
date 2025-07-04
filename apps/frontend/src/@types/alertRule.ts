@@ -27,6 +27,9 @@ export interface IAlertRule {
   is_silent: boolean;
   count_endpoints: number;
   tags: string[];
+  dataSourceAlertName?: string;
+  dataSourceIds?: string[];
+  dataSourceLabels?: string[];
 }
 
 export interface IAlertRuleEndpoints {
@@ -52,7 +55,7 @@ export interface IApiAndNotificationAlertRuleHistory {
   id: string;
 }
 
-export interface IAlertRuleInstance {
+export interface IApiAlertRuleInstance {
   alertRuleId: string;
   alertRuleName: string;
   instance: string;
@@ -71,7 +74,7 @@ export interface IAlertRuleInstance {
   status: AlertRuleStatus;
 }
 
-interface IPrometheusSubAlertRule {
+export interface IPrometheusAlertRuleInstance {
   dataSourceId: string;
   dataSourceName: string;
   alertRuleName: string;
@@ -84,7 +87,7 @@ interface IPrometheusSubAlertRule {
 
 export interface IPrometheusAlertHistory {
   alertRuleId: string;
-  alerts: IPrometheusSubAlertRule[];
+  alerts: IPrometheusAlertRuleInstance[];
   state: number;
   countResolve: number;
   countFire: number;

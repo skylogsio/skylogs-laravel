@@ -26,8 +26,8 @@ import { type IAlertRule } from "@/@types/alertRule";
 import { getAlertRuleById, silenceAlertRule, testAlertRule } from "@/api/alertRule";
 import AlertRuleModal from "@/app/[locale]/alert-rule/AlertRuleModal";
 import DeleteAlertRuleModal from "@/app/[locale]/alert-rule/DeleteAlertRuleModal";
-import AlertRuleFiredInstances from "@/components/AlertRule/AlertRuleFiredInstances";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
+import AlertRuleFiredInstances from "@/components/AlertRule/FiredInstances/AlertRuleFiredInstances";
 import AlertRuleHistory from "@/components/AlertRule/History/AlertRuleHistory";
 import AlertRuleNotifyManager from "@/components/AlertRule/Notify/AlertRuleNotifyManager";
 import AlertRuleUserManager from "@/components/AlertRule/Users/AlertRuleUserManager";
@@ -144,7 +144,7 @@ export default function ViewAlertRule() {
       case "notify":
         return <AlertRuleNotifyManager alertId={alertId} />;
       case "fire":
-        return <AlertRuleFiredInstances alertId={alertId} />;
+        return <AlertRuleFiredInstances alertId={alertId} type={data!.type} />;
       default:
         return null;
     }
@@ -264,16 +264,36 @@ export default function ViewAlertRule() {
               )}
             </Stack>
           </Stack>
-          <Stack marginTop={3}>
-            <Stack direction="row" spacing={1} alignItems="center">
+          <Stack marginTop={3} direction="row" flexWrap="wrap">
+            <Stack direction="row" spacing={1} alignItems="center" width="50%">
               <Typography variant="subtitle1" fontWeight="bold">
-                Owner :
+                Owner:
               </Typography>
               <Typography>{data.ownerName}</Typography>
             </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
+            {data.dataSourceLabels && (
+              <Stack direction="row" spacing={1} alignItems="center" width="50%">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  DataSources:
+                </Typography>
+                <Stack padding={1} direction="row" gap={1} flexWrap="wrap">
+                  {data.dataSourceLabels.map((label, index) => (
+                    <Chip key={index} variant="filled" label={label} size="small" />
+                  ))}
+                </Stack>
+              </Stack>
+            )}
+            {data.dataSourceAlertName && (
+              <Stack direction="row" spacing={1} alignItems="center" width="50%">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  DataSource Alert Names:
+                </Typography>
+                <Typography>{data.dataSourceAlertName}</Typography>
+              </Stack>
+            )}
+            <Stack direction="row" spacing={1} alignItems="center" width="50%">
               <Typography variant="subtitle1" fontWeight="bold">
-                Tags :
+                Tags:
               </Typography>
               <Stack padding={1} direction="row" gap={1} flexWrap="wrap">
                 {data.tags.map((tag, index) => (
