@@ -37,6 +37,7 @@ class ApiService
             $alert->description = $post['description'] ?? "";
             $alert->summary = $post['summary'] ?? "";
 
+            $alert->touch();
             $alert->save();
 
             SendNotifyService::CreateNotify(SendNotifyJob::API_FIRE, $alert, $alertRule->_id);
@@ -94,6 +95,8 @@ class ApiService
                 $alert->state = AlertInstance::RESOLVED;
                 $alert->description = $post['description'] ?? "";
                 $alert->summary = $post['summary'] ?? "";
+
+                $alert->touch();
 
                 $alert->save();
                 SendNotifyService::CreateNotify(SendNotifyJob::API_RESOLVE, $alert, $alert->alertRule->_id);
@@ -163,14 +166,29 @@ class ApiService
         }
 
 
-        $alert = AlertInstance::updateOrCreate([
+        $alert = AlertInstance::where([
             "alertRuleId" => $alertRule->_id,
             "alertRuleName" => $alertRule['name'],
             "instance" => $post['instance'],
-        ], [
-            "state" => AlertInstance::NOTIFICATION,
-            "description" => $post['description'] ?? null,
-        ]);
+        ])->first();
+
+        if ($alert) {
+            $alert->description =  $post['description'] ?? null;
+            $alert->touch();
+            $alert->save();
+        }else{
+            $alert = AlertInstance::create([
+                "alertRuleId" => $alertRule->_id,
+                "alertRuleName" => $alertRule['name'],
+                "instance" => $post['instance'],
+                "state" => AlertInstance::NOTIFICATION,
+                "description" => $post['description'] ?? null,
+            ]);
+
+        }
+
+        $alert->touch();
+        $alert->save();
 
         SendNotifyService::CreateNotify(SendNotifyJob::API_NOTIFICATION, $alert, $alertRule->_id);
 
