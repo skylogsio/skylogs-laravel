@@ -19,7 +19,8 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender
+  flexRender,
+  type Row
 } from "@tanstack/react-table";
 
 import { DataTableComponentProps } from "../types";
@@ -28,7 +29,8 @@ export default function DataTable<T>({
   data,
   columns,
   hasCheckbox,
-  isLoading
+  isLoading,
+  onRowClick
 }: DataTableComponentProps<T>) {
   const tableColumns = useMemo(() => {
     if (hasCheckbox) {
@@ -66,6 +68,12 @@ export default function DataTable<T>({
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true
   });
+
+  const handleRowClick = (row: Row<T>) => {
+    if (onRowClick) {
+      onRowClick(row.original);
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column" width="100%" minHeight="100%">
@@ -139,6 +147,7 @@ export default function DataTable<T>({
                           backgroundColor: ({ palette }) => alpha(palette.primary.main, 0.06)
                         }
                       }}
+                      onClick={() => handleRowClick(row)}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
