@@ -27,7 +27,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   flexRender,
-  type PaginationState
+  type PaginationState,
+  type Row
 } from "@tanstack/react-table";
 import { HiOutlinePlusSm, HiFilter } from "react-icons/hi";
 
@@ -50,7 +51,8 @@ function Table<T>(
     onCreate,
     refetchInterval,
     filterComponent,
-    searchKey = "name"
+    searchKey = "name",
+    onRowClick
   }: SmartTableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
@@ -150,6 +152,12 @@ function Table<T>(
     table.setPageIndex(defaultPage);
     setFilterSearchParams(temp.toString());
   }
+
+  const handleRowClick = (row: Row<T>) => {
+    if (onRowClick) {
+      onRowClick(row.original);
+    }
+  };
 
   return (
     <Box display="flex" flexDirection="column" width="100%" minHeight="100%">
@@ -285,6 +293,7 @@ function Table<T>(
                           backgroundColor: ({ palette }) => alpha(palette.primary.main, 0.06)
                         }
                       }}
+                      onClick={() => handleRowClick(row)}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell

@@ -26,6 +26,7 @@ export interface SmartTableComponentProps<T> extends Pick<SearchBoxProps, "title
   refetchInterval?: number;
   filterComponent?: (props: TableFilterComponentProps) => ReactNode;
   searchKey?: (string & {}) | keyof T;
+  onRowClick?: (row: T) => void;
 }
 
 export interface DataTableComponentProps<T> {
@@ -33,6 +34,7 @@ export interface DataTableComponentProps<T> {
   columns: ColumnDef<T>[];
   hasCheckbox?: boolean;
   isLoading?: boolean;
+  onRowClick?: (row: T) => void;
 }
 
 export interface FetchTableDataArgs {
