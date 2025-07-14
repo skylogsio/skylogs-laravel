@@ -1,6 +1,16 @@
 import React, { useMemo, useState } from "react";
 
-import { Button, CircularProgress, IconButton, Stack, Typography, useTheme } from "@mui/material";
+import {
+  alpha,
+  Avatar,
+  Button,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme
+} from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import JsonView from "@uiw/react-json-view";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
@@ -32,7 +42,50 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
 
   const totalCount = data?.pages?.[0]?.total || 0;
 
-  console.log(data);
+  function renderFiredAndResolvedChip(countFire: number, countResolve: number) {
+    const numberOfFired = countFire > 100 ? "+99" : countFire;
+    const numberOfResolved = countResolve > 100 ? "+99" : countResolve;
+    return (
+      <Stack direction="row" spacing={1} justifyContent="center">
+        {countFire > 0 && (
+          <Chip
+            avatar={
+              <Avatar
+                variant="rounded"
+                sx={{
+                  bgcolor: ({ palette }) => alpha(palette.error.light, 0.3),
+                  color: ({ palette }) => `${palette.error.main}!important`
+                }}
+              >
+                {numberOfFired}
+              </Avatar>
+            }
+            variant="outlined"
+            label="Fired"
+            color="error"
+          />
+        )}
+        {countResolve > 0 && (
+          <Chip
+            avatar={
+              <Avatar
+                variant="rounded"
+                sx={{
+                  bgcolor: ({ palette }) => alpha(palette.success.light, 0.3),
+                  color: ({ palette }) => `${palette.success.main}!important`
+                }}
+              >
+                {numberOfResolved}
+              </Avatar>
+            }
+            variant="outlined"
+            label="Resolved"
+            color="success"
+          />
+        )}
+      </Stack>
+    );
+  }
 
   if (isFetching && !isFetchingNextPage) {
     return null;
@@ -46,8 +99,11 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
           onRowClick={(row) => setDetails(row)}
           columns={[
             { header: "Row", accessorFn: (_, index) => ++index },
-            { header: "Fired Instances", accessorKey: "countFire" },
-            { header: "Resolved Instances", accessorKey: "countResolve" },
+            {
+              header: "Fired / Resolved",
+              cell: ({ row }) =>
+                renderFiredAndResolvedChip(row.original.countFire, row.original.countResolve)
+            },
             { header: "Date", accessorKey: "createdAt" },
             {
               header: "Actions",
@@ -153,7 +209,7 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
                   </Stack>
                 </Stack>
                 <Stack
-                  direction="row"
+                  direction="row-reverse"
                   width="100%"
                   spacing={2}
                   sx={{ "& .w-json-view-container": { backgroundColor: "transparent !important" } }}

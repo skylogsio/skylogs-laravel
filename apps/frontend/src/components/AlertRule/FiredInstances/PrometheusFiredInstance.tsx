@@ -28,6 +28,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
     <>
       <DataTable<IPrometheusAlertRuleInstance>
         data={data}
+        onRowClick={(row) => setDetails(row)}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
           { header: "DataSource", accessorKey: "dataSourceName" },
