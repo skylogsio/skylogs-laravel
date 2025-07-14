@@ -63,8 +63,9 @@ class CreateDataController extends Controller
 
         $type = AlertRuleType::tryFrom($request->input("type"));
         $rules = match ($type) {
+            AlertRuleType::PROMETHEUS => $this->prometheusInstanceService->getRules($request->dataSourceId),
             AlertRuleType::GRAFANA => $this->grafanaInstanceService->alertRulesName($request->dataSourceId),
-            default => $this->prometheusInstanceService->getRules($request->dataSourceId),
+            default => [],
         };
         return response()->json($rules);
     }
