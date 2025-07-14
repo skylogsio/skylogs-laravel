@@ -98,7 +98,7 @@ export default function SentryAlertRuleForm({
     ]
   });
 
-  const { mutate: createPrometheusMutation, isPending: isCreating } = useMutation({
+  const { mutate: createSentryMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: SentryFromType) => createAlertRule(body),
     onSuccess: (data) => {
       if (data.status) {
@@ -112,7 +112,7 @@ export default function SentryAlertRuleForm({
     }
   });
 
-  const { mutate: updatePrometheusMutation, isPending: isUpdating } = useMutation({
+  const { mutate: updateSentryMutation, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, body }: { id: IAlertRule["id"]; body: SentryFromType }) =>
       updateAlertRule(id, body),
     onSuccess: (data) => {
@@ -126,9 +126,9 @@ export default function SentryAlertRuleForm({
 
   function handleSubmitForm(values: SentryFromType) {
     if (data === "NEW") {
-      createPrometheusMutation(values);
+      createSentryMutation(values);
     } else if (data) {
-      updatePrometheusMutation({ id: data.id, body: values });
+      updateSentryMutation({ id: data.id, body: values });
     }
   }
 
@@ -156,7 +156,7 @@ export default function SentryAlertRuleForm({
           fontWeight="bold"
           component="div"
         >
-          {data === "NEW" ? "Create" : "Update"} Alert
+          {data === "NEW" ? "Create" : "Update"} Sentry Alert
         </Typography>
         <Grid size={12}>
           <TextField
