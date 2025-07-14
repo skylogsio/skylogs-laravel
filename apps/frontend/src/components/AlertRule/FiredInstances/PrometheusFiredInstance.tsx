@@ -101,7 +101,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
               </Stack>
             </Stack>
             <Stack
-              direction="row"
+              direction="row-reverse"
               width="100%"
               spacing={2}
               sx={{ "& .w-json-view-container": { backgroundColor: "transparent !important" } }}
@@ -122,6 +122,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                   style={githubLightTheme}
                   value={details.annotations}
                   enableClipboard={false}
+                  displayDataTypes={false}
                 />
               </Stack>
               <Stack
@@ -136,7 +137,12 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                 <Typography variant="body2" sx={{ opacity: 0.6 }}>
                   Labels:
                 </Typography>
-                <JsonView style={githubLightTheme} value={details.labels} enableClipboard={false} />
+                <JsonView
+                  style={githubLightTheme}
+                  value={details.labels}
+                  enableClipboard={false}
+                  displayDataTypes={false}
+                />
               </Stack>
             </Stack>
           </Stack>
