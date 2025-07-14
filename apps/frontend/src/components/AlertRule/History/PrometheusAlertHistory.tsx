@@ -43,6 +43,7 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
       <Stack alignItems="center">
         <DataTable<IPrometheusAlertHistory>
           data={allData}
+          onRowClick={(row) => setDetails(row)}
           columns={[
             { header: "Row", accessorFn: (_, index) => ++index },
             { header: "Fired Instances", accessorKey: "countFire" },
