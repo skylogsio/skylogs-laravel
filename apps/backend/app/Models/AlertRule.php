@@ -188,39 +188,40 @@ class AlertRule extends BaseModel implements Messageable
     ];
 
     //########### ONLY FOR MANUALLY RESOLVE
-    public function telegramMessage()
+    public function defaultMessage()
     {
         $text = $this->name;
         $text .= " resolved manually.";
         return $text;
+    }
+
+    public function telegramMessage()
+    {
+        return $this->defaultMessage();
+    }
+    public function matterMostMessage()
+    {
+        return $this->defaultMessage();
     }
 
     public function teamsMessage()
     {
-        $text = $this->name;
-        $text .= " resolved manually.";
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function emailMessage()
     {
-        $text = $this->name;
-        $text .= " resolved manually.";
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function smsMessage()
     {
-        $text = $this->name;
-        $text .= " resolved manually.";
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function callMessage()
     {
-        $text = $this->name;
-        $text .= " resolved manually.";
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function testMessage()

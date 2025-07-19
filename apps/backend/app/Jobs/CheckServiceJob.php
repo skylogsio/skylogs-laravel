@@ -2,25 +2,16 @@
 
 namespace App\Jobs;
 
-use App\Interfaces\Messageable;
-use App\Models\AlertRule;
 use App\Models\HealthCheck;
-use App\Models\HealthHistory;
-use App\Models\Log;
 use App\Models\Service;
 use App\Models\ServiceCheck;
-use App\Services\PrometheusInstanceService;
-use App\Services\SendNotifyService;
 use App\Services\ServiceCheckService;
-use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use function PHPUnit\Framework\throwException;
-use function Symfony\Component\Translation\t;
 
 class CheckServiceJob implements ShouldQueue, ShouldBeUnique
 {

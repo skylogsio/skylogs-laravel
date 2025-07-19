@@ -33,9 +33,19 @@ class Notify extends BaseModel implements Messageable
     }
 
 
+    public function defaultMessage(): string
+    {
+        return $this->messages['defaultMessage'];
+    }
+
     public function telegramMessage()
     {
         return $this->messages['telegramMessage'];
+    }
+
+    public function matterMostMessage()
+    {
+        return $this->messages['matterMostMessage'];
     }
 
     public function teamsMessage()

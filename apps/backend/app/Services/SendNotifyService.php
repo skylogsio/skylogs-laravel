@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\Call;
 use App\Helpers\Email;
+use App\Helpers\MatterMost;
 use App\Helpers\SMS;
 use App\Helpers\Teams;
 use App\Helpers\Telegram;
@@ -28,22 +29,26 @@ class SendNotifyService
 
         if ($type == SendNotifyJob::ALERT_RULE_TEST) {
             $messages = [
+                "matterMostMessage" => $notify->alertRule->testMessage(),
                 "telegramMessage" => $notify->alertRule->testMessage(),
                 "teamsMessage" => $notify->alertRule->testMessage(),
                 "emailMessage" => $notify->alertRule->testMessage(),
                 "smsMessage" => $notify->alertRule->testMessage(),
                 "callMessage" => $notify->alertRule->testMessage(),
+                "defaultMessage" => $notify->alertRule->testMessage(),
             ];
 
         } else {
 
 
             $messages = [
+                "matterMostMessage" => $alert->matterMostMessage(),
                 "telegramMessage" => $alert->telegramMessage(),
                 "teamsMessage" => $alert->teamsMessage(),
                 "emailMessage" => $alert->emailMessage(),
                 "smsMessage" => $alert->smsMessage(),
                 "callMessage" => $alert->callMessage(),
+                "defaultMessage" => $alert->defaultMessage(),
             ];
 
         }
@@ -89,6 +94,7 @@ class SendNotifyService
         $phones = $endpoints->where("type", "sms")->pluck("value");
         $phonesCalls = $endpoints->where("type", "call")->pluck("value");
         $teamsUrls = $endpoints->where("type", "teams")->pluck("value");
+        $matterMostUrls = $endpoints->where("type", "matter-most")->pluck("value");
         $emails = $endpoints->where("type", "email")->pluck("value")->toArray();
         $telegrams = $endpoints->where("type", "telegram")->toArray();
 
@@ -101,18 +107,28 @@ class SendNotifyService
                 $notify);
             $notify->resultSms = $result;
         }
+
         if ($phonesCalls->isNotEmpty()) {
             $result = Call::sendAlert($phonesCalls,
                 $notify,
             );
             $notify->resultCall = $result;
         }
+
         if ($teamsUrls->isNotEmpty()) {
             $result = Teams::sendMessageAlert($teamsUrls,
                 $notify,
             );
             $notify->resultTeams = $result;
         }
+
+        if ($matterMostUrls->isNotEmpty()) {
+            $result = MatterMost::sendMessageAlert($matterMostUrls,
+                $notify,
+            );
+            $notify->resultMatterMost = $result;
+        }
+
         if (!empty($telegrams)) {
             $result = Telegram::sendMessageAlert($telegrams,
                 $notify

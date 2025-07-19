@@ -32,7 +32,7 @@ class ElasticCheck extends BaseModel implements Messageable
     }
 
 
-    public function telegramMessage(): string
+    public function defaultMessage(): string
     {
 
         $text = $this->alertRule->name . "\n\n";
@@ -58,107 +58,40 @@ class ElasticCheck extends BaseModel implements Messageable
         return $text;
     }
 
+    public function telegramMessage()
+    {
+        return $this->defaultMessage();
+    }
+
+    public function matterMostMessage()
+    {
+        return $this->defaultMessage();
+    }
     public function teamsMessage(): string
     {
 
-        $text = $this->alertRule->name . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅". "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥". "\n\n";
-                    break;
-            }
-        }
+        return $this->defaultMessage();
 
-        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
-
-        if (!empty($this->dataviewName)) {
-            $text .= "Data View: " . $this->dataviewName . "\n\n";
-        }
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
     }
     public function emailMessage(): string
     {
 
-        $text = $this->alertRule->name . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅". "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥". "\n\n";
-                    break;
-            }
-        }
+        return $this->defaultMessage();
 
-        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
-
-        if (!empty($this->dataviewName)) {
-            $text .= "Data View: " . $this->dataviewName . "\n\n";
-        }
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
     }
 
     public function smsMessage(): string
     {
 
-        $text = $this->alertRule->name . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅". "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥". "\n\n";
-                    break;
-            }
-        }
+        return $this->defaultMessage();
 
-        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
-
-        if (!empty($this->dataviewName)) {
-            $text .= "Data View: " . $this->dataviewName . "\n\n";
-        }
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
     }
 
     public function callMessage(): string
     {
 
-        $text = $this->alertRule->name . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::RESOLVED:
-                    $text .= "State: Resolved ✅". "\n\n";
-                    break;
-                case self::FIRE:
-                    $text .= "State: Fire 🔥". "\n\n";
-                    break;
-            }
-        }
+        return $this->defaultMessage();
 
-        $text .= "Data Source: " . $this->alertRule->dataSource->name . "\n\n";
-
-        if (!empty($this->dataviewName)) {
-            $text .= "Data View: " . $this->dataviewName . "\n\n";
-        }
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
     }
 
 }

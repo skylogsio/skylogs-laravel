@@ -4,11 +4,6 @@ namespace App\Models;
 
 use App\Helpers\Utilities;
 use App\Interfaces\Messageable;
-use App\Helpers\Constants;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
 class SentryWebhookAlert extends BaseModel implements Messageable
@@ -81,7 +76,7 @@ class SentryWebhookAlert extends BaseModel implements Messageable
         return $this->save();
     }
 
-    public function telegramMessage(): string
+    public function defaultMessage(): string
     {
         $text = $this->alertRuleName;
 
@@ -112,137 +107,34 @@ class SentryWebhookAlert extends BaseModel implements Messageable
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
+    }
+
+    public function telegramMessage()
+    {
+        return $this->defaultMessage();
+    }
+    public function matterMostMessage()
+    {
+        return $this->defaultMessage();
     }
 
     public function teamsMessage(): string
     {
-        $text = $this->alertRuleName;
-
-
-        if (!empty($this->action)) {
-            switch ($this->action) {
-                case AlertRule::RESOlVED:
-                    $text .= "\nSeverity: Resolved ✅";
-                    break;
-                case AlertRule::WARNING:
-                    $text .= "\nSeverity: Warning ⚠️";
-                    break;
-                case AlertRule::CRITICAL:
-                    $text .= "\nSeverity: Critical 🔥";
-                    break;
-                case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert 📢";
-                    break;
-
-            }
-        }
-
-        $text .= "\n";
-        $text .= "\nDataSource: ".$this->dataSourceName;
-
-        $text .= "\nDescription: " . $this->description;
-        $text .= "\nUrl: " . $this->url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function emailMessage(): string
     {
-        $text = $this->alertRuleName;
-
-
-        if (!empty($this->action)) {
-            switch ($this->action) {
-                case AlertRule::RESOlVED:
-                    $text .= "\nSeverity: Resolved ✅";
-                    break;
-                case AlertRule::WARNING:
-                    $text .= "\nSeverity: Warning ⚠️";
-                    break;
-                case AlertRule::CRITICAL:
-                    $text .= "\nSeverity: Critical 🔥";
-                    break;
-                case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert 📢";
-                    break;
-
-            }
-        }
-
-        $text .= "\n";
-        $text .= "\nDataSource: ".$this->dataSourceName;
-
-        $text .= "\nDescription: " . $this->description;
-        $text .= "\nUrl: " . $this->url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function smsMessage(): string
     {
-        $text = $this->alertRuleName;
-
-
-        if (!empty($this->action)) {
-            switch ($this->action) {
-                case AlertRule::RESOlVED:
-                    $text .= "\nSeverity: Resolved ✅";
-                    break;
-                case AlertRule::WARNING:
-                    $text .= "\nSeverity: Warning ⚠️";
-                    break;
-                case AlertRule::CRITICAL:
-                    $text .= "\nSeverity: Critical 🔥";
-                    break;
-                case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert 📢";
-                    break;
-
-            }
-        }
-
-        $text .= "\n";
-        $text .= "\nDataSource: ".$this->dataSourceName;
-
-        $text .= "\nDescription: " . $this->description;
-        $text .= "\nUrl: " . $this->url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function callMessage(): string
     {
-        $text = $this->alertRuleName;
-
-
-        if (!empty($this->action)) {
-            switch ($this->action) {
-                case AlertRule::RESOlVED:
-                    $text .= "\nSeverity: Resolved ✅";
-                    break;
-                case AlertRule::WARNING:
-                    $text .= "\nSeverity: Warning ⚠️";
-                    break;
-                case AlertRule::CRITICAL:
-                    $text .= "\nSeverity: Critical 🔥";
-                    break;
-                case AlertRule::TRIGGERED:
-                    $text .= "\nTRIGGERED Alert 📢";
-                    break;
-
-            }
-        }
-
-        $text .= "\n";
-        $text .= "\nDataSource: ".$this->dataSourceName;
-
-        $text .= "\nDescription: " . $this->description;
-        $text .= "\nUrl: " . $this->url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 }
