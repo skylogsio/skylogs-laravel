@@ -2,20 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Interfaces\Messageable;
-
-//use Log;
-use App\Models\GrafanaWebhookAlert;
 use App\Models\Notify;
-use App\Models\PrometheusCheck;
 use App\Services\SendNotifyService;
-use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+
+//use Log;
 
 class SendNotifyJob implements ShouldQueue
 {

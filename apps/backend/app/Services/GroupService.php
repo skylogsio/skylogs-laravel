@@ -2,24 +2,7 @@
 
 namespace App\Services;
 
-use App\Interfaces\Messageable;
-use App\Jobs\SendNotifyJob;
-use App\Models\AlertInstance;
-use App\Models\AlertRule;
-use App\Models\AlertRulePrometheus;
-use App\Models\Endpoint;
-use App\Models\GrafanaWebhookAlert;
 use App\Models\GroupAlertRule;
-use App\Models\Log;
-use App\Models\Notify;
-use App\Models\SentryWebhookAlert;
-use App\Models\SilentRule;
-use App\Models\ZabbixWebhookAlert;
-use App\Utility\Call;
-use App\Utility\Constants;
-use App\Utility\SMS;
-use App\Utility\Teams;
-use App\Utility\Telegram;
 use Illuminate\Support\Collection;
 
 class GroupService

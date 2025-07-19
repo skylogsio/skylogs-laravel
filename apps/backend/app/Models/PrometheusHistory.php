@@ -2,13 +2,9 @@
 
 namespace App\Models;
 
-use App\Interfaces\Messageable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-//use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
-use MongoDB\Laravel\Eloquent\Model;
-use Morilog\Jalali\Jalalian;
+
+//use MongoDB\Laravel\Eloquent\Model;
 
 class PrometheusHistory extends BaseModel
 {
