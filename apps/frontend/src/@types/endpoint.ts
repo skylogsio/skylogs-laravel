@@ -8,4 +8,5 @@ export interface IEndpoint {
   threadId?: string;
   chatId?: string;
   id: string;
+  isPublic: boolean;
 }
