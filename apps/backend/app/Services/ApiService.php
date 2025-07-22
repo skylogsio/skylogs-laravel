@@ -202,7 +202,7 @@ class ApiService
 
     }
 
-    public function alertRuleByToken($token, AlertRuleType $type)
+    public function alertRuleByToken($token, AlertRuleType $type = null)
     {
 
         $alertRules = $this->alertRuleService->getAlerts($type);
