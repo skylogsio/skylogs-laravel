@@ -19,16 +19,6 @@ class SkylogsInstance extends BaseModel
 
     protected $guarded = ['id', '_id',];
 
-    public function isOk(){
-        return SkylogsInstanceService::getHealthCheck($this);
-    }
-
-    public function isLeader(){
-        return SkylogsInstanceService::isLeader($this);
-    }
-    public function setLeader(){
-        SkylogsInstanceService::SetServerPriority($this);
-    }
 
     public function getBaseUrl()
     {
