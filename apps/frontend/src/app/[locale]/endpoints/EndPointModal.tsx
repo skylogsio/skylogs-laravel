@@ -1,7 +1,14 @@
 import { useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Grid2 as Grid, MenuItem, TextField } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid2 as Grid,
+  MenuItem,
+  TextField
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -13,7 +20,7 @@ import { createEndpoint, updateEndpoint } from "@/api/endpoint";
 import ModalContainer from "@/components/Modal";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
-const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call", "email"] as const;
+const ENDPOINTS_TYPE = ["sms", "telegram", "teams", "call", "email", "matter-most"] as const;
 
 const createEndpointSchema = z.object({
   name: z
@@ -30,6 +37,7 @@ const createEndpointSchema = z.object({
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
     }),
+  isPublic: z.optional(z.boolean()).default(false),
   threadId: z.optional(z.string()).nullable(),
   botToken: z.optional(z.string()).nullable()
 });
@@ -52,6 +60,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors }
   } = useForm<EndpointFormType>({
     resolver: zodResolver(createEndpointSchema),
@@ -136,7 +145,7 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
                 value={item}
                 sx={{ textTransform: item === "sms" ? "uppercase" : "capitalize" }}
               >
-                {item}
+                {item.replace("-", " ")}
               </MenuItem>
             ))}
           </TextField>
@@ -172,6 +181,18 @@ export default function EndPointModal({ open, onClose, data, onSubmit }: Endpoin
             />
           </Grid>
         )}
+        <Grid size={12}>
+          <FormControlLabel
+            sx={{ margin: 0 }}
+            label="Is Public"
+            control={
+              <Checkbox
+                checked={watch("isPublic")}
+                onChange={(_, checked) => setValue("isPublic", checked)}
+              />
+            }
+          />
+        </Grid>
         <Grid size={12} marginTop="1rem">
           <Button
             disabled={isCreating || isUpdating}
