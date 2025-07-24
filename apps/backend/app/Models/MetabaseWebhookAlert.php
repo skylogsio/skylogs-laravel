@@ -2,13 +2,8 @@
 
 namespace App\Models;
 
-use App\Helpers\Utilities;
-use App\Interfaces\Messageable;
 use App\Helpers\Constants;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
+use App\Interfaces\Messageable;
 use Morilog\Jalali\Jalalian;
 
 class MetabaseWebhookAlert extends BaseModel implements Messageable
@@ -54,7 +49,7 @@ class MetabaseWebhookAlert extends BaseModel implements Messageable
         return $this->save();
     }
 
-    public function telegramMessage(): string
+    public function defaultMessage(): string
     {
         $text = $this->alert_name;
 
@@ -64,52 +59,35 @@ class MetabaseWebhookAlert extends BaseModel implements Messageable
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
+    }
+
+    public function telegramMessage()
+    {
+        return $this->defaultMessage();
     }
 
     public function teamsMessage(): string
     {
-        $text = $this->alert_name;
-
-        $text .= "\n⚠️ TRIGGERED Metabase Alert ";
-
-        $text .= "\nUrl: " . $this->question_url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
+
+    public function matterMostMessage(): string
+    {
+        return $this->defaultMessage();
+    }
+
     public function emailMessage(): string
     {
-        $text = $this->alert_name;
-
-        $text .= "\n⚠️ TRIGGERED Metabase Alert ";
-
-        $text .= "\nUrl: " . $this->question_url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function smsMessage(): string
     {
-        $text = $this->alert_name;
-
-        $text .= "\n⚠️ TRIGGERED Metabase Alert ";
-
-        $text .= "\nUrl: " . $this->question_url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function callMessage(): string
     {
-        $text = $this->alert_name;
-
-        $text .= "\n⚠️ TRIGGERED Metabase Alert ";
-
-        $text .= "\nUrl: " . $this->question_url;
-        $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 }

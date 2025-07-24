@@ -2,23 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Interfaces\Messageable;
 use App\Models\AlertRule;
 use App\Models\ElasticCheck;
 use App\Models\HealthCheck;
-use App\Models\Log;
 use App\Models\PrometheusCheck;
-use App\Services\ElasticService;
-use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
 use App\Utility\Constants;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use function Symfony\Component\Translation\t;
 
 class IntervalJob implements ShouldQueue
 {
