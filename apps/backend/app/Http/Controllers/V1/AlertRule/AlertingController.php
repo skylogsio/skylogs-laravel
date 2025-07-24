@@ -24,6 +24,7 @@ use App\Models\SentryWebhookAlert;
 use App\Models\User;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\AlertRuleService;
+use App\Services\ApiService;
 use App\Services\EndpointService;
 use App\Services\SendNotifyService;
 use Carbon\Carbon;
@@ -491,6 +492,7 @@ class AlertingController extends Controller
                         $apiAlert->createStatusHistory($apiHistory);
                     }
                 }
+                app(ApiService::class)->refreshStatus($alert);
                 break;
             case AlertRuleType::SENTRY:
                 if (empty($alert->state) || $alert->state != AlertRule::RESOlVED) {
