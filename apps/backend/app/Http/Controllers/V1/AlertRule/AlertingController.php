@@ -30,6 +30,8 @@ use App\Services\SendNotifyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use MongoDB\Builder\Expression;
+use MongoDB\Builder\Query;
 use Str;
 
 class AlertingController extends Controller
@@ -43,59 +45,105 @@ class AlertingController extends Controller
     {
 
         $perPage = $request->perPage ?? 25;
-
-        $data = AlertRule::latest();
-
         $currentUser = \Auth::user();
+        $userId = $currentUser->id;
+
+        $pipeline = [];
+
+        $match = [];
 
         if (!$currentUser->isAdmin()) {
-            $data = $data->where(function ($query) use ($request) {
-                return $query->where('userId', \Auth::id())
-                    ->orWhereIn("userIds", [\Auth::user()->_id]);
-            });
+            $match['$or'] = [
+                ['userId' => $userId],
+                ['userIds' => $userId]
+            ];
         }
 
-
         if ($request->filled("alertname")) {
-            $data = $data->where("name", "like", '%' . $request->alertname . '%');
+            $match['name'] = [
+                '$regex' => $request->alertname,
+                '$options' => 'i'
+            ];
         }
 
         if ($request->filled("types")) {
             $types = explode(',', $request->types);
-            $data = $data->whereIn("type", $types);
+            $match['type'] = ['$in' => $types];
         }
 
         if ($request->filled("tags")) {
             $tags = explode(',', $request->tags);
-            $data = $data->whereIn("tags", $tags);
+            $match['tags'] = ['$in' => $tags];
         }
+
         if ($request->has("silentStatus")) {
             $silent = $request->silentStatus == 'silent' ? 1 : 0;
             if ($silent) {
-                $data = $data->whereIn("silentUserIds", [$currentUser->id]);
+                $match['silentUserIds'] = ['$in' => [$currentUser->id]];
             } else {
-                $data = $data->whereNotIn("silentUserIds", [$currentUser->id]);
+                $match['silentUserIds'] = ['$nin' => [$currentUser->id]];
             }
         }
 
         if ($request->filled("endpointId")) {
-            $endpointId = $request->endpointId;
-
-            $data = $data->whereIn("endpointIds", [$endpointId]);
-
+            $match['endpointIds'] = ['$in' => [$request->endpointId]];
         }
 
         if ($request->filled("userId")) {
-            $data = $data->where("userId", $request->userId);
+            $match['userId'] = $request->userId;
         }
 
         if ($request->filled("status")) {
-            $data = $data->where("state", $request->status);
+            $match['state'] = $request->status;
         }
 
-        $data = $data->paginate($perPage);
+        if (!empty($match)) {
+            $pipeline[] = ['$match' => $match];
+        }
 
-        foreach ($data as &$alert) {
+        $pipeline[] = [
+            '$addFields' => [
+                'isPinned' => [
+                    '$in' => [
+                        $currentUser->_id,
+                        [ '$ifNull' => [ '$pinUserIds', [] ] ]
+                    ]
+                ]
+            ]
+        ];
+
+        $pipeline[] = ['$sort' => ['isPinned' => -1, '_id' => 1]];
+
+
+        $page = $request->input('page', 1);
+        $skip = ($page - 1) * $perPage;
+
+
+        $pipeline[] = ['$skip' => $skip];
+        $pipeline[] = ['$limit' => $perPage];
+
+        $data = AlertRule::raw(function ($collection) use ($pipeline) {
+            return $collection->aggregate($pipeline);
+        });
+
+        $total = AlertRule::raw(function ($collection) use ($match) {
+            return $collection->aggregate([
+                ['$match' => $match],
+                ['$count' => 'total']
+            ])->toArray();
+        });
+        $total = !empty($total) ? $total[0]['total'] : 0;
+
+        $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
+            $data,
+            $total,
+            $perPage,
+            $page,
+            ['path' => $request->url()]
+        );
+
+        foreach ($paginatedData as &$alert) {
+//            $alert =new AlertRule($alert);
             $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
             [$alertStatus, $alertStatusCount] = $alert->getStatus();
@@ -120,10 +168,25 @@ class AlertingController extends Controller
             $alert->extraField = $extraField;
         }
 
-        return response()->json($data);
+
+        return response()->json($paginatedData);
 
 
     }
+
+
+    public function Pin($id)
+    {
+        $alert = AlertRule::where("_id", $id)->first();
+        if ($alert->isPin()) {
+            $alert->unPin();
+        } else {
+            $alert->pin();
+        }
+
+        return ['status' => true, "isPin" => $alert->isPin()];
+    }
+
 
     public function FilterEndpoints()
     {
