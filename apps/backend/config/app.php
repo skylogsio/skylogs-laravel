@@ -15,6 +15,12 @@ return [
 
     'name' => env('APP_NAME', 'Skylogs'),
 
+
+    'clusterType' => env('CLUSTER_TYPE', 'main'),
+    'sourceUrl' => env('SOURCE_URL', ''),
+    'sourceToken' => env('SOURCE_TOKEN', ''),
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
