@@ -12,12 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->throttleWithRedis();
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'apiAuth' => \App\Http\Middleware\ApiAlertAuth::class,
             'webhookAuth' => \App\Http\Middleware\WebhookAuth::class,
+            'clusterAuth' => \App\Http\Middleware\ClusterAuth::class,
             'horizonBasicAuth' => \App\Http\Middleware\HorizonBasicAuthMiddleware::class,
 
         ]);

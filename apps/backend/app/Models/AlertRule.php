@@ -97,6 +97,23 @@ class AlertRule extends BaseModel implements Messageable
 
     }
 
+    public function isPin(): bool
+    {
+        return !empty($this->pinUserIds) && in_array(\Auth::user()->_id, $this->pinUserIds);
+    }
+
+    public function pin()
+    {
+        $this->push("pinUserIds", \Auth::user()->_id, true);
+        $this->save();
+    }
+
+    public function unPin()
+    {
+        $this->pull("pinUserIds", \Auth::user()->_id);
+        $this->save();
+    }
+
     public function isSilent(): bool
     {
         return !empty($this->silentUserIds) && in_array(\Auth::user()->_id, $this->silentUserIds);
