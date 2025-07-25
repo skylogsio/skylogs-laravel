@@ -106,7 +106,7 @@ class AlertInstance extends BaseModel implements Messageable
 
     }
 
-    public function telegramMessage(): string
+    public function defaultMessage()
     {
         $text = $this->alertRuleName;
 
@@ -129,89 +129,36 @@ class AlertInstance extends BaseModel implements Messageable
         return $text;
     }
 
+    public function telegramMessage(): string
+    {
+        return $this->defaultMessage();
+    }
+
+    public function matterMostMessage(): string
+    {
+        return $this->defaultMessage();
+    }
+
     public function smsMessage(): string
     {
-        $text = $this->alertRuleName;
-
-        $text .= match ($this->state) {
-            self::FIRE => "\nState: Fire 🔥",
-            self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification 📢",
-            default => "\nstate: Unknown",
-        };
-
-        if (!empty($this->instance))
-            $text .= "\nInstance: " . $this->instance;
-
-        if (!empty($this->description))
-            $text .= "\nDescription: " . $this->description;
-
-        $text .= "\nDate: " . $this->updatedAtString();
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function callMessage(): string
     {
-        $text = $this->alertRuleName;
+        return $this->defaultMessage();
 
-        $text .= match ($this->state) {
-            self::FIRE => "\nstate: Fire",
-            self::RESOLVED => "\nstate: Resolve",
-            self::NOTIFICATION => "\nState: Notification 📢",
-            default => "\nstate: Unknown",
-        };
-
-        if (!empty($this->instance))
-            $text .= "\nInstance: " . $this->instance;
-        if (!empty($this->description))
-            $text .= "\ndescription: " . $this->description;
-        $text .= "\ndate: " . Jalalian::now()->format("Y/m/d");
-        return $text;
     }
 
     public function teamsMessage()
     {
-        $text = $this->alertname;
+        return $this->defaultMessage();
 
-        $text .= match ($this->state) {
-            self::FIRE => "\nState: Fire 🔥",
-            self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification 📢",
-            default => "\nstate: Unknown",
-        };
-
-        if (!empty($this->instance))
-            $text .= "\nInstance: " . $this->instance;
-
-        if (!empty($this->description))
-            $text .= "\nDescription: " . $this->description;
-
-        $text .= "\nDate: " . $this->updatedAtString();
-
-        return $text;
     }
 
     public function emailMessage()
     {
-        $text = $this->alertRuleName;
-
-        $text .= match ($this->state) {
-            self::FIRE => "\nState: Fire 🔥",
-            self::RESOLVED => "\nState: Resolve ✅",
-            self::NOTIFICATION => "\nState: Notification 📢",
-            default => "\nstate: Unknown",
-        };
-
-        if (!empty($this->instance))
-            $text .= "\nInstance: " . $this->instance;
-
-        if (!empty($this->description))
-            $text .= "\nDescription: " . $this->description;
-
-        $text .= "\nDate: " . $this->updatedAtString();
-
-        return $text;
+        return $this->defaultMessage();
     }
 
 }

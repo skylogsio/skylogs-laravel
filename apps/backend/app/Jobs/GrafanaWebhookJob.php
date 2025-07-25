@@ -2,19 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Interfaces\Messageable;
+use App\Helpers\Constants;
 use App\Models\AlertRule;
 use App\Models\GrafanaWebhookAlert;
-use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use function Symfony\Component\Translation\t;
 
 class GrafanaWebhookJob implements ShouldQueue
 {

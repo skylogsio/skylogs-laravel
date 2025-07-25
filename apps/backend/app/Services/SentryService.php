@@ -318,122 +318,12 @@ class SentryService
 
     public static function CheckAlerts($alertRules, $prometheusFiredAlerts)
     {
-        foreach ($alertRules as $alertRule) {
-            $check = PrometheusCheck::firstOrCreate([
-                "alert_rule_id" => $alertRule->_id,
-            ], [
-                "alerts" => [],
-                "state" => PrometheusCheck::RESOLVED,
-            ]);
-
-            $newFiredAlertsArray = collect();
-            $resolvedAlertsArray = collect();
-            $commonAlertsArray = collect();
-            $updatedAlertsArray = collect();
-            $prometheusAlerts = empty($prometheusFiredAlerts[$alertRule->id]) ? [] : $prometheusFiredAlerts[$alertRule->id];
-            foreach ($prometheusAlerts as $prometheusAlert) {
-                $isExists = false;
-                foreach ($check->alerts as $alert) {
-                    if ($prometheusAlert['labels'] == $alert['labels']) {
-                        $isExists = true;
-                        break;
-                    }
-                }
-
-                if ($isExists) {
-                    $commonAlertsArray->add($prometheusAlert);
-                } else {
-                    $newFiredAlertsArray->add($prometheusAlert);
-                }
-            }
-
-            if (collect($prometheusAlerts)->count() == $commonAlertsArray->count() && $commonAlertsArray->count() == collect($check->alerts)->count()) {
-                continue;
-            }
-
-
-            if ($commonAlertsArray->count() != collect($check->alerts)->count()) {
-                foreach ($check->alerts as $savedAlert) {
-                    $isResolved = true;
-                    foreach ($commonAlertsArray as $alert) {
-                        if ($savedAlert['labels'] == $alert['labels']) {
-                            $isResolved = false;
-                            break;
-                        }
-                    }
-                    if ($isResolved) {
-                        $resolvedAlertsArray->add($savedAlert);
-                    }
-                }
-            }
-
-//            $updatedAlertsArray = $commonAlertsArray->clone();
-
-            foreach ($commonAlertsArray as $commonAlert) {
-                $commonAlert['skylogs_status'] = empty($commonAlert['skylogs_status']) ? PrometheusCheck::FIRE : $commonAlert['skylogs_status'];
-                $updatedAlertsArray->add($commonAlert);
-            }
-
-            foreach ($newFiredAlertsArray as $newFiredAlert) {
-                $newFiredAlert['skylogs_status'] = PrometheusCheck::FIRE;
-                $updatedAlertsArray->add($newFiredAlert);
-            }
-
-            foreach ($resolvedAlertsArray as $resolvedAlert) {
-                $resolvedAlert['skylogs_status'] = PrometheusCheck::RESOLVED;
-                $updatedAlertsArray->add($resolvedAlert);
-            }
-
-            $firedAlerts = $updatedAlertsArray->filter(function ($alert) {
-                return empty($alert['skylogs_status']) || $alert['skylogs_status'] == PrometheusCheck::FIRE;
-            });
-
-            if ($updatedAlertsArray->isEmpty()) continue;
-
-            $check->alerts = $updatedAlertsArray->toArray();
-
-
-            $alertRule = $check->alertRule;
-            if ($firedAlerts->isEmpty()) {
-                $check->state = PrometheusCheck::RESOLVED;
-                $alertRule->state = AlertRule::RESOlVED;
-            } else {
-                $check->state = PrometheusCheck::FIRE;
-                $alertRule->state = AlertRule::CRITICAL;
-            }
-
-
-            if ($check->state == PrometheusCheck::RESOLVED && empty($check->alerts)) {
-                continue;
-            }
-
-            $check->save();
-            $alertRule->save();
-            $check->createHistory();
-
-//            $updatedAlertsArray->isNotEmpty() ? AlertRule::
-//            \Bus::chain([
-//                new SendNotifyJob(SendNotifyJob::PROMETHEUS_FIRE, $check),
-//                new RefreshPrometheusCheckJob,
-//            ])->dispatch();
-            SendNotifyService::CreateNotify(SendNotifyJob::PROMETHEUS_FIRE, $check, $alertRule->_id);
-
-
-        }
 
     }
 
 
     public static function CleanChecks()
     {
-        $checks = PrometheusCheck::get();
-        foreach ($checks as $check) {
-            $alerts = collect($check->alerts);
-            $alerts = $alerts->filter(function ($alert) {
-                return empty($alert["skylogs_status"]) || $alert["skylogs_status"] == PrometheusCheck::FIRE;
-            });
-            $check->alerts = $alerts->toArray();
-            $check->save();
-        }
+
     }
 }

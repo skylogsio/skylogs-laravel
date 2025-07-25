@@ -2,13 +2,8 @@
 
 namespace App\Models;
 
-use App\Interfaces\Messageable;
 use App\Services\PrometheusInstanceService;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
-use Morilog\Jalali\Jalalian;
 
 class Service extends BaseModel
 {

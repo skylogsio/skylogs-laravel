@@ -2,24 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Interfaces\Messageable;
 use App\Models\AlertRule;
 use App\Models\ElasticCheck;
 use App\Models\ElasticHistory;
-use App\Models\HealthCheck;
-use App\Models\Log;
 use App\Services\ElasticService;
-use App\Services\PrometheusInstanceService;
 use App\Services\SendNotifyService;
-use App\Helpers\Constants;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use function Symfony\Component\Translation\t;
 
 class CheckElasticJob implements ShouldQueue, ShouldBeUnique
 {

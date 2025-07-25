@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Constants;
+use App\Http\Controllers\Cluster\SyncController;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
@@ -14,12 +15,22 @@ use App\Http\Controllers\V1\Profile\ServiceController;
 use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
+use App\Http\Controllers\V1\SkylogsInstanceController;
 use App\Http\Controllers\V1\UserController;
 use App\Http\Controllers\V1\Webhooks\ApiAlertController;
 use App\Http\Controllers\V1\Webhooks\WebhookAlertsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+Route::prefix('cluster')
+    ->controller(SyncController::class)
+    ->middleware(['clusterAuth'])
+    ->group(function () {
+
+    Route::get("/sync-data","Data")->name("cluster.data");
+
+});
 
 Route::prefix('v1')->group(function () {
 
@@ -78,6 +89,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('/changeOwner/{id}', 'ChangeOwner');
                 Route::delete('/{id}', 'Delete');
             });
+        Route::prefix("/skylogs-instance")
+            ->controller(SkylogsInstanceController::class)
+            ->middleware("role:" . Constants::ROLE_OWNER->value)
+            ->group(function () {
+                Route::get('/', 'Index');
+                Route::get('/{id}', 'Show');
+                Route::post('/', 'Create');
+                Route::put('/{id}', 'Update');
+                Route::delete('/{id}', 'Delete');
+            });
 
         Route::prefix("/data-source")
             ->controller(DataSourceController::class)
@@ -114,6 +135,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Store');
                 Route::post('/silent/{id}', 'Silent');
+                Route::post('/pin/{id}', 'Pin');
                 Route::post('/resolve/{id}', 'ResolveAlert');
                 Route::put('/{id}', 'StoreUpdate');
                 Route::delete('/{id}', 'Delete');

@@ -3,10 +3,7 @@
 namespace App\Models;
 
 use App\Interfaces\Messageable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
 use Morilog\Jalali\Jalalian;
 
 class ServiceCheck extends BaseModel implements Messageable
@@ -37,7 +34,7 @@ class ServiceCheck extends BaseModel implements Messageable
        return $this->service->getHealthUrl();
     }
 
-    public function telegramMessage(): string
+    public function defaultMessage(): string
     {
 
         $text = $this->alertRule->alertname . "\n\n";
@@ -56,89 +53,35 @@ class ServiceCheck extends BaseModel implements Messageable
         $text .= "date: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
+    }
+    public function telegramMessage(): string
+    {
+        return $this->defaultMessage();
+    }
+
+    public function matterMostMessage(): string
+    {
+        return $this->defaultMessage();
     }
 
     public function teamsMessage(): string
     {
-
-        $text = $this->alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::UP:
-                    $text .= "State: UP ✅" . "\n\n";
-                    break;
-                case self::DOWN:
-                    $text .= "State: DOWN 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function emailMessage(): string
     {
-
-        $text = $this->alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::UP:
-                    $text .= "State: UP ✅" . "\n\n";
-                    break;
-                case self::DOWN:
-                    $text .= "State: DOWN 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function smsMessage(): string
     {
-
-        $text = $this->alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::UP:
-                    $text .= "State: UP ✅" . "\n\n";
-                    break;
-                case self::DOWN:
-                    $text .= "State: DOWN 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-        return $text;
+        return $this->defaultMessage();
     }
 
     public function callMessage(): string
     {
-
-        $text = $this->alertRule->alertname . "\n\n";
-        if (!empty($this->state)) {
-            switch ($this->state) {
-                case self::UP:
-                    $text .= "State: UP ✅" . "\n\n";
-                    break;
-                case self::DOWN:
-                    $text .= "State: DOWN 🔥" . "\n\n";
-                    break;
-            }
-        }
-
-
-        $text .= "date: " . Jalalian::now()->format("Y/m/d");
-
-        return $text;
+        return $this->defaultMessage();
     }
 
 }

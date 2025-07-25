@@ -2,13 +2,9 @@
 
 namespace App\Models;
 
-use App\Interfaces\Messageable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
 
-class AlertRulePrometheus extends BaseModel implements Messageable
+
+class AlertRulePrometheus extends BaseModel
 {
 
     public $timestamps = true;
@@ -24,26 +20,5 @@ class AlertRulePrometheus extends BaseModel implements Messageable
         "health" => "Health",
     ];
 
-    public function telegramMessage()
-    {
-        // TODO: Implement telegramMessage() method.
-    }
 
-    public function smsMessage()
-    {
-        // TODO: Implement smsMessage() method.
-    }
-
-    public function callMessage()
-    {
-        // TODO: Implement callMessage() method.
-    }
-    public function teamsMessage()
-    {
-        // TODO: Implement callMessage() method.
-    }
-    public function emailMessage()
-    {
-        // TODO: Implement callMessage() method.
-    }
 }

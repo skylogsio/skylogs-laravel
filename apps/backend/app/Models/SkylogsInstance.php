@@ -2,14 +2,7 @@
 
 namespace App\Models;
 
-use App\Interfaces\Messageable;
-use App\Services\PrometheusInstanceService;
 use App\Services\SkylogsInstanceService;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
-use Morilog\Jalali\Jalalian;
 
 class SkylogsInstance extends BaseModel
 {
@@ -26,16 +19,6 @@ class SkylogsInstance extends BaseModel
 
     protected $guarded = ['id', '_id',];
 
-    public function isOk(){
-        return SkylogsInstanceService::getHealthCheck($this);
-    }
-
-    public function isLeader(){
-        return SkylogsInstanceService::isLeader($this);
-    }
-    public function setLeader(){
-        SkylogsInstanceService::SetServerPriority($this);
-    }
 
     public function getBaseUrl()
     {
