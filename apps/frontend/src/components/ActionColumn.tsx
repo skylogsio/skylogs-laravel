@@ -1,16 +1,42 @@
+import { type ReactNode, useState } from "react";
+
 import { alpha, IconButton, Stack } from "@mui/material";
-import { HiKey, HiPencil, HiTrash } from "react-icons/hi";
+import { BsFillClipboard2Fill } from "react-icons/bs";
+import { HiCheck, HiKey, HiPencil, HiTrash } from "react-icons/hi";
 
 export interface ActionColumnProps {
+  children?: ReactNode;
   onEdit?: () => void;
   onDelete?: () => void;
   onChangePassword?: () => void;
+  copyValue?: string;
 }
 
-export default function ActionColumn({ onEdit, onDelete, onChangePassword }: ActionColumnProps) {
+export default function ActionColumn({
+  children,
+  onEdit,
+  onDelete,
+  onChangePassword,
+  copyValue
+}: ActionColumnProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  async function handleCopyToClipboard() {
+    try {
+      await window.navigator.clipboard.writeText(copyValue!);
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error("Unable to copy to clipboard.", err);
+      alert("Copy to clipboard failed.");
+    }
+  }
   return (
     <>
       <Stack direction="row" spacing={1} justifyContent="center">
+        {children}
         {onEdit && (
           <IconButton
             onClick={onEdit}
@@ -20,6 +46,17 @@ export default function ActionColumn({ onEdit, onDelete, onChangePassword }: Act
             })}
           >
             <HiPencil size="1.4rem" />
+          </IconButton>
+        )}
+        {copyValue !== undefined && (
+          <IconButton
+            sx={({ palette }) => ({
+              color: palette.secondary.main,
+              backgroundColor: alpha(palette.secondary.dark, 0.05)
+            })}
+            onClick={() => handleCopyToClipboard()}
+          >
+            {isCopied ? <HiCheck size="1.3rem" /> : <BsFillClipboard2Fill size="1.3rem" />}
           </IconButton>
         )}
         {onChangePassword && (

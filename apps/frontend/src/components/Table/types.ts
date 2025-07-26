@@ -27,6 +27,7 @@ export interface SmartTableComponentProps<T> extends Pick<SearchBoxProps, "title
   filterComponent?: (props: TableFilterComponentProps) => ReactNode;
   searchKey?: (string & {}) | keyof T;
   onRowClick?: (row: T) => void;
+  onGroupActionClick?: () => void;
 }
 
 export interface DataTableComponentProps<T> {

@@ -13,6 +13,7 @@ const URLS: Array<URLType> = [
   { pathname: "/endpoints", label: "Endpoints" },
   { pathname: "/users", label: "Users", role: ["owner", "manager"] },
   { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"] },
+  { pathname: "/clusters", label: "Clusters", role: ["owner"] },
   { pathname: "/alert-rule", label: "Alert Rules" },
   { pathname: "/profile-services", label: "Profile Services", role: "owner" },
   { pathname: "/settings/telegram", label: "Settings", role: "owner" }

@@ -29,6 +29,10 @@ export default function Wrapper({ children }: PropsWithChildren) {
     router.replace("/");
     return null;
   }
+  if (pathname.includes("/clusters") && userInfo && !hasRole(["owner"])) {
+    router.replace("/");
+    return null;
+  }
 
   return (
     <Box

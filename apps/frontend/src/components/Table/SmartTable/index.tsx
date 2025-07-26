@@ -52,7 +52,8 @@ function Table<T>(
     refetchInterval,
     filterComponent,
     searchKey = "name",
-    onRowClick
+    onRowClick,
+    onGroupActionClick
   }: SmartTableComponentProps<T>,
   ref: React.Ref<TableComponentRef>
 ) {
@@ -215,10 +216,15 @@ function Table<T>(
           borderColor="grey.200"
         >
           {filterComponent?.({ onChange: handleChangeFilter })}
-          <Stack direction="row-reverse">
+          <Stack direction="row-reverse" spacing={1}>
             <Button size="small" variant="contained" onClick={handleSetFilter}>
               Filter
             </Button>
+            {onGroupActionClick && (
+              <Button size="small" variant="outlined" onClick={onGroupActionClick}>
+                Group Actions
+              </Button>
+            )}
           </Stack>
         </Stack>
       </Collapse>

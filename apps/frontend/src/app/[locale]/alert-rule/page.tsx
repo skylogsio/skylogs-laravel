@@ -9,6 +9,7 @@ import AlertRuleActionColumn from "@/app/[locale]/alert-rule/AlertRuleActionColu
 import TagsCell from "@/app/[locale]/alert-rule/TagsCell";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import AlertRuleType from "@/components/AlertRule/AlertRuleType";
+import GroupActionModal from "@/components/AlertRule/GroupActionModal";
 import AlertRuleNotifyModal from "@/components/AlertRule/Notify/AlertRuleNotifyModal";
 import Table from "@/components/Table/SmartTable";
 import type { TableComponentRef } from "@/components/Table/types";
@@ -22,6 +23,7 @@ export default function AlertRule() {
   const pathname = usePathname();
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
   const [deleteModalData, setDeleteModalData] = useState<IAlertRule | null>(null);
+  const [openGroupActionModal, setOpenGroupActionModal] = useState<boolean>(false);
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -34,12 +36,18 @@ export default function AlertRule() {
     setDeleteModalData(null);
   }
 
+  function handleAfterGroupAction() {
+    handleRefreshData();
+    setOpenGroupActionModal(false);
+  }
+
   return (
     <>
       <Table<IAlertRule>
         ref={tableRef}
         title="Alert Rule"
         url="alert-rule"
+        onGroupActionClick={() => setOpenGroupActionModal(true)}
         searchKey="alertname"
         filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
         defaultPageSize={10}
@@ -108,6 +116,9 @@ export default function AlertRule() {
           onAfterDelete={handleAfterDelete}
           data={deleteModalData}
         />
+      )}
+      {openGroupActionModal && (
+        <GroupActionModal open={openGroupActionModal} onClose={handleAfterGroupAction} />
       )}
     </>
   );
