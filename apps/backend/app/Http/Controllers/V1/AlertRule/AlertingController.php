@@ -37,9 +37,13 @@ use Str;
 class AlertingController extends Controller
 {
 
-    public function __construct(protected AlertRuleService $alertRuleService)
+    public function __construct(
+        protected AlertRuleService $alertRuleService,
+        protected EndpointService $endpointService,
+    )
     {
     }
+
 
     public function Index(Request $request)
     {
@@ -52,50 +56,7 @@ class AlertingController extends Controller
 
         $match = [];
 
-        if (!$currentUser->isAdmin()) {
-            $match['$or'] = [
-                ['userId' => $userId],
-                ['userIds' => $userId]
-            ];
-        }
-
-        if ($request->filled("alertname")) {
-            $match['name'] = [
-                '$regex' => $request->alertname,
-                '$options' => 'i'
-            ];
-        }
-
-        if ($request->filled("types")) {
-            $types = explode(',', $request->types);
-            $match['type'] = ['$in' => $types];
-        }
-
-        if ($request->filled("tags")) {
-            $tags = explode(',', $request->tags);
-            $match['tags'] = ['$in' => $tags];
-        }
-
-        if ($request->has("silentStatus")) {
-            $silent = $request->silentStatus == 'silent' ? 1 : 0;
-            if ($silent) {
-                $match['silentUserIds'] = ['$in' => [$currentUser->id]];
-            } else {
-                $match['silentUserIds'] = ['$nin' => [$currentUser->id]];
-            }
-        }
-
-        if ($request->filled("endpointId")) {
-            $match['endpointIds'] = ['$in' => [$request->endpointId]];
-        }
-
-        if ($request->filled("userId")) {
-            $match['userId'] = $request->userId;
-        }
-
-        if ($request->filled("status")) {
-            $match['state'] = $request->status;
-        }
+        $this->alertRuleService->getMatchFilterArray($request, $match);
 
         if (!empty($match)) {
             $pipeline[] = ['$match' => $match];
@@ -127,10 +88,17 @@ class AlertingController extends Controller
         });
 
         $total = AlertRule::raw(function ($collection) use ($match) {
-            return $collection->aggregate([
-                ['$match' => $match],
-                ['$count' => 'total']
-            ])->toArray();
+            if(empty($match)){
+                $pipeline = [
+                    ['$count' => 'total'],
+                ];
+            }else{
+                $pipeline = [
+                    ['$match' => $match],
+                    ['$count' => 'total']
+                ];
+            }
+            return $collection->aggregate($pipeline)->toArray();
         });
         $total = !empty($total) ? $total[0]['total'] : 0;
 
@@ -144,7 +112,7 @@ class AlertingController extends Controller
 
         foreach ($paginatedData as &$alert) {
 //            $alert =new AlertRule($alert);
-            $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+            $alert->hasAdminAccess = $this->alertRuleService->hasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
             [$alertStatus, $alertStatusCount] = $alert->getStatus();
             $alert->statusLabel = $alertStatus;
@@ -153,7 +121,7 @@ class AlertingController extends Controller
             $isSilent = $alert->isSilent();
             $alert->isSilent = $isSilent;
             $alert->is_silent = $isSilent;
-            $alert->countEndpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
+            $alert->countEndpoints = $this->endpointService->countUserEndpointAlert($currentUser, $alert);
             $alert->count_endpoints = $alert->countEndpoints;
 
             $extraField = [];
@@ -193,7 +161,7 @@ class AlertingController extends Controller
 
         $currentUser = \Auth::user();
 
-        $selectableEndpoints = EndpointService::SelectableUserEndpoint($currentUser);
+        $selectableEndpoints = $this->endpointService->selectableUserEndpoint($currentUser);
 
         return response()->json($selectableEndpoints);
     }
@@ -379,7 +347,7 @@ class AlertingController extends Controller
         }
         $alert->extraField = $extraField;
 
-        $alert->hasAdminAccess = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+        $alert->hasAdminAccess = $this->alertRuleService->hasAdminAccessAlert($currentUser, $alert);
         $alert->has_admin_access = $alert->hasAdminAccess;
         [$alertStatus, $alertStatusCount] = $alert->getStatus();
         $alert->statusLabel = $alertStatus;
@@ -389,7 +357,7 @@ class AlertingController extends Controller
         $isSilent = $alert->isSilent();
         $alert->isSilent = $isSilent;
         $alert->is_silent = $isSilent;
-        $alert->countEndpoints = EndpointService::CountUserEndpointAlert($currentUser, $alert);
+        $alert->countEndpoints = $this->endpointService->countUserEndpointAlert($currentUser, $alert);
         $alert->count_endpoints = $alert->countEndpoints;
 
 
@@ -494,7 +462,7 @@ class AlertingController extends Controller
 
         $alertEndpoints = collect($model->endpointIds);
         $endpointsIds = collect($request->array("endpointIds"));
-        $selectableEndpoints = EndpointService::SelectableUserEndpoint(auth()->user());
+        $selectableEndpoints = $this->endpointService->selectableUserEndpoint(auth()->user());
 
         foreach ($alertEndpoints as $end) {
             if ($selectableEndpoints->contains($end)) {
@@ -536,7 +504,7 @@ class AlertingController extends Controller
         $alert = AlertRule::where('_id', $id)->first();
         $sendResolve = false;
         $currentUser = auth()->user();
-        if (!AlertRuleService::HasUserAccessAlert($currentUser, $alert)) {
+        if (!$this->alertRuleService->hasUserAccessAlert($currentUser, $alert)) {
             abort(403);
         }
 
@@ -638,20 +606,9 @@ class AlertingController extends Controller
     {
 
         $alert = AlertRule::where('_id', $request->id)->firstOrFail();
-        $userId = \Auth::user()->_id;
-        if ($alert->userId == $userId || \Auth::user()->isAdmin()) {
-            $this->alertRuleService->delete($alert);
-        } else {
-            $alert->pull("userIds", $userId);
-            if (!empty($alert->endpointIds)) {
-                $data = Endpoint::whereIn("_id", $alert->endpointIds)->where('userId', \Auth::user()->_id)->get();
-                foreach ($data as $endpoint) {
-                    $alert->pull("endpointIds", $endpoint->_id);
-                }
+        $user = \Auth::user();
 
-            }
-
-        }
+        $this->alertRuleService->deleteForUser($user, $alert);
 
         return response()->json(['status' => true]);
 //        return redirect()->route('role.index');

@@ -20,7 +20,7 @@ class EndpointService
 {
 
 
-    public static function SelectableUserEndpoint(User $user, AlertRule $alert = null)
+    public function selectableUserEndpoint(User $user, AlertRule $alert = null)
     {
 
         if ($user->isAdmin()) {
@@ -47,14 +47,14 @@ class EndpointService
 
     }
 
-    public static function CountUserEndpointAlert(User $user, AlertRule $alert = null)
+    public function countUserEndpointAlert(User $user, AlertRule $alert = null)
     {
-        $selectableEndpoints = self::SelectableUserEndpoint($user, $alert);
+        $selectableEndpoints = $this->selectableUserEndpoint($user, $alert);
         $alertEndpoints = collect($alert->endpointIds);
         return $selectableEndpoints->pluck("id")->intersect($alertEndpoints)->count();
     }
 
-    public function refreshAlertRuleEndpoints(Endpoint $endpoint) :void
+    public function deleteEndpointOfAlertRules(Endpoint $endpoint) :void
     {
         foreach (app(AlertRuleService::class)->getAlertsDB() as $alertRule) {
             $alertRule->pull('endpointIds',$endpoint->_id);
