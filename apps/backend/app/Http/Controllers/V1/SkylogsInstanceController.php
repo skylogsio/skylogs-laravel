@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\SkylogsInstance;
+use App\Services\SkylogsInstanceService;
 use Illuminate\Http\Request;
 
 
@@ -117,5 +118,9 @@ class SkylogsInstanceController extends Controller
         }
     }
 
-
+    public function IsConnected($id)
+    {
+        $isConnected = app(SkylogsInstanceService::class)->isConnected($id);
+        return response()->json(["isConnected" => $isConnected]);
+    }
 }

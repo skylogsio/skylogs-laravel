@@ -14,18 +14,22 @@ class AccessUserController extends Controller
 {
 
 
+    public function __construct(protected AlertRuleService $alertRuleService)
+    {
+    }
+
     public function CreateData($id)
     {
 
         $alert = AlertRule::where('_id', $id)->firstOrFail();
         $currentUser = \Auth::user();
 
-        $selectableUsers = [];
-        if ($currentUser->isAdmin() || $alert->userId == $currentUser->_id) {
-            $selectableUsers = User::whereNotIn('_id',[$currentUser->id,])->get();
-        } else {
+
+        if (!$this->alertRuleService->hasAdminAccessAlert($currentUser, $alert)) {
             abort(403);
         }
+
+        $selectableUsers = User::whereNotIn('_id', [$currentUser->id,])->get();
 
         $alertUsers = [];
         if (!empty($alert->userIds))
@@ -39,12 +43,12 @@ class AccessUserController extends Controller
     {
 
         $currentUser = Auth::user();
-        $isAdmin = $currentUser->isAdmin();
         $alert = AlertRule::where('_id', $id)->firstOrFail();
 
-        if(!$isAdmin && $alert->userId != $currentUser->id){
+        if (!$this->alertRuleService->hasAdminAccessAlert($currentUser, $alert)) {
             abort(403);
         }
+
         if ($request->has("user_ids") && !empty($request->post("user_ids"))) {
 
             foreach ($request->user_ids as $userId) {
@@ -60,7 +64,7 @@ class AccessUserController extends Controller
     {
 
         $alert = AlertRule::where('_id', $alertId)->firstOrFail();
-        if(!Auth::user()->isAdmin() && $alert->userId != Auth::user()->id){
+        if (!$this->alertRuleService->hasAdminAccessAlert(Auth::user(), $alert)) {
             abort(403);
         }
 
