@@ -44,7 +44,7 @@ class AlertingController extends Controller
     public function Index(Request $request)
     {
 
-        $perPage = $request->perPage ?? 25;
+        $perPage = $request->perPage ? intval($request->perPage) : 25;
         $currentUser = \Auth::user();
         $userId = $currentUser->id;
 
