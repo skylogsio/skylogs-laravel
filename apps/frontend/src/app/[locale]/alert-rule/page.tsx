@@ -1,7 +1,9 @@
 "use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+
+import { Stack, Typography } from "@mui/material";
+import { FaThumbtack } from "react-icons/fa6";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
@@ -19,6 +21,7 @@ import AlertRuleModal from "./AlertRuleModal";
 import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
 
 export default function AlertRule() {
+  const router = useRouter();
   const tableRef = useRef<TableComponentRef>(null);
   const pathname = usePathname();
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
@@ -52,11 +55,28 @@ export default function AlertRule() {
         filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
         defaultPageSize={10}
         columns={[
-          { header: "Row", accessorFn: (_, index) => ++index },
+          {
+            header: "Row",
+            accessorFn: (_, index) => ++index
+          },
           {
             header: "Name",
             cell: ({ row }) => (
-              <Link href={`${pathname}/${row.original.id}`}>{row.original.name}</Link>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                spacing={1}
+                onClick={() => router.push(`${pathname}/${row.original.id}`)}
+                sx={{ color: ({ palette }) => palette.grey[400], cursor: "pointer" }}
+              >
+                {row.original.isPinned && (
+                  <FaThumbtack size="0.9rem" style={{ transform: "rotate(-45deg)" }} />
+                )}
+                <Typography variant="body2" color="textPrimary">
+                  {row.original.name}
+                </Typography>
+              </Stack>
             )
           },
           {
@@ -92,7 +112,9 @@ export default function AlertRule() {
             cell: ({ row }) => (
               <AlertRuleActionColumn
                 isSilent={row.original.is_silent}
+                isPinned={row.original.isPinned}
                 rowId={row.original.id}
+                refreshData={handleRefreshData}
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
               />

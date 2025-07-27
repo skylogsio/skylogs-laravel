@@ -87,6 +87,15 @@ export async function silenceAlertRule(id: IAlertRule["id"]): Promise<ServerResp
   }
 }
 
+export async function pinAlertRule(id: IAlertRule["id"]): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(`${ALERT_RULE_URL}/pin/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getAlertFilterEndpointList(): Promise<IEndpoint[]> {
   try {
     const response = await axios.get<Array<IEndpoint>>(`${ALERT_RULE_URL}/filter-endpoints`);
@@ -263,13 +272,9 @@ export async function getAlertRuleHistory<T>(
   }
 }
 
-export async function getFiredInstances(
-  alertRuleId: IAlertRule["id"]
-){
+export async function getFiredInstances(alertRuleId: IAlertRule["id"]) {
   try {
-    const response = await axios.get(
-      `${ALERT_RULE_URL}/triggered/${alertRuleId}`
-    );
+    const response = await axios.get(`${ALERT_RULE_URL}/triggered/${alertRuleId}`);
     return response.data;
   } catch (error) {
     throw error;
