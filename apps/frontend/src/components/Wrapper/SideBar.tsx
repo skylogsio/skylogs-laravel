@@ -3,7 +3,6 @@ import { usePathname } from "next/navigation";
 
 import { Box, List, ListItem as MUIListItem, ListItemButton, Stack } from "@mui/material";
 import {
-  AiOutlineHome,
   AiOutlineApi,
   AiOutlineUser,
   AiOutlineDatabase,
@@ -24,12 +23,17 @@ type URLType = {
 };
 
 const URLS: Array<URLType> = [
-  { pathname: "/", label: "Home", icon: AiOutlineHome },
+  // { pathname: "/", label: "Home", icon: AiOutlineHome },
+  { pathname: "/alert-rule", label: "Alert Rules", icon: AiOutlineAlert },
   { pathname: "/endpoints", label: "Endpoints", icon: AiOutlineApi },
   { pathname: "/users", label: "Users", role: ["owner", "manager"], icon: AiOutlineUser },
-  { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"], icon: AiOutlineDatabase },
+  {
+    pathname: "/data-source",
+    label: "Data Sources",
+    role: ["owner", "manager"],
+    icon: AiOutlineDatabase
+  },
   { pathname: "/clusters", label: "Clusters", role: ["owner"], icon: AiOutlineCluster },
-  { pathname: "/alert-rule", label: "Alert Rules", icon: AiOutlineAlert },
   { pathname: "/profile-services", label: "Profile Services", role: "owner", icon: AiOutlineCloud },
   { pathname: "/settings/telegram", label: "Settings", role: "owner", icon: AiOutlineSetting }
 ];

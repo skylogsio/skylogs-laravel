@@ -1,9 +1,6 @@
-import { Typography } from "@mui/material";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  return (
-    <Typography variant="h6" component="div">
-      This is Home page.
-    </Typography>
-  );
+  redirect("/alert-rule");
+  return null;
 }
