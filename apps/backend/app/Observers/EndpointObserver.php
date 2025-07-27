@@ -17,7 +17,7 @@ class EndpointObserver {
     }
 
     public function deleted(Endpoint $endpoint): void {
-        app(EndpointService::class)->refreshAlertRuleEndpoints($endpoint);
+        app(EndpointService::class)->deleteEndpointOfAlertRules($endpoint);
         app(EndpointService::class)->flushCache();
     }
 

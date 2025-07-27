@@ -8,6 +8,7 @@ use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
 use App\Models\ElasticCheck;
+use App\Models\Endpoint;
 use App\Models\PrometheusCheck;
 use App\Models\User;
 use App\Helpers\Call;
@@ -40,6 +41,74 @@ class AlertRuleService
 
 
     }
+
+    public function getAlertRules($request)
+    {
+        $match = [];
+        $this->getMatchFilterArray($request, $match);
+
+        $pipeline = [];
+        if (!empty($match)) {
+            $pipeline[] = ['$match' => $match];
+        }
+
+        $data = AlertRule::raw(function ($collection) use ($pipeline) {
+            return $collection->aggregate($pipeline);
+        });
+
+        return $data;
+    }
+    public function getMatchFilterArray($request,&$match)
+    {
+
+        $user = \Auth::user();
+
+        if (!$user->isAdmin()) {
+            $match['$or'] = [
+                ['userId' => $user->id],
+                ['userIds' => $user->id]
+            ];
+        }
+
+        if ($request->filled("alertname")) {
+            $match['name'] = [
+                '$regex' => $request->alertname,
+                '$options' => 'i'
+            ];
+        }
+
+        if ($request->filled("types")) {
+            $types = explode(',', $request->types);
+            $match['type'] = ['$in' => $types];
+        }
+
+        if ($request->filled("tags")) {
+            $tags = explode(',', $request->tags);
+            $match['tags'] = ['$in' => $tags];
+        }
+
+        if ($request->has("silentStatus")) {
+            $silent = $request->silentStatus == 'silent' ? 1 : 0;
+            if ($silent) {
+                $match['silentUserIds'] = ['$in' => [$user->id]];
+            } else {
+                $match['silentUserIds'] = ['$nin' => [$user->id]];
+            }
+        }
+
+        if ($request->filled("endpointId")) {
+            $match['endpointIds'] = ['$in' => [$request->endpointId]];
+        }
+
+        if ($request->filled("userId")) {
+            $match['userId'] = $request->userId;
+        }
+
+        if ($request->filled("status")) {
+            $match['state'] = $request->status;
+        }
+    }
+
     public static function GetAllHistory(Request $request)
     {
         if ($request->has("perPage")) {
@@ -461,16 +530,17 @@ class AlertRuleService
     }
 
 
-    public static function HasAdminAccessAlert(User $user, AlertRule $alert)
+
+    public function hasAdminAccessAlert(User $user, AlertRule $alert)
     {
         if ($user->isAdmin()) return true;
         if ($user->_id == $alert->userId) return true;
         return false;
     }
 
-    public static function HasUserAccessAlert(User $user, AlertRule $alert): bool
+    public function hasUserAccessAlert(User $user, AlertRule $alert): bool
     {
-        if (self::HasAdminAccessAlert($user, $alert)) return true;
+        if ($this->hasAdminAccessAlert($user, $alert)) return true;
         $userIds = $alert->userIds ?? [];
         if (in_array($user->_id, $userIds)) return true;
         return false;
@@ -502,6 +572,23 @@ class AlertRuleService
         Cache::tags(['alertRule'])->flush();
     }
 
+
+    public function deleteForUser(User $user, AlertRule $alert)
+    {
+        if ($alert->userId == $user->id || \Auth::user()->isAdmin()) {
+            $this->delete($alert);
+        } else {
+            $alert->pull("userIds", $user->id);
+            if (!empty($alert->endpointIds)) {
+                $userEndpoints = Endpoint::whereIn("_id", $alert->endpointIds)->where('userId', $user->id)->get();
+                foreach ($userEndpoints as $endpoint) {
+                    $alert->pull("endpointIds", $endpoint->_id);
+                }
+
+            }
+
+        }
+    }
     public function delete(AlertRule $alertRule)
     {
         $alertRuleId = $alertRule->_id;
