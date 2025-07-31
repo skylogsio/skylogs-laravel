@@ -1,9 +1,7 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
-
-import { Stack, Typography } from "@mui/material";
-import { FaThumbtack } from "react-icons/fa6";
 
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
@@ -21,12 +19,12 @@ import AlertRuleModal from "./AlertRuleModal";
 import DeleteAlertRuleModal from "./DeleteAlertRuleModal";
 
 export default function AlertRule() {
-  const router = useRouter();
   const tableRef = useRef<TableComponentRef>(null);
   const pathname = usePathname();
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
   const [deleteModalData, setDeleteModalData] = useState<IAlertRule | null>(null);
   const [openGroupActionModal, setOpenGroupActionModal] = useState<boolean>(false);
+  const [currentFilters, setCurrentFilters] = useState<Record<string, unknown>>({});
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -44,6 +42,13 @@ export default function AlertRule() {
     setOpenGroupActionModal(false);
   }
 
+  function handleFilterChange(key: string, value: unknown) {
+    setCurrentFilters((prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  }
+
   return (
     <>
       <Table<IAlertRule>
@@ -52,31 +57,21 @@ export default function AlertRule() {
         url="alert-rule"
         onGroupActionClick={() => setOpenGroupActionModal(true)}
         searchKey="alertname"
-        filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
+        filterComponent={({ onChange }) => (
+          <AlertRuleFilter
+            onChange={(key, value) => {
+              onChange(key, value);
+              handleFilterChange(key, value);
+            }}
+          />
+        )}
         defaultPageSize={10}
         columns={[
-          {
-            header: "Row",
-            accessorFn: (_, index) => ++index
-          },
+          { header: "Row", accessorFn: (_, index) => ++index },
           {
             header: "Name",
             cell: ({ row }) => (
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                spacing={1}
-                onClick={() => router.push(`${pathname}/${row.original.id}`)}
-                sx={{ color: ({ palette }) => palette.grey[400], cursor: "pointer" }}
-              >
-                {row.original.isPinned && (
-                  <FaThumbtack size="0.9rem" style={{ transform: "rotate(-45deg)" }} />
-                )}
-                <Typography variant="body2" color="textPrimary">
-                  {row.original.name}
-                </Typography>
-              </Stack>
+              <Link href={`${pathname}/${row.original.id}`}>{row.original.name}</Link>
             )
           },
           {
@@ -112,9 +107,8 @@ export default function AlertRule() {
             cell: ({ row }) => (
               <AlertRuleActionColumn
                 isSilent={row.original.is_silent}
-                isPinned={row.original.isPinned}
                 rowId={row.original.id}
-                refreshData={handleRefreshData}
+                isPinned={row.original.isPinned}
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
               />
@@ -140,7 +134,11 @@ export default function AlertRule() {
         />
       )}
       {openGroupActionModal && (
-        <GroupActionModal open={openGroupActionModal} onClose={handleAfterGroupAction} />
+        <GroupActionModal
+          open={openGroupActionModal}
+          onClose={handleAfterGroupAction}
+          currentFilters={currentFilters}
+        />
       )}
     </>
   );

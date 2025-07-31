@@ -20,6 +20,7 @@ const ALERT_RULE_NOTIFY_URL = "alert-rule-notify";
 const ALERT_RULE_USER_URL = "alert-rule-user";
 const ALERT_RULE_TAGS_URL = "alert-rule-tag";
 const ALERT_RULE_CREATE_DATA_URL = `${ALERT_RULE_URL}/create-data`;
+const ALERT_RULE_GROUP_ACTION = `${ALERT_RULE_URL}/group-action`;
 
 export async function createAlertRule(body: unknown): Promise<ServerResponse<unknown>> {
   try {
@@ -275,6 +276,48 @@ export async function getAlertRuleHistory<T>(
 export async function getFiredInstances(alertRuleId: IAlertRule["id"]) {
   try {
     const response = await axios.get(`${ALERT_RULE_URL}/triggered/${alertRuleId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function silentAlertRules(filter: object): Promise<ServerResponse<unknown>> {
+  const searchParams = new URLSearchParams(filter as Record<string, string>);
+  const urlSearchParams = searchParams.toString();
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_GROUP_ACTION}/silent?${urlSearchParams}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function unsilentAlertRules(filter: object): Promise<ServerResponse<unknown>> {
+  const searchParams = new URLSearchParams(filter as Record<string, string>);
+  const urlSearchParams = searchParams.toString();
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_GROUP_ACTION}/unsilent?${urlSearchParams}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function addUserAndNotifyToAlertRules(
+  filter: object,
+  body: unknown
+): Promise<ServerResponse<unknown>> {
+  const searchParams = new URLSearchParams(filter as Record<string, string>);
+  const urlSearchParams = searchParams.toString();
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_GROUP_ACTION}/add-user-notify?${urlSearchParams}`,body
+    );
     return response.data;
   } catch (error) {
     throw error;
