@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { alpha, Button, IconButton, Popover, Stack, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
@@ -80,6 +80,13 @@ export default function AlertRuleActionColumn({
 
   const openShowMorePopover = Boolean(showMoreAnchorEl);
   const showMorePopoverId = openShowMorePopover ? "show-more-popover" : undefined;
+
+  useEffect(() => {
+    setIsSilentStatus(isSilent);
+  }, [isSilent]);
+  useEffect(() => {
+    setIsPinnedStatus(isPinned);
+  }, [isPinned]);
 
   return (
     <>
