@@ -2,21 +2,40 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Box, List, ListItem as MUIListItem, ListItemButton, Stack } from "@mui/material";
+import {
+  AiOutlineApi,
+  AiOutlineUser,
+  AiOutlineDatabase,
+  AiOutlineCluster,
+  AiOutlineAlert,
+  AiOutlineCloud,
+  AiOutlineSetting
+} from "react-icons/ai";
 
 import { useRole } from "@/hooks";
 import { RoleType } from "@/utils/userUtils";
 
-type URLType = { pathname: string; label: string; role?: RoleType | RoleType[] };
+type URLType = {
+  pathname: string;
+  label: string;
+  role?: RoleType | RoleType[];
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+};
 
 const URLS: Array<URLType> = [
-  { pathname: "/", label: "Home" },
-  { pathname: "/endpoints", label: "Endpoints" },
-  { pathname: "/users", label: "Users", role: ["owner", "manager"] },
-  { pathname: "/data-source", label: "Data Sources", role: ["owner", "manager"] },
-  { pathname: "/clusters", label: "Clusters", role: ["owner"] },
-  { pathname: "/alert-rule", label: "Alert Rules" },
-  { pathname: "/profile-services", label: "Profile Services", role: "owner" },
-  { pathname: "/settings/telegram", label: "Settings", role: "owner" }
+  // { pathname: "/", label: "Home", icon: AiOutlineHome },
+  { pathname: "/alert-rule", label: "Alert Rules", icon: AiOutlineAlert },
+  { pathname: "/endpoints", label: "Endpoints", icon: AiOutlineApi },
+  { pathname: "/users", label: "Users", role: ["owner", "manager"], icon: AiOutlineUser },
+  {
+    pathname: "/data-source",
+    label: "Data Sources",
+    role: ["owner", "manager"],
+    icon: AiOutlineDatabase
+  },
+  { pathname: "/clusters", label: "Clusters", role: ["owner"], icon: AiOutlineCluster },
+  { pathname: "/profile-services", label: "Profile Services", role: "owner", icon: AiOutlineCloud },
+  { pathname: "/settings/telegram", label: "Settings", role: "owner", icon: AiOutlineSetting }
 ];
 
 function ListItem(url: URLType) {
@@ -29,6 +48,8 @@ function ListItem(url: URLType) {
 
   const isActive =
     url.pathname === "/" ? pathname === url.pathname : pathname.includes(url.pathname);
+
+  const IconComponent = url.icon;
 
   return (
     <MUIListItem
@@ -64,9 +85,13 @@ function ListItem(url: URLType) {
             borderRadius: "0.6rem",
             backgroundColor: ({ palette }) =>
               isActive ? `${palette.primary.main}!important` : "transparent",
-            color: ({ palette }) => (isActive ? palette.common.white : "inherit")
+            color: ({ palette }) => (isActive ? palette.common.white : "inherit"),
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5
           }}
         >
+          <IconComponent size={20} />
           {url.label}
         </ListItemButton>
       </Stack>

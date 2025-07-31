@@ -1,7 +1,7 @@
 "use server";
 
-import type{ IDataSource, IDataSourceStatus } from "@/@types/dataSource";
-import type { ServerResponse } from "@/@types/global";
+import type { IDataSource } from "@/@types/dataSource";
+import type { IConnectionStatus, ServerResponse } from "@/@types/global";
 import axios from "@/lib/axios";
 
 const DATA_SOURCE_URL = "data-source";
@@ -41,9 +41,11 @@ export async function deleteDataSource(
   }
 }
 
-export async function getDataSourceStatus(dataSourceId: IDataSource["id"]): Promise<IDataSourceStatus> {
+export async function getDataSourceStatus(
+  dataSourceId: IDataSource["id"]
+): Promise<IConnectionStatus> {
   try {
-    const response = await axios.get<IDataSourceStatus>(
+    const response = await axios.get<IConnectionStatus>(
       `${DATA_SOURCE_URL}/status/${dataSourceId}`
     );
     return response.data;

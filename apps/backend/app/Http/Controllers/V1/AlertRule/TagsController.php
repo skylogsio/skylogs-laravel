@@ -15,17 +15,21 @@ class TagsController extends Controller
 {
 
 
+    public function __construct(protected AlertRuleService $alertRuleService, protected TagService $tagService)
+    {
+    }
+
     public function All()
     {
 
-        return response()->json(TagService::All());
+        return response()->json($this->tagService->all());
     }
 
     public function Create(Request $request, $id)
     {
         $alert = AlertRule::where('_id', $id)->first();
         $currentUser = Auth::user();
-        if (!AlertRuleService::HasAdminAccessAlert($currentUser, $alert)) {
+        if (!$this->alertRuleService->hasAdminAccessAlert($currentUser, $alert)) {
             abort(403);
         }
         $tags = $alert->tags ?? [];
@@ -40,7 +44,7 @@ class TagsController extends Controller
         }
         $alert = AlertRule::where('_id', $id)->first();
         $currentUser = Auth::user();
-        $access = AlertRuleService::HasAdminAccessAlert($currentUser, $alert);
+        $access = $this->alertRuleService->hasAdminAccessAlert($currentUser, $alert);
 
         $tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
         if (!$access) {
@@ -49,7 +53,7 @@ class TagsController extends Controller
 
         $alert->tags = $tags;
         $alert->save();
-        TagService::FlushCache();
+        $this->tagService->flushCache();
 
         return response()->json(["status" => true,]);
 

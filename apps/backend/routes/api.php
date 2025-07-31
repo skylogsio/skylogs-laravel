@@ -4,6 +4,7 @@ use App\Enums\Constants;
 use App\Http\Controllers\Cluster\SyncController;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
+use App\Http\Controllers\V1\AlertRule\GroupActionController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
 use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\PrometheusController;
@@ -94,6 +95,7 @@ Route::prefix('v1')->group(function () {
             ->middleware("role:" . Constants::ROLE_OWNER->value)
             ->group(function () {
                 Route::get('/', 'Index');
+                Route::get('/status/{id}', 'IsConnected');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
@@ -130,6 +132,15 @@ Route::prefix('v1')->group(function () {
                         Route::get('/rules', 'Rules');
                         Route::get('/labels', 'Labels');
                         Route::get('/label-values/{label}', 'LabelValues');
+                    });
+
+                Route::prefix("/group-action")
+                    ->controller(GroupActionController::class)
+                    ->group(function () {
+                        Route::post('/silent', 'Silent');
+                        Route::post('/unsilent', 'UnSilent');
+                        Route::post('/delete', 'Delete');
+                        Route::post('/add-user-notify', 'AddUserAccessNotify');
                     });
 
                 Route::get('/{id}', 'Show');
@@ -202,6 +213,7 @@ Route::prefix('v1')->group(function () {
                     ->controller(TelegramController::class)
                     ->group(function () {
                         Route::get('/', 'Index');
+
                         Route::get('/{id}', 'Show');
                         Route::post('/', 'Create');
                         Route::post('/deactivate', 'Deactivate');

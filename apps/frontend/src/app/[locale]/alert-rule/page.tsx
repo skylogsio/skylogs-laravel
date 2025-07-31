@@ -24,6 +24,7 @@ export default function AlertRule() {
   const [modalData, setModalData] = useState<CreateUpdateModal<IAlertRule>>(null);
   const [deleteModalData, setDeleteModalData] = useState<IAlertRule | null>(null);
   const [openGroupActionModal, setOpenGroupActionModal] = useState<boolean>(false);
+  const [currentFilters, setCurrentFilters] = useState<Record<string, unknown>>({});
 
   function handleRefreshData() {
     if (tableRef.current) {
@@ -41,6 +42,13 @@ export default function AlertRule() {
     setOpenGroupActionModal(false);
   }
 
+  function handleFilterChange(key: string, value: unknown) {
+    setCurrentFilters((prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  }
+
   return (
     <>
       <Table<IAlertRule>
@@ -49,7 +57,14 @@ export default function AlertRule() {
         url="alert-rule"
         onGroupActionClick={() => setOpenGroupActionModal(true)}
         searchKey="alertname"
-        filterComponent={({ onChange }) => <AlertRuleFilter onChange={onChange} />}
+        filterComponent={({ onChange }) => (
+          <AlertRuleFilter
+            onChange={(key, value) => {
+              onChange(key, value);
+              handleFilterChange(key, value);
+            }}
+          />
+        )}
         defaultPageSize={10}
         columns={[
           { header: "Row", accessorFn: (_, index) => ++index },
@@ -93,6 +108,7 @@ export default function AlertRule() {
               <AlertRuleActionColumn
                 isSilent={row.original.is_silent}
                 rowId={row.original.id}
+                isPinned={row.original.isPinned}
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
               />
@@ -118,7 +134,11 @@ export default function AlertRule() {
         />
       )}
       {openGroupActionModal && (
-        <GroupActionModal open={openGroupActionModal} onClose={handleAfterGroupAction} />
+        <GroupActionModal
+          open={openGroupActionModal}
+          onClose={handleAfterGroupAction}
+          currentFilters={currentFilters}
+        />
       )}
     </>
   );

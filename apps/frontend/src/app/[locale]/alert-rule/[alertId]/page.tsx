@@ -171,7 +171,11 @@ export default function ViewAlertRule() {
                 <Typography variant="h6" fontWeight="bold">
                   {data.name}
                 </Typography>
-                <AlertRuleStatus status={data.status_label} />
+                <AlertRuleStatus
+                  status={data.status_label}
+                  id={alertId}
+                  onAfterResolve={handleRefreshData}
+                />
               </Stack>
             </Stack>
             <Stack spacing={1} alignItems="flex-end">

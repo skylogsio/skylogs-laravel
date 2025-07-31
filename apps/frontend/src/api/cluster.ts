@@ -1,4 +1,5 @@
 import { ICluster } from "@/@types/cluster";
+import type { IConnectionStatus } from "@/@types/global";
 import axios from "@/lib/axios";
 
 const CLUSTER_URL = "skylogs-instance";
@@ -26,3 +27,12 @@ export const updateCluster = async (id: string, data: unknown): Promise<ICluster
 export const deleteCluster = async (id: string): Promise<void> => {
   await axios.delete(`${CLUSTER_URL}/${id}`);
 };
+
+export async function getClusterStatus(id: ICluster["id"]): Promise<IConnectionStatus> {
+  try {
+    const response = await axios.get<IConnectionStatus>(`${CLUSTER_URL}/status/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

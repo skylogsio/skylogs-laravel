@@ -25,6 +25,7 @@ export interface IAlertRule {
   hasAdminAccess: boolean;
   status_label: AlertRuleStatus;
   is_silent: boolean;
+  isPinned: boolean;
   count_endpoints: number;
   tags: string[];
   dataSourceAlertName?: string;

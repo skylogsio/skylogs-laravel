@@ -10,7 +10,7 @@ use Carbon\Carbon;
 class TagService
 {
 
-    public static function All(): array
+    public function all(): array
     {
         return cache()->tags(['alertRule','tags'])->rememberForever('alertRule:tags', function () {
 
@@ -20,7 +20,7 @@ class TagService
         });
 
     }
-    public static function FlushCache():void
+    public function flushCache():void
     {
         cache()->tags(['alertRule','tags'])->flush();
     }

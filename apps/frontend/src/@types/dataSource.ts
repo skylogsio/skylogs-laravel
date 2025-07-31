@@ -10,7 +10,3 @@ export interface IDataSource {
   created_at: string;
   id: string;
 }
-
-export interface IDataSourceStatus {
-  isConnected: boolean;
-}
