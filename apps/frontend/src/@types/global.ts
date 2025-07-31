@@ -43,3 +43,7 @@ export interface PaginationLink {
   label: string;
   active: boolean;
 }
+
+export interface IConnectionStatus {
+  isConnected: boolean;
+}

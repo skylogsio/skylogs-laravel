@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import type { ICluster } from "@/@types/cluster";
 import type { CreateUpdateModal } from "@/@types/global";
 import ActionColumn from "@/components/ActionColumn";
+import ConnectionStatus from "@/components/ConnectionStatus";
 import Table from "@/components/Table/SmartTable";
 import { type TableComponentRef } from "@/components/Table/types";
 
@@ -38,6 +39,7 @@ export default function Cluster() {
           { header: "Name", accessorKey: "name" },
           { header: "Type", accessorKey: "type" },
           { header: "URL", accessorKey: "url" },
+          { header: "Status", cell: ({ row }) => <ConnectionStatus clusterId={row.original.id} /> },
           {
             header: "Action",
             cell: ({ row }) => (
