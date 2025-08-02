@@ -84,7 +84,7 @@ class AlertRuleService
 
         if ($request->filled("tags")) {
             $tags = explode(',', $request->tags);
-            $match['tags'] = ['$in' => $tags];
+            $match['tags'] = ['$all' => $tags];
         }
 
         if ($request->has("silentStatus")) {
