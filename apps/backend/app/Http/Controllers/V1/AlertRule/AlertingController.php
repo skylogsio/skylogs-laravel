@@ -409,22 +409,12 @@ class AlertingController extends Controller
                 $model->save();
                 break;
             case AlertRuleType::METABASE:
-                $model->alertname = $request->alertname;
-                $model->interval = ((int)$request->interval);
-                $model->state = null;
-                $model->save();
-                break;
+            case AlertRuleType::ZABBIX:
             case AlertRuleType::SENTRY:
             case AlertRuleType::SPLUNK:
                 $model->name = $request->name;
                 $model->dataSourceIds = array_unique($request->dataSourceIds ?? []);
                 $model->dataSourceAlertName = $request->dataSourceAlertName;
-                $model->state = null;
-                $model->save();
-                break;
-            case AlertRuleType::ZABBIX:
-                $model->alertname = $request->alertname;
-                $model->interval = ((int)$request->interval);
                 $model->state = null;
                 $model->save();
                 break;
