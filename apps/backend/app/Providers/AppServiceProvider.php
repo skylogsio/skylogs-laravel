@@ -21,12 +21,5 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        $clusterType = ClusterType::tryFrom(config("app.clusterType"));
-        $sourceUrl = config('app.sourceUrl');
-        $sourceToken = config('app.sourceToken');
-
-        if ($clusterType === ClusterType::AGENT && (empty($sourceUrl) || empty($sourceToken))) {
-            abort(500, 'SOURCE_URL and SOURCE_TOKEN must be set when CLUSTER_TYPE is "agent".');
-        }
     }
 }
