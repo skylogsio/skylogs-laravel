@@ -9,6 +9,7 @@ use App\Http\Controllers\V1\AlertRule\NotifyController;
 use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
+use App\Http\Controllers\V1\Config\SkylogsController;
 use App\Http\Controllers\V1\Config\TelegramController;
 use App\Http\Controllers\V1\Profile\AssetController;
 use App\Http\Controllers\V1\Profile\EnvironmentController;
@@ -209,6 +210,14 @@ Route::prefix('v1')->group(function () {
         Route::prefix("/config")
             ->middleware("role:" . Constants::ROLE_OWNER->value)
             ->group(function () {
+
+                Route::prefix("/skylogs")
+                    ->controller(SkylogsController::class)
+                    ->group(function () {
+                        Route::get('/cluster', 'ClusterType');
+                        Route::post('/cluster', 'StoreClusterType');
+                    });
+
                 Route::prefix("/telegram")
                     ->controller(TelegramController::class)
                     ->group(function () {

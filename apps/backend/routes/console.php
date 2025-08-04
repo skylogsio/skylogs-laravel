@@ -1,14 +1,10 @@
 <?php
 
-use App\Enums\AlertRuleType;
 use App\Enums\ClusterType;
 use App\Jobs\AddChecksJob;
 use App\Jobs\AutoResolveApiAlertsJob;
 use App\Jobs\CheckPrometheusJob;
 use App\Jobs\SyncCluster;
-use App\Models\AlertRule;
-use App\Models\DataSource\DataSource;
-use App\Models\User;
 use App\Services\ClusterService;
 
 
@@ -21,8 +17,6 @@ Artisan::command('app:test', function () {
 Artisan::command('app:sync-data', function () {
     if (app(ClusterService::class)->type() == ClusterType::AGENT) {
         SyncCluster::dispatch();
-    }else{
-
     }
 })->purpose('Sync Data With Main Cluster');
 
