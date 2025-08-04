@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AlertRuleType;
+use App\Enums\HealthAlertType;
 use App\Interfaces\Messageable;
 use App\Models\DataSource\DataSource;
 use App\Observers\AlertRuleObserver;
@@ -22,6 +23,7 @@ class AlertRule extends BaseModel implements Messageable
 
     protected $casts = [
         "type" => AlertRuleType::class,
+        "checkType" => HealthAlertType::class,
     ];
     public const DYNAMIC_QUERY_TYPE = "dynamic";
     public const TEXT_QUERY_QUERY_TYPE = "textQuery";

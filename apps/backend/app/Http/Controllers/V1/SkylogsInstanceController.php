@@ -5,6 +5,8 @@ namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\SkylogsInstance;
+use App\Services\AlertRuleService;
+use App\Services\ClusterService;
 use App\Services\SkylogsInstanceService;
 use Illuminate\Http\Request;
 
@@ -42,6 +44,8 @@ class SkylogsInstanceController extends Controller
         $model = SkylogsInstance::where('_id', $id);
         $model = $model->firstOrFail();
         $model->delete();
+        app(AlertRuleService::class)->deleteHealthCluster($model);
+
         return response()->json($model);
     }
 
@@ -61,17 +65,18 @@ class SkylogsInstanceController extends Controller
             $url = rtrim($request->url, "/");
 
             do {
-                $webhookToken = \Str::random(32);
-            } while (SkylogsInstance::where('token', $webhookToken)->first());
+                $token = \Str::random(32);
+            } while (SkylogsInstance::where('token', $token)->first());
 
 
             $model = SkylogsInstance::create([
                 'name' => $request->name,
                 'type' => $request->type,
                 'url' => $url,
-                "token" => $webhookToken,
+                "token" => $token,
             ]);
 
+            app(ClusterService::class)->refreshHealthAgent($model);
 
             return response()->json([
                 'status' => true,
@@ -106,6 +111,7 @@ class SkylogsInstanceController extends Controller
                 'type' => $request->type,
                 'url' => $request->url,
             ]);
+            app(ClusterService::class)->refreshHealthAgent($model);
 
             return response()->json([
                 'status' => true,
