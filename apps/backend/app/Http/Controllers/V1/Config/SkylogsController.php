@@ -8,6 +8,7 @@ use App\Enums\ClusterType;
 use App\Http\Controllers\Controller;
 use App\Models\Config\ConfigSkylogs;
 use App\Models\Config\ConfigTelegram;
+use App\Services\ClusterService;
 use App\Services\ConfigSkylogsService;
 use App\Services\ConfigTelegramService;
 use Illuminate\Http\Request;
@@ -64,6 +65,7 @@ class SkylogsController extends Controller
         }
 
         $model->save();
+        app(ClusterService::class)->refreshHealthMain($model);
 
         return response()->json($model);
     }

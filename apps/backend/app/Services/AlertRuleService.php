@@ -3,13 +3,16 @@
 namespace App\Services;
 
 use App\Enums\AlertRuleType;
+use App\Enums\HealthAlertType;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
+use App\Models\Config\ConfigSkylogs;
 use App\Models\DataSource\DataSource;
 use App\Models\ElasticCheck;
 use App\Models\Endpoint;
+use App\Models\HealthCheck;
 use App\Models\PrometheusCheck;
 use App\Models\SkylogsInstance;
 use App\Models\User;
@@ -60,7 +63,8 @@ class AlertRuleService
 
         return $data;
     }
-    public function getMatchFilterArray($request,&$match)
+
+    public function getMatchFilterArray($request, &$match)
     {
 
         $user = \Auth::user();
@@ -537,20 +541,39 @@ class AlertRuleService
 
     }
 
-    public function createHealthCluster(SkylogsInstance $instance)
+    public function createHealthCluster(SkylogsInstance|ConfigSkylogs $instance)
     {
-        $alert = AlertRule::create([
-            'name' => $instance->name,
-            'type' => AlertRuleType::HEALTH,
-            "userId" => \Auth::id(),
-            "url" => $instance->url,
-            "checkType" => "cluster",
-            "threshold" => 5,
+        if ($instance instanceof ConfigSkylogs) {
+            $alert = AlertRule::create([
+                'name' => "Main Cluster",
+                'type' => AlertRuleType::HEALTH,
+                "userId" => app(UserService::class)->admin()->id,
+                "url" => $instance->sourceUrl,
+                "checkType" => HealthAlertType::SOURCE_CLUSTER,
+                "threshold" => 5,
+                "sourceToken" => $instance->sourceToken
+            ]);
+        } else {
+            $alert = AlertRule::create([
+                'name' => "Health Cluster " . $instance->name,
+                'type' => AlertRuleType::HEALTH,
+                "userId" => \Auth::id(),
+                "skylogsInstanceId" => $instance->id,
+                "url" => $instance->url,
+                "checkType" => HealthAlertType::AGENT_CLUSTER,
+                "threshold" => 5,
+                "agentToken" => $instance->token
+            ]);
+        }
+        return $alert;
 
-            "basic_auth_username" => $request->username ?? "",
-            "basic_auth_password" => $request->password ?? "",
-        ]);
+    }
 
+    public function deleteHealthCluster(SkylogsInstance $instance)
+    {
+        AlertRule::where("skylogsInstanceId", $instance->id)->delete();
+        HealthCheck::where("skylogsInstanceId", $instance->id)->delete();
+        $this->flushCache();
     }
 
     public function hasAdminAccessAlert(User $user, AlertRule $alert)
@@ -568,23 +591,33 @@ class AlertRuleService
         return false;
     }
 
-    public function getAlerts(AlertRuleType $type = null)
+    public function getAlerts(AlertRuleType|array $type = null)
     {
         $tagsArray = ['alertRule'];
         $keyName = 'alertRule';
-        if ($type) {
-            $tagsArray[] = $type->value;
-            $keyName .= ':' . $type->value;
+        if (!empty($type)) {
+            if (is_array($type)) {
+                foreach ($type as $alertType) {
+                    $tagsArray[] = $alertType->value;
+                    $keyName .= ':' . $type->value;
+                }
+            } else {
+                $tagsArray[] = $type->value;
+                $keyName .= ':' . $type->value;
+            }
         }
 
         return Cache::tags($tagsArray)->rememberForever($keyName, fn() => $this->getAlertsDB($type));
 
     }
 
-    public function getAlertsDB(AlertRuleType $type = null)
+    public function getAlertsDB(AlertRuleType|array $type = null)
     {
-        if ($type) {
-            return AlertRule::where('type', $type)->get();
+        if (!empty($type)) {
+            if ($type instanceof AlertRuleType)
+                return AlertRule::where('type', $type)->get();
+            else
+                return AlertRule::whereIn('type', $type)->get();
         } else
             return AlertRule::get();
     }
@@ -612,6 +645,13 @@ class AlertRuleService
         }
     }
 
+    public function update(AlertRule $alertRule)
+    {
+        switch ($alertRule->type){
+            case AlertRuleType::HEALTH:
+                HealthCheck::where("alertRuleId",$alertRule->id)->delete();
+        }
+    }
     public function delete(AlertRule $alertRule)
     {
         $alertRuleId = $alertRule->_id;

@@ -29,10 +29,13 @@ class AddChecksJob implements ShouldQueue
     public function handle()
     {
 
-        $alertRules = app(AlertRuleService::class)->getAlerts(AlertRuleType::ELASTIC);
+        $alertRules = app(AlertRuleService::class)->getAlerts([AlertRuleType::ELASTIC, AlertRuleType::HEALTH]);
 
         foreach ($alertRules as $alert) {
-            CheckElasticJob::dispatch($alert);
+            match ($alert->type) {
+                AlertRuleType::ELASTIC => CheckElasticJob::dispatch($alert),
+                AlertRuleType::HEALTH => CheckHealthJob::dispatch($alert),
+            };
         }
 
     }

@@ -13,6 +13,7 @@ class AlertRuleObserver {
     }
 
     public function updated(AlertRule $alertRule): void {
+        app(AlertRuleService::class)->update($alertRule);
         app(AlertRuleService::class)->flushCache();
     }
 
