@@ -38,8 +38,7 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
             ],
             [
                 "url" => $this->alert->url,
-                "threshold_down" => $this->alert->threshold_down,
-                "threshold_up" => $this->alert->threshold_up,
+                "threshold" => $this->alert->threshold,
                 "basic_auth_username" => $this->alert->basic_auth_username,
                 "basic_auth_password" => $this->alert->basic_auth_password,
                 "state" => HealthCheck::UP,
@@ -92,8 +91,10 @@ class CheckHealthJob implements ShouldQueue, ShouldBeUnique
 
 
             if ($check->counter != $check->threshold_down) {
+
                 if ($check->counter < $check->threshold_down)
                     $check->counter += 1;
+
                 if ($check->counter >= $check->threshold_down && $check->state == HealthCheck::UP) {
                     $check->state = HealthCheck::DOWN;
                     $check->notifyAt = time();

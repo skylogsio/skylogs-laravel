@@ -12,7 +12,7 @@ Authorization: Bearer {{authToken}}
 
 
 ###
-GET {{domain}}/data-source/status/681f545e36ecf6ff7300cfc2
+GET {{domain}}/data-source/status/6718e38f6568b677ab03d5fe
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
