@@ -672,4 +672,30 @@ class AlertRuleService
 
     }
 
+
+
+    public function ChangeOwner(User $fromUser,User $toUser )
+    {
+
+        $alerts = AlertRule::where(function ($query) use ($fromUser) {
+            return $query->where('userId', $fromUser->id)
+                ->orWhereIn("userIds", [$fromUser->id]);
+        })->get();
+
+        foreach ($alerts as $alert) {
+            if($alert->userId == $fromUser->id) {
+                $alert->userId = $toUser->id;
+                $alert->save();
+            }elseif (in_array($fromUser->id, $alert->userIds ?? [])) {
+                $alert->push("userIds", $toUser->id, true);
+                $alert->push("user_ids", $toUser->id, true);
+                $alert->pull("userIds", $fromUser->id);
+                $alert->pull("user_ids", $fromUser->id);
+                $alert->save();
+            }
+        }
+
+    }
+
+
 }
