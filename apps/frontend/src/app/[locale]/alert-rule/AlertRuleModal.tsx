@@ -98,44 +98,47 @@ export default function AlertRuleModal({ open, onClose, onSubmit, data }: AlertR
   }
 
   function renderAlertRuleSideBar() {
-    return Object.entries(ALERT_RULE_VARIANTS).map(([key, value]) => (
-      <Button
-        startIcon={<value.Icon size={value.defaultSize} color={value.defaultColor} />}
-        key={key}
-        onClick={() => setSelectedAlertRuleType(key as AlertRuleType)}
-        sx={{
-          paddingX: 3,
-          paddingY: 1.7,
-          justifyContent: "flex-start",
-          textTransform: "capitalize",
-          borderColor: `${palette.divider} !important`,
-          color: key === selectedAlertRuleType ? palette.primary.main : palette.secondary.dark,
-          fontSize: "1rem",
-          [`& .${buttonClasses.icon}`]: {
-            width: 24,
-            height: 24,
-            marginRight: 2,
-            "& svg": {
-              width: "inherit",
-              height: "inherit"
-            }
-          },
-          "&::before": {
-            content: "''",
-            display: key === selectedAlertRuleType ? "initial" : "none",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "10px",
-            height: "100%",
-            transform: "translateX(-1rem)",
-            backgroundColor: palette.primary.main
-          }
-        }}
-      >
-        {value.label}
-      </Button>
-    ));
+    return Object.entries(ALERT_RULE_VARIANTS).map(
+      ([key, value]) =>
+        key !== "health" && (
+          <Button
+            startIcon={<value.Icon size={value.defaultSize} color={value.defaultColor} />}
+            key={key}
+            onClick={() => setSelectedAlertRuleType(key as AlertRuleType)}
+            sx={{
+              paddingX: 3,
+              paddingY: 1.7,
+              justifyContent: "flex-start",
+              textTransform: "capitalize",
+              borderColor: `${palette.divider} !important`,
+              color: key === selectedAlertRuleType ? palette.primary.main : palette.secondary.dark,
+              fontSize: "1rem",
+              [`& .${buttonClasses.icon}`]: {
+                width: 24,
+                height: 24,
+                marginRight: 2,
+                "& svg": {
+                  width: "inherit",
+                  height: "inherit"
+                }
+              },
+              "&::before": {
+                content: "''",
+                display: key === selectedAlertRuleType ? "initial" : "none",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "10px",
+                height: "100%",
+                transform: "translateX(-1rem)",
+                backgroundColor: palette.primary.main
+              }
+            }}
+          >
+            {value.label}
+          </Button>
+        )
+    );
   }
 
   useEffect(() => {
