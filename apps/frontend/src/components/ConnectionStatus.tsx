@@ -14,27 +14,27 @@ interface ConnectionStatusProps {
 export default function ConnectionStatus({ dataSourceId, clusterId }: ConnectionStatusProps) {
   const { palette } = useTheme();
 
-  const { data: dataSourceStatus, isPending: isPendingDataSourceStatus } = useQuery({
+  const { data: dataSourceStatus } = useQuery({
     queryKey: ["data-source-status", dataSourceId],
     queryFn: () => getDataSourceStatus(dataSourceId!),
     enabled: Boolean(dataSourceId),
     refetchInterval: 10 * 1000
   });
 
-  const { data: clusterStatus, isPending: isPendingClusterStatus } = useQuery({
+  const { data: clusterStatus } = useQuery({
     queryKey: ["cluster-status", clusterId],
     queryFn: () => getClusterStatus(clusterId!),
     enabled: Boolean(clusterId),
     refetchInterval: 10 * 1000
   });
 
-  if (isPendingClusterStatus || isPendingDataSourceStatus) {
+  if (!dataSourceStatus && !clusterStatus) {
     return <CircularProgress size={14} />;
   }
 
   let color: string;
   let label: "Connected" | "Disconnected";
-  if (dataSourceId) {
+  if (dataSourceStatus) {
     color = dataSourceStatus?.isConnected ? palette.success.main : palette.error.main;
     label = dataSourceStatus?.isConnected ? "Connected" : "Disconnected";
   } else if (clusterStatus) {
@@ -43,6 +43,8 @@ export default function ConnectionStatus({ dataSourceId, clusterId }: Connection
   } else {
     return "-";
   }
+
+  console.log(dataSourceStatus);
 
   return (
     <Chip
