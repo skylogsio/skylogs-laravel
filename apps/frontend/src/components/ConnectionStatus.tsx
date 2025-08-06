@@ -44,8 +44,6 @@ export default function ConnectionStatus({ dataSourceId, clusterId }: Connection
     return "-";
   }
 
-  console.log(dataSourceStatus);
-
   return (
     <Chip
       label={label}
