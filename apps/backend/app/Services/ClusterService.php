@@ -12,12 +12,9 @@ class ClusterService
 {
     private ClusterType $clusterType;
 
-    public function __construct(
-        #[Config("app.clusterType")]
-        $clusterType,
-    )
+    public function __construct()
     {
-        $this->clusterType = ClusterType::from($clusterType);
+        $this->clusterType = app(ConfigSkylogsService::class)->getClusterType();
     }
 
     public function type():ClusterType
@@ -33,8 +30,9 @@ class ClusterService
     public function syncData()
     {
         if($this->clusterType == ClusterType::AGENT){
-            $sourceUrl = config("app.sourceUrl");
-            $sourceToken = config("app.sourceToken");
+            $config = app(ConfigSkylogsService::class)->cluster();
+            $sourceUrl = $config->sourceUrl;
+            $sourceToken = $config->sourceToken;
 
             $response  = \Http::withToken($sourceToken)->get($sourceUrl."/api/cluster/sync-data");
             $users = $response->json();
@@ -64,10 +62,10 @@ class ClusterService
                     $endpointModel->userId = $model->id;
                     $endpointModel->name = $endpoint["name"];
                     $endpointModel->type = $endpoint["type"];
-                    $endpointModel->value = $endpoint["value"];
-                    $endpointModel->chatId = $endpoint["chatId"];
-                    $endpointModel->threadId = $endpoint["threadId"];
-                    $endpointModel->botToken = $endpoint["botToken"];
+                    $endpointModel->value = $endpoint["value"] ?? "";
+                    $endpointModel->chatId = $endpoint["chatId"] ?? "";
+                    $endpointModel->threadId = $endpoint["threadId"] ?? "";
+                    $endpointModel->botToken = $endpoint["botToken"] ?? "";
                     $endpointModel->isPublic = $endpoint["isPublic"];
                     $endpointModel->save();
                 }
