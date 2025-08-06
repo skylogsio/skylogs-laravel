@@ -66,5 +66,15 @@ class EndpointService
     }
 
 
+    public function ChangeOwnerAll(User $fromUser,User $toUser)
+    {
+        $endpoints = Endpoint::where("userId", $fromUser->id)->get();
+        foreach ($endpoints as $endpoint) {
+            $endpoint->userId = $toUser->id;
+            $endpoint->user_Id = $toUser->id;
+            $endpoint->save();
+        }
+    }
+
 
 }

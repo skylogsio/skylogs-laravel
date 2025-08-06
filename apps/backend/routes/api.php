@@ -30,9 +30,9 @@ Route::prefix('cluster')
     ->middleware(['clusterAuth'])
     ->group(function () {
 
-    Route::get("/sync-data","Data")->name("cluster.data");
+        Route::get("/sync-data", "Data")->name("cluster.data");
 
-});
+    });
 
 Route::prefix('v1')->group(function () {
 
@@ -76,6 +76,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('/all', 'All');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
+                Route::middleware("role:" . Constants::ROLE_OWNER->value)->post('/changeOwner', 'ChangeOwnerShipOfData');
                 Route::put('/pass/{id}', 'ChangePassword');
                 Route::put('/{id}', 'Update');
                 Route::delete('/{id}', 'Delete');

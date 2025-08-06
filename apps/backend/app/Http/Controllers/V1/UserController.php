@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
+use App\Services\AlertRuleService;
+use App\Services\EndpointService;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
 use Hash;
@@ -217,6 +219,21 @@ class UserController extends Controller
         return response()->json([
             'status' => true,
             'data' => $model,
+        ]);
+
+    }
+
+
+    public function ChangeOwnerShipOfData(Request $request)
+    {
+        $fromUser = User::where('id', $request->fromUser)->firstOrFail();
+        $toUser = User::where('id', $request->toUser)->firstOrFail();
+
+        app(AlertRuleService::class)->ChangeOwner($fromUser, $toUser);
+        app(EndpointService::class)->ChangeOwnerAll($fromUser, $toUser);
+
+        return response()->json([
+            'status' => true,
         ]);
 
     }
