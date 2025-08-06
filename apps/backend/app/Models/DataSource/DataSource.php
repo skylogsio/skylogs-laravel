@@ -22,14 +22,26 @@ class DataSource extends BaseModel
     public const TRIGGERED = "triggered";
     public const RESOlVED = "resolved";
 
-    public const DYNAMIC_QUERY_TYPE = "dynamic";
-    public const TEXT_QUERY_QUERY_TYPE = "textQuery";
+
 
     public $timestamps = true;
     public static $title = "Alert Rule";
     public static $KEY = "alerts";
 
     protected $guarded = ['id', '_id',];
+    protected $appends = ['copy'];
+
+    public function getCopyAttribute()
+    {
+        return match ($this->type) {
+            DataSourceType::SENTRY => route("webhook.sentry",['token' => $this->webhookToken]),
+            DataSourceType::GRAFANA => route("webhook.grafana",['token' => $this->webhookToken]),
+            DataSourceType::PMM => route("webhook.pmm",['token' => $this->webhookToken]),
+            DataSourceType::ZABBIX => route("webhook.zabbix",['token' => $this->webhookToken]),
+            DataSourceType::SPLUNK => route("webhook.splunk",['token' => $this->webhookToken]),
+            default => $this->webhookToken,
+        };
+    }
 
     public function user(): BelongsTo
     {

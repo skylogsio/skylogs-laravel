@@ -7,9 +7,11 @@ use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
 use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
+use App\Models\DataSource\DataSource;
 use App\Models\ElasticCheck;
 use App\Models\Endpoint;
 use App\Models\PrometheusCheck;
+use App\Models\SkylogsInstance;
 use App\Models\User;
 use App\Helpers\Call;
 use App\Helpers\Constants;
@@ -26,10 +28,10 @@ class AlertRuleService
     public function firedAlerts(string $alertRuleId)
     {
         $alertRule = AlertRule::where("id", $alertRuleId)->firstOrFail();
-        switch ($alertRule->type){
+        switch ($alertRule->type) {
             case AlertRuleType::API:
                 $firedInstances = AlertInstance::where("alertRuleId", $alertRuleId)
-                    ->where("state",AlertInstance::FIRE)
+                    ->where("state", AlertInstance::FIRE)
                     ->get();
                 return $firedInstances;
 
@@ -84,7 +86,7 @@ class AlertRuleService
 
         if ($request->filled("tags")) {
             $tags = explode(',', $request->tags);
-            $match['tags'] = ['$in' => $tags];
+            $match['tags'] = ['$all' => $tags];
         }
 
         if ($request->has("silentStatus")) {
@@ -530,6 +532,26 @@ class AlertRuleService
     }
 
 
+    public function createHealthDataSource(DataSource $dataSource)
+    {
+
+    }
+
+    public function createHealthCluster(SkylogsInstance $instance)
+    {
+        $alert = AlertRule::create([
+            'name' => $instance->name,
+            'type' => AlertRuleType::HEALTH,
+            "userId" => \Auth::id(),
+            "url" => $instance->url,
+            "checkType" => "cluster",
+            "threshold" => 5,
+
+            "basic_auth_username" => $request->username ?? "",
+            "basic_auth_password" => $request->password ?? "",
+        ]);
+
+    }
 
     public function hasAdminAccessAlert(User $user, AlertRule $alert)
     {
@@ -555,7 +577,7 @@ class AlertRuleService
             $keyName .= ':' . $type->value;
         }
 
-        return Cache::tags($tagsArray)->rememberForever($keyName,fn() => $this->getAlertsDB($type) );
+        return Cache::tags($tagsArray)->rememberForever($keyName, fn() => $this->getAlertsDB($type));
 
     }
 
@@ -589,6 +611,7 @@ class AlertRuleService
 
         }
     }
+
     public function delete(AlertRule $alertRule)
     {
         $alertRuleId = $alertRule->_id;
