@@ -3,12 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ClusterType;
-use App\Enums\DataSourceType;
 use App\Models\Config\ConfigSkylogs;
-use App\Models\Config\ConfigTelegram;
-use App\Models\DataSource\DataSource;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Http;
 
 
 class ConfigSkylogsService
@@ -31,7 +26,6 @@ class ConfigSkylogsService
         }
         return null;
     }
-
 
     public function flushCache()
     {
