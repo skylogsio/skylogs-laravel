@@ -88,10 +88,14 @@ export default function CreateUserModal({
 
   const { mutate: createUserMutation, isPending: isCreating } = useMutation({
     mutationFn: (body: UserFormType) => createUser(body),
-    onSuccess: () => {
-      toast.success("User Created Successfully.");
-      onSubmit();
-      onClose?.();
+    onSuccess: (data) => {
+      if (data!.status) {
+        toast.success("User Created Successfully.");
+        onSubmit();
+        onClose?.();
+      } else {
+        toast.error(data?.message as string);
+      }
     }
   });
 
