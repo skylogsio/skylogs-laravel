@@ -1,5 +1,5 @@
 // status_label can be 1. resolved 2.unknown 3. critical 4.warning or be an integer that means critical
-GET {{domain}}/alert-rule?alertname=&types[]=api&types[]=notification&endpointId=
+GET {{domain}}/alert-rule?alertname=&types=pmm,notification&endpointId=
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

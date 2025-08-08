@@ -144,6 +144,7 @@ class AlertRule extends BaseModel implements Messageable
                 break;
             case AlertRuleType::GRAFANA:
             case AlertRuleType::PROMETHEUS:
+            case AlertRuleType::PMM:
             case AlertRuleType::SENTRY:
             case AlertRuleType::METABASE:
             case AlertRuleType::ZABBIX:
@@ -167,7 +168,6 @@ class AlertRule extends BaseModel implements Messageable
                 }
                 break;
             case AlertRuleType::NOTIFICATION:
-            case AlertRuleType::PMM:
                 // TODO
             case AlertRuleType::SPLUNK:
                 // TODO
