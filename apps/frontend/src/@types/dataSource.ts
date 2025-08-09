@@ -9,4 +9,5 @@ export interface IDataSource {
   updated_at: string;
   created_at: string;
   id: string;
+  copy: string;
 }

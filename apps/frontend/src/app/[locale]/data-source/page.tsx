@@ -51,6 +51,7 @@ export default function DataSource() {
               <ActionColumn
                 onEdit={() => setModalData(row.original)}
                 onDelete={() => setDeleteModalData(row.original)}
+                copyValue={`${row.original.copy}sdfs`}
               />
             )
           }

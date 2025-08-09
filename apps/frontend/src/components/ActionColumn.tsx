@@ -48,15 +48,17 @@ export default function ActionColumn({
             <HiPencil size="1.4rem" />
           </IconButton>
         )}
-        {copyValue !== undefined && (
+        {copyValue && (
           <IconButton
             sx={({ palette }) => ({
               color: palette.secondary.main,
-              backgroundColor: alpha(palette.secondary.dark, 0.05)
+              backgroundColor: alpha(palette.secondary.dark, 0.05),
+              padding: 1,
+              paddingX: 1.25
             })}
             onClick={() => handleCopyToClipboard()}
           >
-            {isCopied ? <HiCheck size="1.3rem" /> : <BsFillClipboard2Fill size="1.3rem" />}
+            {isCopied ? <HiCheck size="1.2rem" /> : <BsFillClipboard2Fill size="1.2rem" />}
           </IconButton>
         )}
         {onChangePassword && (
