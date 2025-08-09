@@ -71,7 +71,7 @@ class EndpointService
         $endpoints = Endpoint::where("userId", $fromUser->id)->get();
         foreach ($endpoints as $endpoint) {
             $endpoint->userId = $toUser->id;
-            $endpoint->user_Id = $toUser->id;
+            $endpoint->user_id = $toUser->id;
             $endpoint->save();
         }
     }
