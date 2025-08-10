@@ -1,3 +1,5 @@
+"use server";
+
 import { ICluster } from "@/@types/cluster";
 import type { IConnectionStatus } from "@/@types/global";
 import axios from "@/lib/axios";

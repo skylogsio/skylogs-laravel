@@ -1,3 +1,5 @@
+"use server";
+
 import type { ServerResponse } from "@/@types/global";
 import type { ITelegramProxy } from "@/@types/settings/telegram";
 import axios from "@/lib/axios";
