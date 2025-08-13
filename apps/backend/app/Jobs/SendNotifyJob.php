@@ -74,7 +74,7 @@ class SendNotifyJob implements ShouldQueue
             case self::PROMETHEUS_RESOLVE:
             case self::PROMETHEUS_FIRE:
                 SendNotifyService::SendMessage($this->notify);
-                $this->appendToChain(new RefreshPrometheusCheckJob);
+//                $this->appendToChain(new RefreshPrometheusCheckJob);
                 break;
             case self::ALERT_RULE_TEST:
                 SendNotifyService::SendMessage($this->notify, true);
