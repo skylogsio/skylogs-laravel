@@ -58,7 +58,7 @@ export default function ActionColumn({
             })}
             onClick={() => handleCopyToClipboard()}
           >
-            {isCopied ? <HiCheck size="0.9rem" /> : <BsFillClipboard2Fill size="1.2rem" />}
+            {isCopied ? <HiCheck size="1.1rem" /> : <BsFillClipboard2Fill size="1.1rem" />}
           </IconButton>
         )}
         {onChangePassword && (
