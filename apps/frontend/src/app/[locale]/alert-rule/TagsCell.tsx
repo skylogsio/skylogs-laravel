@@ -13,6 +13,10 @@ const ChipStyle = {
 export default function TagsCell({ tags }: { tags: string[] }) {
   const [showMoreAnchorEl, setShowMoreAnchorEl] = useState<HTMLButtonElement | null>(null);
 
+  if (!tags || tags.length === 0) {
+    return;
+  }
+
   const visibleTags = tags.slice(0, 3);
   const hiddenTags = tags.slice(3);
 
