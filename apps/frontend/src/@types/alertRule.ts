@@ -75,7 +75,7 @@ export interface IApiAlertRuleInstance {
   status: AlertRuleStatus;
 }
 
-export interface IPrometheusAlertRuleInstance {
+export interface IGeneralAlertHistoryInstance {
   dataSourceId: string;
   dataSourceName: string;
   alertRuleName: string;
@@ -86,9 +86,9 @@ export interface IPrometheusAlertRuleInstance {
   skylogsStatus: number;
 }
 
-export interface IPrometheusAlertHistory {
+export interface IGeneralAlertHistory {
   alertRuleId: string;
-  alerts: IPrometheusAlertRuleInstance[];
+  alerts: IGeneralAlertHistoryInstance[];
   state: number;
   countResolve: number;
   countFire: number;

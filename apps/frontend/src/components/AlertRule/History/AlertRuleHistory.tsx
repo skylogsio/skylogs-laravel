@@ -1,6 +1,6 @@
 import type { IAlertRule } from "@/@types/alertRule";
 import ApiAndNotificationAlertHistory from "@/components/AlertRule/History/ApiAndNotificationAlertHistory";
-import PrometheusAlertsHistory from "@/components/AlertRule/History/PrometheusAlertHistory";
+import GeneralAlertHistory from "@/components/AlertRule/History/GeneralAlertHistory";
 import type { AlertRuleType } from "@/utils/alertRuleUtils";
 
 export default function AlertRuleHistory({
@@ -15,7 +15,8 @@ export default function AlertRuleHistory({
     case "notification":
       return <ApiAndNotificationAlertHistory alertId={alertId} />;
     case "prometheus":
-      return <PrometheusAlertsHistory alertId={alertId} />;
+    case "grafana":
+      return <GeneralAlertHistory alertId={alertId} />;
     default:
       return null;
   }
