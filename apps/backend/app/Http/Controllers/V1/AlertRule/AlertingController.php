@@ -662,6 +662,8 @@ class AlertingController extends Controller
             case AlertRuleType::ELASTIC:
                 $data = ElasticHistory::where("alertRuleId", $id)->latest();
                 break;
+            default:
+                abort(404);
         }
         if ($request->has("from") && !empty($request->from)) {
             $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);
