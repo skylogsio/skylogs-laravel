@@ -20,12 +20,14 @@ interface AlertRuleStatusProps extends Pick<ChipProps, "size"> {
   status: AlertRuleStatus;
   id?: IAlertRule["id"];
   onAfterResolve?: () => void;
+  statusTitle?: string;
 }
 
 export default function AlertRuleStatus({
   status,
   onAfterResolve,
   id,
+  statusTitle,
   size = "medium"
 }: AlertRuleStatusProps) {
   const { palette } = useTheme();
@@ -57,7 +59,7 @@ export default function AlertRuleStatus({
   return (
     <Stack direction="row" spacing={1} justifyContent="center">
       <Chip
-        label={status}
+        label={statusTitle ?? status}
         size={size}
         sx={{
           textTransform: "capitalize",
