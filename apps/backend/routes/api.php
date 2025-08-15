@@ -18,6 +18,7 @@ use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
 use App\Http\Controllers\V1\SkylogsInstanceController;
+use App\Http\Controllers\V1\StatusController;
 use App\Http\Controllers\V1\UserController;
 use App\Http\Controllers\V1\Webhooks\ApiAlertController;
 use App\Http\Controllers\V1\Webhooks\WebhookAlertsController;
@@ -33,6 +34,8 @@ Route::prefix('cluster')
         Route::get("/sync-data", "Data")->name("cluster.data");
 
     });
+
+Route::prefix('v1/status')->get("all",[StatusController::class, "Status"])->name("status.all");
 
 Route::prefix('v1')->group(function () {
 
@@ -111,6 +114,16 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', 'Index');
                 Route::get('/types', 'GetTypes');
                 Route::get('/status/{id}', 'IsConnected');
+                Route::get('/{id}', 'Show');
+                Route::post('/', 'Create');
+                Route::put('/{id}', 'Update');
+                Route::delete('/{id}', 'Delete');
+            });
+
+        Route::prefix("/status")
+            ->controller(StatusController::class)
+            ->group(function () {
+                Route::get('/', 'Index');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
                 Route::put('/{id}', 'Update');
