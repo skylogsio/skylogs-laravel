@@ -10,6 +10,7 @@ use App\Models\EndpointOTP;
 use App\Models\Status;
 use App\Models\User;
 use App\Services\EndpointService;
+use App\Services\StatusService;
 use Illuminate\Http\Request;
 
 
@@ -38,62 +39,7 @@ class StatusController extends Controller
 
     public function Status(Request $request)
     {
-        $statuses = Status::get();
-        $result = collect();
-        foreach ($statuses as $status) {
-            $query = AlertRule::query();
-
-            if (!empty($status->filters)) {
-                $filters = $status->filters;
-
-                foreach ($filters as $key => $value) {
-                    $query = $query->where("labels.$key", $value);
-                }
-            } else {
-                $result[$status->_id] = ["name" => $status->name, "state" => AlertRule::RESOlVED,];
-                continue;
-            }
-
-            $alerts = $query->get();
-
-            $numberCritical = 0;
-            $numberWarning = 0;
-            $isCritical = false;
-            $isWarning = false;
-            foreach ($alerts as $alert) {
-                list($alertState, $alertCount) = $alert->getStatus();
-                if ($alertState == AlertRule::RESOlVED || $alertState == AlertRule::UNKNOWN) {
-                    continue;
-                } elseif ($alertState == AlertRule::WARNING) {
-                    $isWarning = true;
-                    $numberWarning++;
-                } elseif ($alertState == AlertRule::CRITICAL) {
-                    $isCritical = true;
-                    $numberCritical++;
-                } elseif ($alertState > 0) {
-                    $isCritical = true;
-                    $numberCritical++;
-                }
-            }
-
-            if ($isCritical) {
-                $statusState = AlertRule::CRITICAL;
-            } elseif ($isWarning) {
-                $statusState = AlertRule::WARNING;
-            } else {
-                $statusState = AlertRule::RESOlVED;
-            }
-
-
-            $result[$status->_id] = [
-                "id" => $status->id,
-                "name" => $status->name,
-                "state" => $statusState,
-                "countCritical" => $numberCritical,
-                "countWarning" => $numberWarning
-            ];
-
-        }
+        $result = app(StatusService::class)->getAllState();
 
         return response()->json($result);
 
@@ -116,21 +62,13 @@ class StatusController extends Controller
 
 
         if ($va->passes() && count($request->tags) != 0) {
+            $tags = collect($request->tags)->map(fn($item) => trim($item))->unique()->toArray();
+
             $status = Status::create([
                 'name' => $request->name,
-                "tags" => $request->tags,
+                "tags" => $tags,
             ]);
-            $extraFields = [];
 
-            if ($request->has("extraField") && !empty($request->extraField))
-                foreach ($request->extraField as $value) {
-                    if (!empty($value)) {
-                        if (!empty($value["key"]) && !empty($value["value"]))
-                            $extraFields[$value["key"]] = $value['value'];
-                    }
-                }
-
-            $status->filters = $extraFields;
             $status->save();
             return ['status' => true];
         } else {
@@ -151,23 +89,12 @@ class StatusController extends Controller
         );
 
         if ($va->passes() && count($request->tags) != 0) {
+            $tags = collect($request->tags)->map(fn($item) => trim($item))->unique()->toArray();
 
             $status = Status::where("id", $id)->firstOrFail();
 
-            $extraFields = [];
-
-            if ($request->has("extraField") && !empty($request->extraField))
-                foreach ($request->extraField as $value) {
-                    if (!empty($value)) {
-                        if (!empty($value["key"]) && !empty($value["value"]))
-                            $extraFields[$value["key"]] = $value['value'];
-                    }
-                }
-
-
-            $status->filters = $extraFields;
             $status->name = $request->name;
-            $status->tags = $request->tags;
+            $status->tags = $tags;
             $status->save();
             return ['status' => true];
         } else {
