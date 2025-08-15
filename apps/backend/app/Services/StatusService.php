@@ -86,8 +86,8 @@ class StatusService
                 "id" => $status->id,
                 "name" => $status->name,
                 "state" => $statusState,
-                "countCritical" => $numberCritical,
-                "countWarning" => $numberWarning
+                "criticalCount" => $numberCritical,
+                "warningCount" => $numberWarning
             ];
 
         }
