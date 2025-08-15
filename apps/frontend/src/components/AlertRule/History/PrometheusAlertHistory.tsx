@@ -16,19 +16,19 @@ import JsonView from "@uiw/react-json-view";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
 import { HiChevronDoubleDown, HiInformationCircle } from "react-icons/hi";
 
-import type { IAlertRule, IGeneralAlertHistory } from "@/@types/alertRule";
+import type { IAlertRule, IPrometheusAlertHistory } from "@/@types/alertRule";
 import { getAlertRuleHistory } from "@/api/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import ModalContainer from "@/components/Modal";
 import DataTable from "@/components/Table/DataTable";
 
-export default function GeneralAlertHistory({ alertId }: { alertId: IAlertRule["id"] }) {
+export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
-  const [details, setDetails] = useState<IGeneralAlertHistory | null>(null);
+  const [details, setDetails] = useState<IPrometheusAlertHistory | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["alertRuleHistory", alertId],
-    queryFn: ({ pageParam }) => getAlertRuleHistory<IGeneralAlertHistory>(alertId, pageParam),
+    queryFn: ({ pageParam }) => getAlertRuleHistory<IPrometheusAlertHistory>(alertId, pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.next_page_url ? lastPage.current_page + 1 : undefined,
@@ -94,7 +94,7 @@ export default function GeneralAlertHistory({ alertId }: { alertId: IAlertRule["
   return (
     <>
       <Stack alignItems="center">
-        <DataTable<IGeneralAlertHistory>
+        <DataTable<IPrometheusAlertHistory>
           data={allData}
           onRowClick={(row) => setDetails(row)}
           columns={[

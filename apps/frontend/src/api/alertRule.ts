@@ -316,8 +316,7 @@ export async function addUserAndNotifyToAlertRules(
   const urlSearchParams = searchParams.toString();
   try {
     const response = await axios.post<ServerResponse<unknown>>(
-      `${ALERT_RULE_GROUP_ACTION}/add-user-notify?${urlSearchParams}`,
-      body
+      `${ALERT_RULE_GROUP_ACTION}/add-user-notify?${urlSearchParams}`,body
     );
     return response.data;
   } catch (error) {
