@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Enums\DataSourceType;
 use App\Models\AlertRuleGrafana;
-use App\Models\GrafanaInstance;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
@@ -109,34 +108,6 @@ class GrafanaInstanceService
         return $alerts;
     }
 
-
-    public static function getTriggered(): array
-    {
-        $prometheusAll = GrafanaInstance::all();
-        $alerts = [];
-
-        foreach ($prometheusAll as $pro) {
-
-            try {
-
-                if (!empty($pro->username) && !empty($pro->password)) {
-                    $response = \Http::acceptJson()->withBasicAuth($pro->username, $pro->password)->get($pro->url . "/api/v1/alerts")->json();
-                } else {
-                    $response = \Http::acceptJson()->get($pro->url . "/api/v1/alerts")->json();
-                }
-
-                $arr = $response['data']['alerts'];
-                foreach ($arr as &$alert) {
-                    $alert['instance'] = $pro->name;
-                    $alerts[] = $alert;
-                }
-            } catch (\Exception $exception) {
-                $arr = [];
-            }
-        }
-        return $alerts;
-
-    }
 
     /**
      * @param Collection $dataSources

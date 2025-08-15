@@ -41,7 +41,7 @@ services:
         container_name: skylogs_mongo
         restart: unless-stopped
         ports:
-            - "27017:27017"
+            - "27018:27017"
         networks:
             - skylogs_net
         volumes:
@@ -52,7 +52,7 @@ services:
         container_name: skylogs_redis
         restart: unless-stopped
         ports:
-            - "6379:6379"
+            - "6380:6379"
         networks:
             - skylogs_net
 
