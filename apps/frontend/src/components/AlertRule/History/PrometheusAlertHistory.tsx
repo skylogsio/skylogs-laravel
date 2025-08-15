@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   alpha,
@@ -12,14 +12,11 @@ import {
   useTheme
 } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import JsonView from "@uiw/react-json-view";
-import { githubLightTheme } from "@uiw/react-json-view/githubLight";
 import { HiChevronDoubleDown, HiInformationCircle } from "react-icons/hi";
 
 import type { IAlertRule, IPrometheusAlertHistory } from "@/@types/alertRule";
 import { getAlertRuleHistory } from "@/api/alertRule";
-import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
-import ModalContainer from "@/components/Modal";
+import HistoryDetailsModal from "@/components/AlertRule/History/HistoryDetailsModal";
 import DataTable from "@/components/Table/DataTable";
 
 export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRule["id"] }) {
@@ -87,15 +84,12 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
     );
   }
 
-  if (isFetching && !isFetchingNextPage) {
-    return null;
-  }
-
   return (
     <>
       <Stack alignItems="center">
         <DataTable<IPrometheusAlertHistory>
           data={allData}
+          isLoading={isFetching && !isFetchingNextPage}
           onRowClick={(row) => setDetails(row)}
           columns={[
             { header: "Row", accessorFn: (_, index) => ++index },
@@ -126,14 +120,14 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
           {hasNextPage && (
             <Button
               endIcon={
-                isFetching ? (
-                  <CircularProgress color="inherit" size={14} />
+                isFetchingNextPage ? (
+                  <CircularProgress color="inherit" size={15} />
                 ) : (
                   <HiChevronDoubleDown />
                 )
               }
               onClick={() => fetchNextPage()}
-              disabled={isFetching}
+              disabled={isFetchingNextPage}
               sx={{
                 marginX: "auto",
                 marginTop: 2,
@@ -149,115 +143,7 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
           )}
         </Stack>
       </Stack>
-      {details && (
-        <ModalContainer
-          title="History Details"
-          maxWidth="70vw"
-          open={Boolean(details)}
-          onClose={() => setDetails(null)}
-        >
-          <Stack height="70vh" overflow="auto" paddingRight={1} spacing={2} marginTop={2}>
-            {details.alerts.map((alert, index) => (
-              <Stack
-                key={index}
-                sx={{
-                  borderRadius: 2,
-                  border: "1px solid",
-                  borderColor: palette.grey[100],
-                  padding: 2,
-                  paddingTop: 1
-                }}
-                spacing={1}
-              >
-                <Stack direction="row" spacing={2}>
-                  <Typography variant="body1" fontWeight="bold">
-                    {alert.alertRuleName}
-                  </Typography>
-                  <AlertRuleStatus
-                    size="small"
-                    status={alert.skylogsStatus === 2 ? "critical" : "resolved"}
-                  />
-                </Stack>
-                <Stack direction="row" width="100%" spacing={2}>
-                  <Stack
-                    direction="row"
-                    padding={1}
-                    bgcolor={palette.background.default}
-                    borderRadius={2}
-                    spacing={1}
-                    flexWrap="wrap"
-                    width="50%"
-                  >
-                    <Typography variant="body2" sx={{ opacity: 0.6 }}>
-                      Data Source:
-                    </Typography>
-                    <Typography variant="body2">{alert.dataSourceName}</Typography>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    padding={1}
-                    bgcolor={palette.background.default}
-                    borderRadius={2}
-                    spacing={1}
-                    flexWrap="wrap"
-                    width="50%"
-                  >
-                    <Typography variant="body2" sx={{ opacity: 0.6 }}>
-                      Data Source Alert Name:
-                    </Typography>
-                    <Typography variant="body2">{alert.dataSourceAlertName}</Typography>
-                  </Stack>
-                </Stack>
-                <Stack
-                  direction="row-reverse"
-                  width="100%"
-                  spacing={2}
-                  sx={{ "& .w-json-view-container": { backgroundColor: "transparent !important" } }}
-                >
-                  <Stack
-                    direction="row"
-                    width="50%"
-                    padding={1}
-                    bgcolor={palette.background.default}
-                    borderRadius={2}
-                    spacing={1}
-                    flexWrap="wrap"
-                  >
-                    <Typography variant="body2" sx={{ opacity: 0.6 }}>
-                      Annotations:
-                    </Typography>
-                    <JsonView
-                      collapsed={0}
-                      style={githubLightTheme}
-                      value={alert.annotations}
-                      enableClipboard={false}
-                    />
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    width="50%"
-                    padding={1}
-                    bgcolor={palette.background.default}
-                    borderRadius={2}
-                    spacing={1}
-                    flexWrap="wrap"
-                  >
-                    <Typography variant="body2" sx={{ opacity: 0.6 }}>
-                      Labels:
-                    </Typography>
-                    <JsonView
-                      collapsed={0}
-                      style={githubLightTheme}
-                      value={alert.labels}
-                      enableClipboard={false}
-                    />
-                  </Stack>
-                </Stack>
-              </Stack>
-            ))}
-          </Stack>
-        </ModalContainer>
-      )}
+      <HistoryDetailsModal alerts={details?.alerts} onClose={() => setDetails(null)} />
     </>
   );
 }
