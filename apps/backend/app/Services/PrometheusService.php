@@ -63,7 +63,7 @@ class PrometheusService
 
                     if (empty($alertRule['dataSourceIds']) || in_array($alert['dataSourceId'], $alertRuleDataSourcesArray)) {
 
-                        if(!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']){
+                        if (!empty($alertRule['dataSourceAlertName']) && $alert['labels']['alertname'] != $alertRule['dataSourceAlertName']) {
                             $isMatch = false;
                         }
 
@@ -125,6 +125,7 @@ class PrometheusService
 
     public static function CheckAlerts($alertRules, $prometheusFiredAlerts)
     {
+        self::CleanChecks();
         foreach ($alertRules as $alertRule) {
             $check = PrometheusCheck::firstOrCreate([
                 "alertRuleId" => $alertRule->_id,
@@ -237,10 +238,16 @@ class PrometheusService
         $checks = PrometheusCheck::get();
         foreach ($checks as $check) {
             $alerts = collect($check->alerts);
-            $alerts = $alerts->filter(function ($alert) {
+
+            if ($alerts->isEmpty()) continue;
+
+            $onlyFiredAlerts = $alerts->filter(function ($alert) {
                 return empty($alert["skylogsStatus"]) || $alert["skylogsStatus"] == PrometheusCheck::FIRE;
             });
-            $check->alerts = $alerts->toArray();
+
+            if ($onlyFiredAlerts->count() == $alerts->count()) continue;
+
+            $check->alerts = $onlyFiredAlerts->toArray();
             $check->save();
         }
     }

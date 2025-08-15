@@ -569,20 +569,20 @@ class AlertingController extends Controller
                     $sendResolve = true;
                 }
                 break;
+            case AlertRuleType::PMM:
+            case AlertRuleType::GRAFANA:
+                if($alert->state == AlertRule::CRITICAL){
+                    $sendResolve = true;
+                    $alert->state = AlertRule::RESOlVED;
+                    $alert->save();
+                }
+                break;
+
             case AlertRuleType::SPLUNK:
             case AlertRuleType::NOTIFICATION:
             case AlertRuleType::METABASE:
                 break;
-            case AlertRuleType::GRAFANA:
-                break;
 
-            /*     $alert = AlertRulePrometheus::firstWhere([
-                     'name' => $id
-                 ]);
-                 if ($alert) {
-                     SendNotifyJob::dispatch(SendNotifyJob::PROMETHEUS_TEST, $alert);
-                 }
-                 break;*/
 
         }
         if ($sendResolve) {
@@ -626,6 +626,7 @@ class AlertingController extends Controller
         }
 
         switch ($alert->type) {
+            case AlertRuleType::PMM:
             case AlertRuleType::GRAFANA:
                 $data = GrafanaWebhookAlert::where("alertRuleId", $id)->latest();
                 break;
@@ -661,6 +662,8 @@ class AlertingController extends Controller
             case AlertRuleType::ELASTIC:
                 $data = ElasticHistory::where("alertRuleId", $id)->latest();
                 break;
+            default:
+                abort(404);
         }
         if ($request->has("from") && !empty($request->from)) {
             $date = Carbon::createFromFormat("Y-m-d H:i", $request->from);

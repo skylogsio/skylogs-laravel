@@ -36,17 +36,16 @@ class PrometheusCheck extends BaseModel implements Messageable
     }
 
 
-
     public function createHistory()
     {
 
         $countResolve = 0;
         $countFire = 0;
 
-        foreach ($this->alerts as $alert){
-            if($alert['skylogsStatus'] == self::RESOLVED){
+        foreach ($this->alerts as $alert) {
+            if ($alert['skylogsStatus'] == self::RESOLVED) {
                 $countResolve++;
-            }elseif ($alert['skylogsStatus'] == self::FIRE){
+            } elseif ($alert['skylogsStatus'] == self::FIRE) {
                 $countFire++;
             }
         }
@@ -87,8 +86,8 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     public function defaultMessage(): string
     {
-        $needLabelArray = ["alertname","namespace","pod","reason","severity", "job"];
-        $needLabelAnotArray = ["summary","description"];
+        $needLabelArray = ["alertname", "namespace", "pod", "reason", "severity", "job"];
+        $needLabelAnotArray = ["summary", "description"];
 
         $alertRule = $this->alertRule;
 
@@ -105,12 +104,22 @@ class PrometheusCheck extends BaseModel implements Messageable
         }
 
 
-
         if (!empty($this->alerts)) {
             foreach ($this->alerts as $alert) {
                 if (empty($alert['skylogsStatus']) || $alert['skylogsStatus'] == self::FIRE) {
-                    $text .= "Fire 🔥" . "\n";
-                }else{
+                    $severity = $alert["labels"]['severity'] ?? "";
+                    switch ($severity) {
+                        case "warning":
+                            $text .= "Warning ⚠️" . "\n";
+                            break;
+                        case "info":
+                            $text .= "Info ℹ️" . "\n";
+                            break;
+                        default:
+                            $text .= "Fire 🔥" . "\n";
+                            break;
+                    }
+                } else {
                     $text .= "Resolved ✅" . "\n";
 
                 }
@@ -142,10 +151,12 @@ class PrometheusCheck extends BaseModel implements Messageable
     {
         return $this->defaultMessage();
     }
+
     public function matterMostMessage()
     {
         return $this->defaultMessage();
     }
+
     public function teamsMessage(): string
     {
         return $this->defaultMessage();
@@ -158,7 +169,7 @@ class PrometheusCheck extends BaseModel implements Messageable
 
     }
 
-    public function smsMessage():  string
+    public function smsMessage(): string
     {
         return $this->defaultMessage();
     }

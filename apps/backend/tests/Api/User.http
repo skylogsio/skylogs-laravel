@@ -16,6 +16,16 @@ Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
+###
+POST {{domain}}/user/changeOwner
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "fromUser": "67ae64ca98509c886504e9e2",
+    "toUser" : "67ae64ca98509c886504e9e3"
+}
 
 ###
 // role can be owner , manager , member
