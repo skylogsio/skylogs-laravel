@@ -6,7 +6,7 @@ import JsonView from "@uiw/react-json-view";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
 import { HiInformationCircle } from "react-icons/hi";
 
-import type { IAlertRule, IPrometheusAlertRuleInstance } from "@/@types/alertRule";
+import type { IAlertRule,IAlertRuleHistoryInstance } from "@/@types/alertRule";
 import { getFiredInstances } from "@/api/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import ModalContainer from "@/components/Modal";
@@ -15,7 +15,7 @@ import { truncateLongString } from "@/utils/general";
 
 export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
-  const [details, setDetails] = useState<IPrometheusAlertRuleInstance | null>(null);
+  const [details, setDetails] = useState<IAlertRuleHistoryInstance | null>(null);
 
   const { data } = useQuery({
     queryKey: ["fired-instances", alertId],
@@ -26,7 +26,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
 
   return (
     <>
-      <DataTable<IPrometheusAlertRuleInstance>
+      <DataTable<IAlertRuleHistoryInstance>
         data={data}
         onRowClick={(row) => setDetails(row)}
         columns={[
