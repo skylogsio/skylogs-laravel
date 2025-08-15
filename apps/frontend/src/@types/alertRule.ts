@@ -75,7 +75,7 @@ export interface IApiAlertRuleInstance {
   status: AlertRuleStatus;
 }
 
-export interface IPrometheusAlertRuleInstance {
+export interface IAlertRuleHistoryInstance {
   dataSourceId: string;
   dataSourceName: string;
   alertRuleName: string;
@@ -88,10 +88,30 @@ export interface IPrometheusAlertRuleInstance {
 
 export interface IPrometheusAlertHistory {
   alertRuleId: string;
-  alerts: IPrometheusAlertRuleInstance[];
+  alerts: IAlertRuleHistoryInstance[];
   state: number;
   countResolve: number;
   countFire: number;
+  updatedAt: string;
+  createdAt: string;
+  id: string;
+}
+
+export interface IGrafanaAndPmmAlertHistory {
+  alerts: IAlertRuleHistoryInstance[];
+  dataSourceId: string;
+  dataSourceName: string;
+  alertRuleId: string;
+  status: "firing" | "resolved";
+  groupLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  commonAnnotations: Record<string, string>;
+  externalURL: string;
+  groupKey: string;
+  truncatedAlerts: number;
+  orgId: number;
+  title: string;
+  message: string;
   updatedAt: string;
   createdAt: string;
   id: string;
