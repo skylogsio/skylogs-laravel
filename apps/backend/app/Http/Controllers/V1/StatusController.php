@@ -48,7 +48,7 @@ class StatusController extends Controller
 
 
 
-    public function Store(Request $request)
+    public function Create(Request $request)
     {
 
 
@@ -76,7 +76,7 @@ class StatusController extends Controller
         }
     }
 
-    public function StoreUpdate(Request $request, $id)
+    public function Update(Request $request, $id)
     {
 
 
