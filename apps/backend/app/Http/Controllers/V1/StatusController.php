@@ -37,6 +37,14 @@ class StatusController extends Controller
 
     }
 
+    public function Show($id)
+    {
+
+        return response()->json(Status::findOrFail($id));
+
+    }
+
+
     public function Status(Request $request)
     {
         $result = app(StatusService::class)->getAllState();
