@@ -1,31 +1,22 @@
 import { useMemo, useState } from "react";
 
-import {
-  alpha,
-  Avatar,
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  Stack,
-  Typography,
-  useTheme
-} from "@mui/material";
+import { Button, CircularProgress, IconButton, Stack, Typography, useTheme } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { HiChevronDoubleDown, HiInformationCircle } from "react-icons/hi";
 
-import type { IAlertRule, IPrometheusAlertHistory } from "@/@types/alertRule";
+import type { IAlertRule, IGrafanaAndPmmAlertHistory } from "@/@types/alertRule";
 import { getAlertRuleHistory } from "@/api/alertRule";
+import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import HistoryDetailsModal from "@/components/AlertRule/History/HistoryDetailsModal";
 import DataTable from "@/components/Table/DataTable";
 
-export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRule["id"] }) {
+export default function GrafanaAndPmmAlertHistory({ alertId }: { alertId: IAlertRule["id"] }) {
   const { palette } = useTheme();
-  const [details, setDetails] = useState<IPrometheusAlertHistory | null>(null);
+  const [details, setDetails] = useState<IGrafanaAndPmmAlertHistory | null>(null);
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["alertRuleHistory", alertId],
-    queryFn: ({ pageParam }) => getAlertRuleHistory<IPrometheusAlertHistory>(alertId, pageParam),
+    queryFn: ({ pageParam }) => getAlertRuleHistory<IGrafanaAndPmmAlertHistory>(alertId, pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.next_page_url ? lastPage.current_page + 1 : undefined,
@@ -39,64 +30,27 @@ export default function PrometheusAlertsHistory({ alertId }: { alertId: IAlertRu
 
   const totalCount = data?.pages?.[0]?.total || 0;
 
-  function renderFiredAndResolvedChip(countFire: number, countResolve: number) {
-    const numberOfFired = countFire > 100 ? "+99" : countFire;
-    const numberOfResolved = countResolve > 100 ? "+99" : countResolve;
-    return (
-      <Stack direction="row" spacing={1} justifyContent="center">
-        {countFire > 0 && (
-          <Chip
-            avatar={
-              <Avatar
-                variant="rounded"
-                sx={{
-                  bgcolor: ({ palette }) => alpha(palette.error.light, 0.3),
-                  color: ({ palette }) => `${palette.error.main}!important`
-                }}
-              >
-                {numberOfFired}
-              </Avatar>
-            }
-            variant="outlined"
-            label="Fired"
-            color="error"
-          />
-        )}
-        {countResolve > 0 && (
-          <Chip
-            avatar={
-              <Avatar
-                variant="rounded"
-                sx={{
-                  bgcolor: ({ palette }) => alpha(palette.success.light, 0.3),
-                  color: ({ palette }) => `${palette.success.main}!important`
-                }}
-              >
-                {numberOfResolved}
-              </Avatar>
-            }
-            variant="outlined"
-            label="Resolved"
-            color="success"
-          />
-        )}
-      </Stack>
-    );
-  }
-
   return (
     <>
       <Stack alignItems="center">
-        <DataTable<IPrometheusAlertHistory>
+        <DataTable<IGrafanaAndPmmAlertHistory>
           data={allData}
           isLoading={isFetching && !isFetchingNextPage}
           onRowClick={(row) => setDetails(row)}
           columns={[
             { header: "Row", accessorFn: (_, index) => ++index },
             {
-              header: "Fired / Resolved",
-              cell: ({ row }) =>
-                renderFiredAndResolvedChip(row.original.countFire, row.original.countResolve)
+              header: "Data Source Name",
+              cell: ({ row }) => row.original.dataSourceName
+            },
+            {
+              header: "Status",
+              cell: ({ row }) => (
+                <AlertRuleStatus
+                  status={row.original.status === "firing" ? "critical" : row.original.status}
+                  statusTitle={row.original.status}
+                />
+              )
             },
             { header: "Date", accessorKey: "createdAt" },
             {

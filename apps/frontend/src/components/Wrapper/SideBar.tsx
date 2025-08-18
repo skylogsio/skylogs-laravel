@@ -35,7 +35,7 @@ const URLS: Array<URLType> = [
   },
   { pathname: "/clusters", label: "Clusters", role: ["owner"], icon: AiOutlineCluster },
   { pathname: "/profile-services", label: "Profile Services", role: "owner", icon: AiOutlineCloud },
-  { pathname: "/settings/telegram", label: "Settings", role: "owner", icon: AiOutlineSetting }
+  { pathname: "/settings", label: "Settings", role: "owner", icon: AiOutlineSetting }
 ];
 
 function ListItem(url: URLType) {

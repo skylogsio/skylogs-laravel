@@ -3,6 +3,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 
+import { Stack } from "@mui/material";
+import { grey } from "@mui/material/colors";
+import { FaThumbtack } from "react-icons/fa6";
+
 import type { IAlertRule } from "@/@types/alertRule";
 import type { CreateUpdateModal } from "@/@types/global";
 import AlertRuleActionColumn from "@/app/[locale]/alert-rule/AlertRuleActionColumn";
@@ -71,7 +75,23 @@ export default function AlertRule() {
           {
             header: "Name",
             cell: ({ row }) => (
-              <Link href={`${pathname}/${row.original.id}`}>{row.original.name}</Link>
+              <Stack
+                spacing={1}
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                component={Link}
+                href={`${pathname}/${row.original.id}`}
+              >
+                {row.original.isPinned && (
+                  <FaThumbtack
+                    color={grey[500]}
+                    style={{ transform: "rotate(-30deg)" }}
+                    size="0.9rem"
+                  />
+                )}
+                <span>{row.original.name}</span>
+              </Stack>
             )
           },
           {
@@ -106,6 +126,7 @@ export default function AlertRule() {
             header: "Action",
             cell: ({ row }) => (
               <AlertRuleActionColumn
+                refreshData={handleRefreshData}
                 isSilent={row.original.is_silent}
                 rowId={row.original.id}
                 isPinned={row.original.isPinned}

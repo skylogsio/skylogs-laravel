@@ -1,74 +1,49 @@
-import React, { useState } from "react";
+"use client";
 
-import { IconButton, Stack, Typography, useTheme } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { Stack, Typography, useTheme } from "@mui/material";
 import JsonView from "@uiw/react-json-view";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
-import { HiInformationCircle } from "react-icons/hi";
 
-import type { IAlertRule,IAlertRuleHistoryInstance } from "@/@types/alertRule";
-import { getFiredInstances } from "@/api/alertRule";
+import type { IAlertRuleHistoryInstance } from "@/@types/alertRule";
 import AlertRuleStatus from "@/components/AlertRule/AlertRuleStatus";
 import ModalContainer from "@/components/Modal";
-import DataTable from "@/components/Table/DataTable";
-import { truncateLongString } from "@/utils/general";
+import { ModalContainerProps } from "@/components/Modal/types";
 
-export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRule["id"] }) {
+export default function HistoryDetailsModal({
+  alerts,
+  onClose
+}: { alerts: IAlertRuleHistoryInstance[] | undefined } & Pick<ModalContainerProps, "onClose">) {
   const { palette } = useTheme();
-  const [details, setDetails] = useState<IAlertRuleHistoryInstance | null>(null);
 
-  const { data } = useQuery({
-    queryKey: ["fired-instances", alertId],
-    queryFn: () => getFiredInstances(alertId)
-  });
-
-  if (!data) return null;
+  if (!alerts) return null;
 
   return (
-    <>
-      <DataTable<IAlertRuleHistoryInstance>
-        data={data}
-        onRowClick={(row) => setDetails(row)}
-        columns={[
-          { header: "Row", accessorFn: (_, index) => ++index },
-          { header: "DataSource", accessorKey: "dataSourceName" },
-          {
-            header: "Status",
-            cell: ({ row }) => (
-              <AlertRuleStatus
-                status={row.original.skylogsStatus === 2 ? "critical" : "resolved"}
-              />
-            )
-          },
-          {
-            header: "DataSource Alert Name",
-            accessorFn: (item) => truncateLongString(item.dataSourceAlertName)
-          },
-          {
-            header: "Actions",
-            cell: ({ row }) => (
-              <IconButton onClick={() => setDetails(row.original)}>
-                <HiInformationCircle color={palette.primary.light} />
-              </IconButton>
-            )
-          }
-        ]}
-      />
-      {details && (
-        <ModalContainer
-          title="Details"
-          maxWidth="70vw"
-          open={Boolean(details)}
-          onClose={() => setDetails(null)}
-        >
-          <Stack spacing={1} marginTop={3}>
+    <ModalContainer
+      title="History Details"
+      maxWidth="70vw"
+      open={Boolean(alerts)}
+      onClose={onClose}
+    >
+      <Stack height="70vh" overflow="auto" paddingRight={1} spacing={2} marginTop={2}>
+        {alerts.map((alert, index) => (
+          <Stack
+            key={index}
+            sx={{
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: palette.grey[100],
+              padding: 2,
+              paddingTop: 1
+            }}
+            spacing={1}
+          >
             <Stack direction="row" spacing={2}>
               <Typography variant="body1" fontWeight="bold">
-                {details.alertRuleName}
+                {alert.alertRuleName}
               </Typography>
               <AlertRuleStatus
                 size="small"
-                status={details.skylogsStatus === 2 ? "critical" : "resolved"}
+                status={alert.skylogsStatus === 2 ? "critical" : "resolved"}
               />
             </Stack>
             <Stack direction="row" width="100%" spacing={2}>
@@ -84,7 +59,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                 <Typography variant="body2" sx={{ opacity: 0.6 }}>
                   Data Source:
                 </Typography>
-                <Typography variant="body2">{details.dataSourceName}</Typography>
+                <Typography variant="body2">{alert.dataSourceName}</Typography>
               </Stack>
               <Stack
                 direction="row"
@@ -98,7 +73,7 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                 <Typography variant="body2" sx={{ opacity: 0.6 }}>
                   Data Source Alert Name:
                 </Typography>
-                <Typography variant="body2">{details.dataSourceAlertName}</Typography>
+                <Typography variant="body2">{alert.dataSourceAlertName}</Typography>
               </Stack>
             </Stack>
             <Stack
@@ -120,10 +95,10 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                   Annotations:
                 </Typography>
                 <JsonView
+                  collapsed={0}
                   style={githubLightTheme}
-                  value={details.annotations}
+                  value={alert.annotations}
                   enableClipboard={false}
-                  displayDataTypes={false}
                 />
               </Stack>
               <Stack
@@ -139,16 +114,16 @@ export default function PrometheusFiredInstance({ alertId }: { alertId: IAlertRu
                   Labels:
                 </Typography>
                 <JsonView
+                  collapsed={0}
                   style={githubLightTheme}
-                  value={details.labels}
+                  value={alert.labels}
                   enableClipboard={false}
-                  displayDataTypes={false}
                 />
               </Stack>
             </Stack>
           </Stack>
-        </ModalContainer>
-      )}
-    </>
+        ))}
+      </Stack>
+    </ModalContainer>
   );
 }

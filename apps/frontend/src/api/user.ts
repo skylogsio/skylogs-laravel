@@ -1,5 +1,7 @@
 "use server";
 
+import { AxiosError } from "axios";
+
 import type { ServerResponse } from "@/@types/global";
 import type { IUser } from "@/@types/user";
 import axios from "@/lib/axios";
@@ -16,12 +18,13 @@ export async function getAllUsers(): Promise<IUser[]> {
   }
 }
 
-export async function createUser(body: unknown) {
+export async function createUser(body: unknown): Promise<ServerResponse<unknown> | undefined> {
   try {
     const response = await axios.post<ServerResponse<unknown>>(USER_URL, body);
     return response.data;
   } catch (error) {
-    throw error;
+    const tempError = error as AxiosError<ServerResponse<unknown>>;
+    return tempError.response?.data;
   }
 }
 

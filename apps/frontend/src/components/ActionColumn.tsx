@@ -53,12 +53,12 @@ export default function ActionColumn({
             sx={({ palette }) => ({
               color: palette.secondary.main,
               backgroundColor: alpha(palette.secondary.dark, 0.05),
-              padding: 1,
+              padding: 1.4,
               paddingX: 1.25
             })}
             onClick={() => handleCopyToClipboard()}
           >
-            {isCopied ? <HiCheck size="1.2rem" /> : <BsFillClipboard2Fill size="1.2rem" />}
+            {isCopied ? <HiCheck size="1.1rem" /> : <BsFillClipboard2Fill size="1.1rem" />}
           </IconButton>
         )}
         {onChangePassword && (

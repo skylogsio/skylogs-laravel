@@ -1,5 +1,3 @@
-import type { AxiosResponse } from "axios";
-
 import type { ModalContainerProps } from "@/components/Modal/types";
 
 export type CreateUpdateModal<T> = T | "NEW" | null;
@@ -14,9 +12,9 @@ export type ConnectionStatusType = "connected" | "disconnected" | "warning";
 export type ServerSelectableDataType = Array<{ id: string; name: string }>;
 
 //TODO: Should add the type of message which comes from the server
-type ErrorResponse = { status: false; message: unknown };
-type SuccessResponse<T> = { status: true; data: T };
-export type ServerResponse<T> = AxiosResponse<ErrorResponse | SuccessResponse<T>>;
+export type ErrorResponse = { status: false; message: string };
+export type SuccessResponse<T> = { status: true; data: T };
+export type ServerResponse<T> = ErrorResponse | SuccessResponse<T>;
 
 export interface IServerResponseTabularData<T> {
   data: T[];
