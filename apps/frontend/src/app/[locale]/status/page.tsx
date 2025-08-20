@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 
-import { Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { HiOutlinePlusSm } from "react-icons/hi";
 
 import { CreateUpdateModal } from "@/@types/global";
 import { IStatusCard } from "@/@types/status";
 import { getAllStatus } from "@/api/status";
+import StatusMonitoringCards from "@/components/Status/StatusCard";
 import StatusCardModal from "@/components/Status/StatusCardModal";
 
 export default function StatusPage() {
@@ -16,7 +17,8 @@ export default function StatusPage() {
 
   const { data: statusCards, refetch } = useQuery({
     queryKey: ["all-status-cards"],
-    queryFn: () => getAllStatus()
+    queryFn: () => getAllStatus(),
+    refetchInterval: 5 * 1000
   });
 
   return (
@@ -36,6 +38,18 @@ export default function StatusPage() {
             Create
           </Button>
         </Stack>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 3,
+            justifyContent: "center",
+            margin: "0 auto",
+            backgroundColor: ({ palette }) => palette.background.paper
+          }}
+        >
+          {statusCards?.map((item) => <StatusMonitoringCards key={item.id} info={item} />)}
+        </Box>
       </Stack>
       {modalData && (
         <StatusCardModal

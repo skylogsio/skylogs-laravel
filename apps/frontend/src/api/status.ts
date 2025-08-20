@@ -3,9 +3,9 @@ import { ServerResponse } from "@/@types/global";
 import type { IStatusCard } from "@/@types/status";
 import axios from "@/lib/axios";
 
-const STATUS_URL = "status/";
+const STATUS_URL = "status";
 
-export async function getAllStatus(): Promise<IStatusCard> {
+export async function getAllStatus(): Promise<IStatusCard[]> {
   try {
     const response = await axios.get(`${STATUS_URL}/all`);
     return response.data;
