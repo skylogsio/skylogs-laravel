@@ -22,11 +22,8 @@ class StatusController extends Controller
 
         $perPage = $request->perPage ?? 25;
 
-        $data = Endpoint::query();
-        $isAdmin = auth()->user()->isAdmin();
-        if (!$isAdmin) {
-            $data = $data->where("userId", auth()->id());
-        }
+        $data = Status::query();
+
         if ($request->filled('name')) {
             $data->where('name', 'like', '%' . $request->name . '%');
         }
@@ -37,6 +34,14 @@ class StatusController extends Controller
 
     }
 
+    public function Show($id)
+    {
+
+        return response()->json(Status::findOrFail($id));
+
+    }
+
+
     public function Status(Request $request)
     {
         $result = app(StatusService::class)->getAllState();
@@ -46,9 +51,7 @@ class StatusController extends Controller
     }
 
 
-
-
-    public function Store(Request $request)
+    public function Create(Request $request)
     {
 
 
@@ -76,7 +79,7 @@ class StatusController extends Controller
         }
     }
 
-    public function StoreUpdate(Request $request, $id)
+    public function Update(Request $request, $id)
     {
 
 
@@ -103,7 +106,7 @@ class StatusController extends Controller
     }
 
 
-    public function Delete(Request $request,$id)
+    public function Delete(Request $request, $id)
     {
 
         $model = Status::where('_id', $id)->firstOrFail();
@@ -111,7 +114,6 @@ class StatusController extends Controller
         $model->delete();
         return ['status' => true];
     }
-
 
 
 }
