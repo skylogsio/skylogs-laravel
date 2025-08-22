@@ -1,11 +1,11 @@
-export type StatusStatus = "resolve" | "warning" | "critical";
+export type StateType = "resolve" | "warning" | "critical";
 
 export interface IStatusCard {
   id: string;
   name: string;
-  status: StatusStatus;
+  state: StateType;
   criticalCount: number;
   warningCount: number;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }

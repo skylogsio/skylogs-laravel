@@ -5,6 +5,7 @@ import { styled, keyframes } from "@mui/material/styles";
 import { TbCircleCheck, TbAlertTriangle, TbExclamationCircle } from "react-icons/tb";
 
 import { IStatusCard } from "@/@types/status";
+import { formatTimeAgo } from "@/utils/general";
 
 const pulse = keyframes`
   0% { opacity: 1; }
@@ -129,19 +130,9 @@ const getHealthPercentage = (
   return 25;
 };
 
-const formatTimeAgo = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-
-  if (diffInHours < 1) return "Just now";
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  return `${Math.floor(diffInHours / 24)}d ago`;
-};
-
 const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
   return (
-    <StatusCard key={info.id} status={info.status}>
+    <StatusCard key={info.id} status={info.state}>
       <CardContent
         sx={{ padding: "16px !important", height: "100%", position: "relative", zIndex: 1 }}
       >
@@ -165,7 +156,7 @@ const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
           >
             {info.name}
           </Typography>
-          <StatusIcon status={info.status}>{getStatusIcon(info.status)}</StatusIcon>
+          <StatusIcon status={info.state}>{getStatusIcon(info.state)}</StatusIcon>
         </Box>
         <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
           {info.criticalCount > 0 && (
@@ -199,13 +190,13 @@ const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
           </Typography>
           <HealthBar
             variant="determinate"
-            value={getHealthPercentage(info.status, info.criticalCount, info.warningCount)}
-            status={info.status}
+            value={getHealthPercentage(info.state, info.criticalCount, info.warningCount)}
+            status={info.state}
           />
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Typography variant="caption" sx={{ color: "#666", fontWeight: 500 }}>
-            Updated {formatTimeAgo(info.updated_at)}
+            Updated {formatTimeAgo(info.updatedAt)}
           </Typography>
           <Box
             sx={{
@@ -213,12 +204,12 @@ const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
               height: 8,
               borderRadius: "50%",
               backgroundColor:
-                info.status === "resolve"
+                info.state === "resolve"
                   ? "#4caf50"
-                  : info.status === "warning"
+                  : info.state === "warning"
                     ? "#ff9800"
                     : "#f44336",
-              animation: info.status !== "resolve" ? `${pulse} 1s infinite ease-in-out` : "none"
+              animation: info.state !== "resolve" ? `${pulse} 1s infinite ease-in-out` : "none"
             }}
           />
         </Box>
