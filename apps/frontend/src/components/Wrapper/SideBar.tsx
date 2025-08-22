@@ -9,9 +9,9 @@ import {
   AiOutlineCluster,
   AiOutlineAlert,
   AiOutlineCloud,
-  AiOutlineSetting
+  AiOutlineSetting,
+  AiOutlineFundProjectionScreen
 } from "react-icons/ai";
-import { MdOutlineMonitorHeart } from "react-icons/md";
 
 import { useRole } from "@/hooks";
 import { RoleType } from "@/utils/userUtils";
@@ -20,13 +20,13 @@ type URLType = {
   pathname: string;
   label: string;
   role?: RoleType | RoleType[];
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
 };
 
 const URLS: Array<URLType> = [
   // { pathname: "/", label: "Home", icon: AiOutlineHome },
   { pathname: "/alert-rule", label: "Alert Rules", icon: AiOutlineAlert },
-  { pathname: "/status", label: "Status", icon: MdOutlineMonitorHeart },
+  { pathname: "/status", label: "Status", icon: AiOutlineFundProjectionScreen },
   { pathname: "/endpoints", label: "Endpoints", icon: AiOutlineApi },
   { pathname: "/users", label: "Users", role: ["owner", "manager"], icon: AiOutlineUser },
   {
@@ -93,7 +93,7 @@ function ListItem(url: URLType) {
             gap: 1.5
           }}
         >
-          <IconComponent size={20} />
+          <IconComponent size="1.5rem" />
           {url.label}
         </ListItemButton>
       </Stack>
