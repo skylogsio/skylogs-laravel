@@ -4,6 +4,7 @@ use App\Enums\ClusterType;
 use App\Jobs\AddChecksJob;
 use App\Jobs\AutoResolveApiAlertsJob;
 use App\Jobs\CheckPrometheusJob;
+use App\Jobs\RefreshStatusHistoryJob;
 use App\Jobs\SyncCluster;
 use App\Services\ClusterService;
 
@@ -29,4 +30,5 @@ Schedule::call(function () {
 Schedule::job(new CheckPrometheusJob)->everyFiveSeconds();
 Schedule::job(new AddChecksJob)->everyFiveSeconds();
 Schedule::job(new AutoResolveApiAlertsJob)->everyFiveSeconds();
+Schedule::job(new RefreshStatusHistoryJob)->everyFiveSeconds();
 

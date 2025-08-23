@@ -6,39 +6,13 @@ use App\Models\AlertRule;
 use App\Models\ApiAlertHistory;
 use App\Helpers\Constants;
 use App\Models\Status;
+use App\Models\StatusHistory;
 use Carbon\Carbon;
 
 class StatusService
 {
 
-    public static function getDateRanges(Carbon $fromDate, Carbon $toDate, $status): array
-    {
-        $query = AlertRule::query();
-
-        if (!empty($status->filters)) {
-            $filters = $status->filters;
-
-            foreach ($filters as $key => $value) {
-                $query = $query->where("labels.$key", $value);
-            }
-        } else {
-            return [];
-        }
-        $alerts = $query->get();
-
-        foreach ($alerts as $alert) {
-            switch ($alert->type) {
-                case Constants::API:
-                    ApiAlertHistory::whereBetween("createdAt", [$fromDate->toDateTime(), $toDate->toDateTime()])
-                        ->get();
-                    break;
-            }
-        }
-
-
-    }
-
-    public function getAllState()
+    public function refresh()
     {
         $statuses = Status::get();
         $result = collect();
@@ -82,13 +56,20 @@ class StatusService
             }
 
 
-            $result[] = [
-                "id" => $status->id,
-                "name" => $status->name,
-                "state" => $statusState,
-                "criticalCount" => $numberCritical,
-                "warningCount" => $numberWarning
-            ];
+            $status->state = $statusState;
+            $status->criticalCount = $numberCritical;
+            $status->warningCount = $numberWarning;
+            if ($status->isDirty()) {
+
+                $status->save();
+                StatusHistory::create([
+                    "statusId" => $status->id,
+                    "alertRuleIds" => $alerts->pluck("id")->toArray(),
+                    "criticalCount" => $status->criticalCount,
+                    "warningCount" => $status->warningCount
+                ]);
+            }
+
 
         }
         return $result;

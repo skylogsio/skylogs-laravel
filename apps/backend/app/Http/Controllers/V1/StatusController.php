@@ -44,8 +44,8 @@ class StatusController extends Controller
 
     public function Status(Request $request)
     {
-        $result = app(StatusService::class)->getAllState();
 
+        $result = Status::all();
         return response()->json($result);
 
     }
@@ -70,6 +70,9 @@ class StatusController extends Controller
             $status = Status::create([
                 'name' => $request->name,
                 "tags" => $tags,
+                "criticalCount" => 0,
+                "warningCount" => 0,
+                "status" => AlertRule::RESOlVED
             ]);
 
             $status->save();

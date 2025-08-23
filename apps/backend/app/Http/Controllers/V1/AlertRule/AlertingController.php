@@ -112,6 +112,7 @@ class AlertingController extends Controller
 
         foreach ($paginatedData as &$alert) {
 //            $alert =new AlertRule($alert);
+            /** @var $alert AlertRule*/
             $alert->hasAdminAccess = $this->alertRuleService->hasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
             [$alertStatus, $alertStatusCount] = $alert->getStatus();
