@@ -11,6 +11,7 @@ import { IStatusCard } from "@/@types/status";
 import { getAllStatus } from "@/api/status";
 import StatusMonitoringCards from "@/components/Status/StatusCard";
 import StatusCardModal from "@/components/Status/StatusCardModal";
+import StatusCardSkeleton from "@/components/Status/StatusCardSkeleton";
 
 export default function StatusPage() {
   const [modalData, setModalData] = useState<CreateUpdateModal<IStatusCard>>(null);
@@ -21,9 +22,15 @@ export default function StatusPage() {
     refetchInterval: 5 * 1000
   });
 
+  function renderSkeletonCards() {
+    return Array.from({ length: 6 }, (_, index) => (
+      <StatusCardSkeleton key={`skeleton-${index}`} />
+    ));
+  }
+
   return (
     <>
-      <Stack>
+      <Stack spacing={3}>
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="h5" fontSize="1.8rem" fontWeight="700" component="div">
             Status
@@ -43,12 +50,16 @@ export default function StatusPage() {
             display: "flex",
             flexWrap: "wrap",
             gap: 3,
+            paddingY: 4,
             justifyContent: "center",
             margin: "0 auto",
+            borderRadius: 3,
             backgroundColor: ({ palette }) => palette.background.paper
           }}
         >
-          {statusCards?.map((item) => <StatusMonitoringCards key={item.id} info={item} />)}
+          {statusCards
+            ? statusCards?.map((item) => <StatusMonitoringCards key={item.id} info={item} />)
+            : renderSkeletonCards()}
         </Box>
       </Stack>
       {modalData && (
