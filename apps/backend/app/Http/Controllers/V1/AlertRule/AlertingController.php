@@ -4,7 +4,6 @@ namespace App\Http\Controllers\V1\AlertRule;
 
 
 use App\Enums\AlertRuleType;
-use App\Enums\DataSourceType;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotifyJob;
 use App\Models\AlertInstance;
@@ -13,15 +12,12 @@ use App\Models\ApiAlertHistory;
 use App\Models\DataSource\DataSource;
 use App\Models\ElasticCheck;
 use App\Models\ElasticHistory;
-use App\Models\Endpoint;
 use App\Models\GrafanaWebhookAlert;
-use App\Models\HealthCheck;
 use App\Models\HealthHistory;
 use App\Models\MetabaseWebhookAlert;
 use App\Models\PrometheusCheck;
 use App\Models\PrometheusHistory;
 use App\Models\SentryWebhookAlert;
-use App\Models\User;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\AlertRuleService;
 use App\Services\ApiService;
@@ -30,8 +26,7 @@ use App\Services\SendNotifyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use MongoDB\Builder\Expression;
-use MongoDB\Builder\Query;
+use Morilog\Jalali\Jalalian;
 use Str;
 
 class AlertingController extends Controller
@@ -674,7 +669,15 @@ class AlertingController extends Controller
             $date = Carbon::createFromFormat("Y-m-d H:i", $request->to);
             $data = $data->where("createdAt", "<=", $date->toDateTime());
         }
-        $data = $data->paginate($perPage);
+        $data = $data->paginate($perPage)->toArray();
+
+        $arrayData = $data["data"];
+        foreach ($arrayData as &$item) {
+            $item["updatedAt"] = Jalalian::fromCarbon(Carbon::parse($item["updatedAt"]))->format('Y/m/d H:i:s');
+            $item["createdAt"] = Jalalian::fromCarbon(Carbon::parse($item["createdAt"]))->format('Y/m/d H:i:s');
+        }
+        $data['data'] = $arrayData;
+
         return response()->json($data);
     }
 

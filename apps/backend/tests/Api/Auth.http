@@ -8,8 +8,8 @@ Accept: application/json
 }
 
 > {%
-    client.global.set("authToken", response.body.access_token);
-    client.global.set("refreshToken", response.body.refresh_token); %}
+    client.global.set("authToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken); %}
 
 ###
 POST {{domain}}/auth/refresh
@@ -18,8 +18,8 @@ Accept: application/json
 Authorization: Bearer {{refreshToken}}
 
 > {%
-    client.global.set("authToken", response.body.access_token);
-    client.global.set("refreshToken", response.body.refresh_token); %}
+    client.global.set("authToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken); %}
 
 ###
 POST {{domain}}/auth/me
