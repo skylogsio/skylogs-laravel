@@ -1,4 +1,4 @@
-export type StateType = "resolve" | "warning" | "critical";
+export type StateType = "resolved" | "warning" | "critical";
 
 export interface IStatusCard {
   id: string;

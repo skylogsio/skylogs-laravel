@@ -93,7 +93,7 @@ function ListItem(url: URLType) {
             gap: 1.5
           }}
         >
-          <IconComponent size="1.5rem" />
+          <IconComponent size="1.4rem" />
           {url.label}
         </ListItemButton>
       </Stack>
