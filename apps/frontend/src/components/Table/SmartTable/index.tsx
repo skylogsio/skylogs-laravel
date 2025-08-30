@@ -1,14 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import React, {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useMemo,
-  useState,
-  useEffect
-} from "react";
+import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from "react";
 
 import {
   Table as MuiTable,
@@ -72,10 +65,18 @@ function Table<T>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: defaultPage,
-    pageSize: defaultPageSize ?? 10
-  });
+  // Initialize pagination from URL params (only once on mount)
+  const getInitialPagination = (): PaginationState => {
+    const pageFromUrl = searchParams.get("page");
+    const pageSizeFromUrl = searchParams.get("perPage");
+
+    return {
+      pageIndex: pageFromUrl ? parseInt(pageFromUrl) - 1 : defaultPage, // Convert to 0-based index
+      pageSize: pageSizeFromUrl ? parseInt(pageSizeFromUrl) : (defaultPageSize ?? 10)
+    };
+  };
+
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(getInitialPagination);
   const [openFilterBox, setOpenFilterBox] = useState(false);
   const [filter, setFilter] = useState<Record<string, unknown>>({});
   const [searchValue, setSearchValue] = useState("");
@@ -162,6 +163,14 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
+  // Helper function to update URL with pagination
+  const updateUrlWithPagination = (newPageIndex: number, newPageSize: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(newPageIndex + 1)); // Convert to 1-based for URL
+    params.set("perPage", String(newPageSize));
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const table = useReactTable({
     data: data?.data || [],
     columns: tableColumns,
@@ -176,13 +185,11 @@ function Table<T>(
     manualPagination: true
   });
 
-  const handleSearch = useCallback(
-    (search: string) => {
-      setSearchValue(search);
-      table.setPageIndex(defaultPage);
-    },
-    [defaultPage, table]
-  );
+  const handleSearch = (search: string) => {
+    setSearchValue(search);
+    table.setPageIndex(defaultPage);
+    updateUrlWithPagination(defaultPage, pageSize);
+  };
 
   function handleChangeFilter(key: string, value: unknown) {
     setFilter((prev) => ({ ...prev, [key]: value }));
@@ -213,6 +220,8 @@ function Table<T>(
     }
 
     table.setPageIndex(defaultPage);
+    params.set("page", String(defaultPage + 1));
+    params.set("perPage", String(pageSize));
 
     router.push(`${pathname}?${params.toString()}`);
   }
@@ -221,7 +230,11 @@ function Table<T>(
     setFilter({});
     const params = new URLSearchParams(searchParams.toString());
     params.delete("filters");
+
     table.setPageIndex(defaultPage);
+    params.set("page", String(defaultPage + 1));
+    params.set("perPage", String(pageSize));
+
     router.push(`${pathname}?${params.toString()}`);
   }
 
@@ -435,9 +448,16 @@ function Table<T>(
         component="div"
         count={data?.total ?? 0}
         page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => table.setPageIndex(page)}
+        onPageChange={(_, page) => {
+          table.setPageIndex(page);
+          updateUrlWithPagination(page, pageSize);
+        }}
         rowsPerPage={table.getState().pagination.pageSize}
-        onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
+        onRowsPerPageChange={(e) => {
+          const newPageSize = Number(e.target.value);
+          table.setPageSize(newPageSize);
+          updateUrlWithPagination(0, newPageSize); // Reset to first page when changing page size
+        }}
         labelRowsPerPage={t("row.perPage")}
         rowsPerPageOptions={rowsPerPageOptions}
         labelDisplayedRows={({ from, to, count }) =>
