@@ -6,6 +6,7 @@ export interface IStatusCard {
   state: StateType;
   criticalCount: number;
   warningCount: number;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 }
