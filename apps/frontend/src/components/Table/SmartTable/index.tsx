@@ -1,6 +1,7 @@
 "use client";
 
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import React, { forwardRef, useImperativeHandle, useMemo, useState, useEffect } from "react";
 
 import {
   Table as MuiTable,
@@ -60,14 +61,61 @@ function Table<T>(
   const { palette } = useTheme();
   const direction = useCurrentDirection();
   const t = useScopedI18n("table");
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: defaultPage,
-    pageSize: defaultPageSize ?? 10
-  });
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Initialize pagination from URL params (only once on mount)
+  const getInitialPagination = (): PaginationState => {
+    const pageFromUrl = searchParams.get("page");
+    const pageSizeFromUrl = searchParams.get("perPage");
+
+    return {
+      pageIndex: pageFromUrl ? parseInt(pageFromUrl) - 1 : defaultPage, // Convert to 0-based index
+      pageSize: pageSizeFromUrl ? parseInt(pageSizeFromUrl) : (defaultPageSize ?? 10)
+    };
+  };
+
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>(getInitialPagination);
   const [openFilterBox, setOpenFilterBox] = useState(false);
   const [filter, setFilter] = useState<Record<string, unknown>>({});
-  const [filterSearchParams, setFilterSearchParams] = useState("");
   const [searchValue, setSearchValue] = useState("");
+
+  useEffect(() => {
+    const filterParam = searchParams.get("filters");
+    if (filterParam) {
+      try {
+        const parsedFilters = JSON.parse(decodeURIComponent(filterParam));
+        setFilter(parsedFilters);
+      } catch (error) {
+        console.error("Error parsing filters from URL:", error);
+      }
+    }
+  }, [searchParams]);
+
+  const filterSearchParams = useMemo(() => {
+    const filterParam = searchParams.get("filters");
+    if (filterParam) {
+      try {
+        const parsedFilters = JSON.parse(decodeURIComponent(filterParam));
+        const params = new URLSearchParams();
+        Object.entries(parsedFilters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            if (Array.isArray(value)) {
+              value.forEach((item) => params.append(key, String(item)));
+            } else {
+              params.append(key, String(value));
+            }
+          }
+        });
+        return params.toString();
+      } catch (error) {
+        console.error("Error parsing filters from URL:", error);
+        return "";
+      }
+    }
+    return "";
+  }, [searchParams]);
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["tableData", url, pageIndex, pageSize, filterSearchParams, searchValue, searchKey],
@@ -115,6 +163,14 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
+  // Helper function to update URL with pagination
+  const updateUrlWithPagination = (newPageIndex: number, newPageSize: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(newPageIndex + 1)); // Convert to 1-based for URL
+    params.set("perPage", String(newPageSize));
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const table = useReactTable({
     data: data?.data || [],
     columns: tableColumns,
@@ -129,16 +185,57 @@ function Table<T>(
     manualPagination: true
   });
 
-  const handleSearch = useCallback(
-    (search: string) => {
-      setSearchValue(search);
-      table.setPageIndex(defaultPage);
-    },
-    [defaultPage, table]
-  );
+  const handleSearch = (search: string) => {
+    setSearchValue(search);
+    table.setPageIndex(defaultPage);
+    updateUrlWithPagination(defaultPage, pageSize);
+  };
 
   function handleChangeFilter(key: string, value: unknown) {
     setFilter((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleSetFilter() {
+    const cleanedFilter = Object.entries(filter).reduce(
+      (acc, [key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0)
+        ) {
+          acc[key] = value;
+        }
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (Object.keys(cleanedFilter).length > 0) {
+      params.set("filters", encodeURIComponent(JSON.stringify(cleanedFilter)));
+    } else {
+      params.delete("filters");
+    }
+
+    table.setPageIndex(defaultPage);
+    params.set("page", String(defaultPage + 1));
+    params.set("perPage", String(pageSize));
+
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function handleClearFilters() {
+    setFilter({});
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("filters");
+
+    table.setPageIndex(defaultPage);
+    params.set("page", String(defaultPage + 1));
+    params.set("perPage", String(pageSize));
+
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   if (isError)
@@ -148,17 +245,21 @@ function Table<T>(
       </Typography>
     );
 
-  function handleSetFilter() {
-    const temp = new URLSearchParams(filter as Record<string, string>);
-    table.setPageIndex(defaultPage);
-    setFilterSearchParams(temp.toString());
-  }
-
   const handleRowClick = (row: Row<T>) => {
     if (onRowClick) {
       onRowClick(row.original);
     }
   };
+
+  const hasActiveFilters = Object.keys(filter).some((key) => {
+    const value = filter[key];
+    return (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      !(Array.isArray(value) && value.length === 0)
+    );
+  });
 
   return (
     <Box display="flex" flexDirection="column" width="100%" minHeight="100%">
@@ -182,15 +283,33 @@ function Table<T>(
             variant="outlined"
             onClick={() => setOpenFilterBox((prev) => !prev)}
             sx={{
-              backgroundColor: openFilterBox ? palette.secondary.dark : palette.background.paper,
-              borderColor: palette.secondary.light,
+              backgroundColor:
+                openFilterBox || hasActiveFilters
+                  ? palette.secondary.dark
+                  : palette.background.paper,
+              borderColor: hasActiveFilters ? palette.primary.main : palette.secondary.light,
               paddingY: "0.19rem",
-              color: openFilterBox ? palette.background.paper : palette.secondary.dark,
+              color:
+                openFilterBox || hasActiveFilters
+                  ? palette.background.paper
+                  : palette.secondary.dark,
               paddingRight: "0.7rem",
               textTransform: "none"
             }}
           >
-            {t("filterButton")}
+            {t("filterButton")}{" "}
+            {hasActiveFilters &&
+              `(${
+                Object.keys(filter).filter((key) => {
+                  const value = filter[key];
+                  return (
+                    value !== undefined &&
+                    value !== null &&
+                    value !== "" &&
+                    !(Array.isArray(value) && value.length === 0)
+                  );
+                }).length
+              })`}
           </Button>
           {onCreate && (
             <Button
@@ -216,15 +335,24 @@ function Table<T>(
           borderColor="grey.200"
         >
           {filterComponent?.({ onChange: handleChangeFilter })}
-          <Stack direction="row-reverse" spacing={1}>
-            <Button size="small" variant="contained" onClick={handleSetFilter}>
-              Filter
-            </Button>
-            {onGroupActionClick && (
-              <Button size="small" variant="outlined" onClick={onGroupActionClick}>
-                Group Actions
+          <Stack direction="row" spacing={1} justifyContent="space-between">
+            <Box>
+              {hasActiveFilters && (
+                <Button size="small" variant="text" onClick={handleClearFilters}>
+                  Clear Filters
+                </Button>
+              )}
+            </Box>
+            <Stack direction="row" spacing={1}>
+              {onGroupActionClick && (
+                <Button size="small" variant="outlined" onClick={onGroupActionClick}>
+                  Group Actions
+                </Button>
+              )}
+              <Button size="small" variant="contained" onClick={handleSetFilter}>
+                Apply Filters
               </Button>
-            )}
+            </Stack>
           </Stack>
         </Stack>
       </Collapse>
@@ -320,9 +448,16 @@ function Table<T>(
         component="div"
         count={data?.total ?? 0}
         page={table.getState().pagination.pageIndex}
-        onPageChange={(_, page) => table.setPageIndex(page)}
+        onPageChange={(_, page) => {
+          table.setPageIndex(page);
+          updateUrlWithPagination(page, pageSize);
+        }}
         rowsPerPage={table.getState().pagination.pageSize}
-        onRowsPerPageChange={(e) => table.setPageSize(Number(e.target.value))}
+        onRowsPerPageChange={(e) => {
+          const newPageSize = Number(e.target.value);
+          table.setPageSize(newPageSize);
+          updateUrlWithPagination(0, newPageSize); // Reset to first page when changing page size
+        }}
         labelRowsPerPage={t("row.perPage")}
         rowsPerPageOptions={rowsPerPageOptions}
         labelDisplayedRows={({ from, to, count }) =>

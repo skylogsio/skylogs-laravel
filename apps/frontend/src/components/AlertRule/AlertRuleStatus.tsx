@@ -7,10 +7,11 @@ import {
   CircularProgress,
   IconButton,
   Stack,
+  Tooltip,
   useTheme
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { FaFireExtinguisher } from "react-icons/fa6";
+import { FaHandsHelping, FaTools } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 import { type AlertRuleStatus, IAlertRule } from "@/@types/alertRule";
@@ -68,18 +69,36 @@ export default function AlertRuleStatus({
         }}
       />
       {status === "critical" && id && (
-        <IconButton
-          disabled={isPending}
-          size="small"
-          sx={{
-            paddingX: 1,
-            color: color[status],
-            backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
-          }}
-          onClick={() => resolveAlertRule()}
-        >
-          {isPending ? <CircularProgress size={17} color="inherit" /> : <FaFireExtinguisher />}
-        </IconButton>
+        <Stack direction="row" spacing={1}>
+          <Tooltip title="Resolve" placement="top" arrow>
+            <IconButton
+              disabled={isPending}
+              size="small"
+              sx={{
+                paddingX: 1,
+                color: color[status],
+                backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
+              }}
+              onClick={() => resolveAlertRule()}
+            >
+              {isPending ? <CircularProgress size={17} color="inherit" /> : <FaTools />}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Acknowledge" placement="top" arrow>
+            <IconButton
+              disabled={isPending}
+              size="small"
+              sx={{
+                paddingX: 1,
+                color: color[status],
+                backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
+              }}
+              onClick={() => resolveAlertRule()}
+            >
+              {isPending ? <CircularProgress size={17} color="inherit" /> : <FaHandsHelping />}
+            </IconButton>
+          </Tooltip>
+        </Stack>
       )}
     </Stack>
   );

@@ -1,5 +1,6 @@
 "use client";
-import { type ReactNode, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { type ReactNode, useState, useEffect } from "react";
 
 import {
   Autocomplete,
@@ -29,12 +30,14 @@ interface IAlertRuleFilters {
   types?: Array<AlertRuleType>;
   endpointId?: string | string[];
   tags?: string | string[];
+  silentStatus?: AlertRuleSilentStatus;
 }
 
 export default function AlertRuleFilter({ onChange }: TableFilterComponentProps) {
   const { palette } = useTheme();
-  const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
+  const searchParams = useSearchParams();
 
+  const [silentStatus, setSilentStatus] = useState<AlertRuleSilentStatus>("");
   const [filter, setFilter] = useState<IAlertRuleFilters>({});
 
   const [{ data: tagsList }, { data: endpointList }] = useQueries({
@@ -50,22 +53,45 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
     ]
   });
 
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const filterParam = searchParams.get("filters");
+    if (filterParam) {
+      try {
+        const parsedFilters = JSON.parse(decodeURIComponent(filterParam)) as IAlertRuleFilters;
+        setFilter(parsedFilters);
+
+        // Set silent status if it exists in the filters
+        if (parsedFilters.silentStatus) {
+          setSilentStatus(parsedFilters.silentStatus);
+        }
+      } catch (error) {
+        console.error("Error parsing filters from URL:", error);
+      }
+    }
+  }, [searchParams]);
+
   function handleChange(
     key: keyof IAlertRuleFilters,
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string | string[]
   ) {
+    let value: string | string[];
+
     if (typeof event === "string" || Array.isArray(event)) {
-      onChange(key, event);
-      setFilter((prev) => ({ ...prev, [key]: event }));
+      value = event;
     } else {
-      onChange(key, event.target.value);
-      setFilter((prev) => ({ ...prev, [key]: event.target.value }));
+      value = event.target.value;
     }
+
+    onChange(key, value);
+    setFilter((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleSilentFilter(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    onChange("silentStatus", event.target.value);
-    setSilentStatus(event.target.value as AlertRuleSilentStatus);
+    const value = event.target.value as AlertRuleSilentStatus;
+    onChange("silentStatus", value);
+    setSilentStatus(value);
+    setFilter((prev) => ({ ...prev, silentStatus: value }));
   }
 
   function renderAlertRuleList() {
@@ -95,13 +121,20 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
     return <></>;
   }
 
+  // Helper function to get selected endpoints for display
+  function getSelectedEndpoints() {
+    if (!filter.endpointId || !endpointList) return [];
+    const endpointIds = Array.isArray(filter.endpointId) ? filter.endpointId : [filter.endpointId];
+    return endpointList.filter((endpoint) => endpointIds.includes(endpoint.id));
+  }
+
   return (
     <Grid container spacing={1}>
       <Grid size={3}>
         <TextField
           size="small"
           label="Name"
-          value={filter.alertname}
+          value={filter.alertname || ""}
           variant="filled"
           onChange={(event) => handleChange("alertname", event)}
         />
@@ -111,7 +144,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           label="Type Of Data Source"
           variant="filled"
           select
-          value={filter.types ?? []}
+          value={filter.types || []}
           slotProps={{ select: { multiple: true, renderValue: renderEndpointsChip } }}
           size="small"
           onChange={(event) => handleChange("types", event)}
@@ -125,7 +158,8 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           multiple
           id="endpoints-filter"
           size="small"
-          options={endpointList ?? []}
+          options={endpointList || []}
+          value={getSelectedEndpoints()}
           getOptionLabel={(option) => option.name}
           onChange={(_, value) =>
             handleChange(
@@ -180,7 +214,8 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           multiple
           id="alert-tags-filter"
           size="small"
-          options={tagsList ?? []}
+          options={tagsList || []}
+          value={Array.isArray(filter.tags) ? filter.tags : filter.tags ? [filter.tags] : []}
           freeSolo
           onChange={(_, value) => handleChange("tags", value)}
           renderTags={(value: readonly string[], getItemProps) =>
@@ -209,6 +244,7 @@ export default function AlertRuleFilter({ onChange }: TableFilterComponentProps)
           label="Only Show Fired Alerts"
           control={
             <Checkbox
+              checked={filter.status === "critical"}
               onChange={(_, checked) => handleChange("status", checked ? "critical" : "")}
             />
           }

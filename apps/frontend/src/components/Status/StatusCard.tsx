@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+
 import { Card, CardContent, Typography, Box, Chip, LinearProgress } from "@mui/material";
 import { styled, keyframes } from "@mui/material/styles";
 import { TbCircleCheck, TbAlertTriangle, TbExclamationCircle } from "react-icons/tb";
@@ -119,9 +121,53 @@ const getHealthPercentage = (state: StateType, criticalCount: number, warningCou
   return 25;
 };
 
-const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
+interface StatusMonitoringCardsProps {
+  info: IStatusCard;
+  alertRulePagePath?: string; // Optional prop to customize the path
+}
+
+const StatusMonitoringCards = ({
+  info,
+  alertRulePagePath = "/alert-rule" // Default path, can be customized
+}: StatusMonitoringCardsProps) => {
+  const router = useRouter();
+
+  const handleCardClick = () => {
+    // Create filters object based on the status card info
+    const filters: Record<string, unknown> = {};
+
+    // Add tags filter if the status card has tags
+    if (info.tags && info.tags.length > 0) {
+      filters.tags = info.tags;
+    }
+
+    // Add status filter based on the card state
+    if (info.state === "critical") {
+      filters.status = "critical";
+    } else if (info.state === "warning") {
+      filters.status = "warning";
+    }
+
+    // You can add more filters based on your requirements
+    // For example, if you have endpoint information:
+    // if (info.endpointId) {
+    //   filters.endpointId = info.endpointId;
+    // }
+
+    // Create URL with filters
+    const searchParams = new URLSearchParams();
+    if (Object.keys(filters).length > 0) {
+      searchParams.set("filters", encodeURIComponent(JSON.stringify(filters)));
+    }
+
+    const url = `${alertRulePagePath}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+
+    // Navigate to alert rule page with filters
+    router.push(url);
+  };
+
   return (
-    <StateCard key={info.id} state={info.state}>
+    <StateCard key={info.id} state={info.state} onClick={handleCardClick}>
       <CardContent
         sx={{ padding: "16px !important", height: "100%", position: "relative", zIndex: 1 }}
       >
@@ -170,6 +216,48 @@ const StatusMonitoringCards = ({ info }: { info: IStatusCard }) => {
             />
           )}
         </Box>
+
+        {/* Display tags if available */}
+        {info.tags && info.tags.length > 0 && (
+          <Box sx={{ mb: 1.5 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: "#666", fontWeight: 500, mb: 0.5, display: "block" }}
+            >
+              Tags
+            </Typography>
+            <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+              {info.tags.slice(0, 3).map((tag, index) => (
+                <Chip
+                  key={index}
+                  label={tag}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    borderColor: "#ccc",
+                    color: "#666"
+                  }}
+                />
+              ))}
+              {info.tags.length > 3 && (
+                <Chip
+                  label={`+${info.tags.length - 3}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    borderColor: "#ccc",
+                    color: "#666"
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
+        )}
+
         <Box sx={{ mb: 1.5 }}>
           <Typography
             variant="caption"
