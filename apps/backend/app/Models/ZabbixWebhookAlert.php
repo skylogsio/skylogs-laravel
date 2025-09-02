@@ -17,9 +17,10 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
 
     public function alertRule()
     {
-        return AlertRule::where("type", Constants::ZABBIX)->where('alertname', $this->action_name)->first();
+        return AlertRule::where("id", $this->alertRuleId)->first();
     }
-    public function CustomSave($jsonWebhook)
+
+    public function CustomSave($dataSource, $alertRules,$jsonWebhook)
     {
         try {
 
@@ -27,10 +28,15 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
                 $this->$key = $value;
 
             }
+            $this->dataSourceAlertName = $this->action_name;
+            $this->dataSourceId = $dataSource->id;
+            $this->dataSourceName = $dataSource->name;
 
-            $alert = AlertRule::where("alertname", $this->action_name)->first();
+            $alert = $alertRules->where('dataSourceAlertName', $this->dataSourceAlertName)->first();
             if ($alert) {
                 $this->alertRuleId = $alert->_id;
+                $this->alertRuleName = $alert->name;
+
 //                $alert->state = $this->action;
                 $alert->notifyAt = time();
                 $alert->save();
@@ -42,26 +48,14 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
 
     public function defaultMessage(): string
     {
-        $text = $this->action_name;
+        $text = $this->alertRuleName;
 
-        $alert = AlertRule::where("alertname", $this->action_name)->first();
 
-//        if (!empty($alert->state)) {
-//            switch ($alert->state) {
-//                case AlertRule::RESOlVED:
-//                    $text .= "\nSeverity: Resolved ✅";
-//                    break;
-//                case AlertRule::WARNING:
-//                    $text .= "\nSeverity: Warning ⚠️";
-//                    break;
-//                case AlertRule::CRITICAL:
-//                    $text .= "\nSeverity: Critical 🔥";
-//                    break;
-//            }
-//        }
-
-//        $text .= "\nlevel: " . $this->action;
         $needArray = ["event_source", "event_update_status", "event_value", "Message", "Subject", "tags"];
+
+        $text .= "\nDataSource: ".$this->dataSourceName;
+
+        $text .= "\nDataSource AlertName: ".$this->dataSourceAlertName;
 
         $text .= "\nSubject: " . $this->alert_subject;
         $text .= "\nMessage: " . $this->alert_message;

@@ -87,21 +87,15 @@ class WebhookAlertsController extends Controller
     public function ZabbixWebhook(Request $request,$token)
     {
 
-//        $file = fopen("text.txt", 'a+');
-//        fwrite($file, json_encode($request->post()));
-//        fwrite($file, "\n\n\n");
-//        fclose($file);
 
-//
-//        return [
-//            "status" => true,
-//        ];
+        $alertRules = $request->alertRules;
+        $dataSource = $request->dataSource;
 
         $post = $request->post();
 
         $model = new ZabbixWebhookAlert();
 
-        if ($model->CustomSave($post)) {
+        if ($model->CustomSave($dataSource,$alertRules,$post)) {
 
             SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alertRuleId);
             return response()->json([
