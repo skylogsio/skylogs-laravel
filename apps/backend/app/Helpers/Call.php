@@ -19,13 +19,6 @@ class Call
         return "https://api.kavenegar.com/v1". '/' . self::Token() . "/call/maketts.json";
     }
 
-
-    private static function SenderNumber()
-    {
-        return config("variables.kavenegarSenderNumber");
-    }
-
-
     private static function Token()
     {
 
@@ -46,7 +39,6 @@ class Call
                 $numsString = implode(",", $nums);
 
             return $pool->get(self::Url(), [
-                'sender' => self::SenderNumber(),
                 'message' => $alert->callMessage(),
                 "receptor" => $numsString,
             ]);
@@ -74,7 +66,6 @@ class Call
     public static function sendOTP(Endpoint $endpoint)
     {
         Http::post(self::Url(), [
-            "sender" => self::SenderNumber(),
             "receptor" => $endpoint->value,
             'message' => $endpoint->generateOTPMessage().$endpoint->generateOTPMessage(),
         ]);
