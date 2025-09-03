@@ -38,6 +38,17 @@ class SendNotifyService
                 "defaultMessage" => $notify->alertRule->testMessage(),
             ];
 
+        } elseif ($type == SendNotifyJob::ALERT_RULE_ACKNOWLEDGED) {
+            $messages = [
+                "matterMostMessage" => $notify->alertRule->acknowledgedMessage(),
+                "telegramMessage" => $notify->alertRule->acknowledgedMessage(),
+                "teamsMessage" => $notify->alertRule->acknowledgedMessage(),
+                "emailMessage" => $notify->alertRule->acknowledgedMessage(),
+                "smsMessage" => $notify->alertRule->acknowledgedMessage(),
+                "callMessage" => $notify->alertRule->acknowledgedMessage(),
+                "defaultMessage" => $notify->alertRule->acknowledgedMessage(),
+            ];
+
         } else {
 
 
@@ -62,7 +73,7 @@ class SendNotifyService
         return $notify;
     }
 
-    public static function SendMessage(Notify $notify, $isTest = false)
+    public static function SendMessage(Notify $notify, $isTest = false,$isAcknowledged=false)
     {
 
         if (empty($notify->alertRule) || !($notify->alertRule instanceof AlertRule)) {

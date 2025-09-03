@@ -148,7 +148,7 @@ class AlertingController extends Controller
             $alert->pin();
         }
 
-        return ['status' => true, "isPin" => $alert->isPin()];
+        return response()->json(['status' => true, "isPin" => $alert->isPin()]);
     }
 
     public function Acknowledge($id)
@@ -161,6 +161,7 @@ class AlertingController extends Controller
         }
 
         $alert->acknowledge($user);
+        SendNotifyService::CreateNotify(SendNotifyJob::ALERT_RULE_ACKNOWLEDGED, $alert, $alert->_id);
 
         return response()->json(['status' => true]);
     }

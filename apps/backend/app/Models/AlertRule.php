@@ -39,6 +39,11 @@ class AlertRule extends BaseModel implements Messageable
         return $this->belongsTo(User::class, "userId");
     }
 
+    public function acknowledgeUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "acknowledgedBy");
+    }
+
     public function dataSource(): ?BelongsTo
     {
         if ($this->type == AlertRuleType::ELASTIC)
@@ -270,6 +275,19 @@ class AlertRule extends BaseModel implements Messageable
     public function testMessage()
     {
         $text = "Testing ";
+        $text .= $this->name;
+        $text .= " Alert.";
+        return $text;
+    }
+    public function acknowledgedMessage()
+    {
+
+        if (empty($this->acknowledgedBy)){
+            return null;
+        }
+
+        $text = $this->acknowledgeUser->name;
+        $text .= " Acknowledged ";
         $text .= $this->name;
         $text .= " Alert.";
         return $text;
