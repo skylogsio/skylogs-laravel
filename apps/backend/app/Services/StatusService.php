@@ -61,7 +61,7 @@ class StatusService
 
             $alertTags = $alertTags->unique()->reject(function ($alertTag) use ($tags) {
                 return in_array($alertTag, $tags);
-            });
+            })->values();
             $status->alertsTags = $alertTags->toArray();
             $status->state = $statusState;
             $status->criticalCount = $numberCritical;
