@@ -163,6 +163,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', 'Store');
                 Route::post('/silent/{id}', 'Silent');
                 Route::post('/pin/{id}', 'Pin');
+                Route::post('/acknowledge/{id}', 'Acknowledge');
                 Route::post('/resolve/{id}', 'ResolveAlert');
                 Route::put('/{id}', 'StoreUpdate');
                 Route::delete('/{id}', 'Delete');

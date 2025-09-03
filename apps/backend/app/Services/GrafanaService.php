@@ -150,6 +150,9 @@ class GrafanaService
                 elseif ($status == GrafanaWebhookAlert::FIRING)
                     $alertRule->state = AlertRule::CRITICAL;
                 $alertRule->save();
+                if($alertRule->state == AlertRule::RESOlVED){
+                    $alertRule->removeAcknowledge();
+                }
             }
             $model->save();
 

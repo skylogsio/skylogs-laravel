@@ -223,5 +223,7 @@ class ApiService
         $alertRule->state = $count == 0 ? AlertRule::RESOlVED : AlertRule::CRITICAL;
         $alertRule->fireCount = $count;
         $alertRule->save();
+        if($alertRule->state == AlertRule::RESOlVED)
+            $alertRule->removeAcknowledge();
     }
 }

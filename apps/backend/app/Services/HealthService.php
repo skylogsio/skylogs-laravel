@@ -81,6 +81,8 @@ class HealthService
                         $check->save();
                         $alert->state = AlertRule::RESOlVED;
                         $alert->save();
+                        $alert->removeAcknowledge();
+
                         SendNotifyService::CreateNotify(SendNotifyJob::HEALTH_CHECK, $check, $alert->id);
                         HealthHistory::create(
                             [

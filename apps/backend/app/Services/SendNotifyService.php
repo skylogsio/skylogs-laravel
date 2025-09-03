@@ -82,6 +82,12 @@ class SendNotifyService
             return;
         }
 
+        if($notify->alertRule->isAcknowledged()){
+            $notify->status = Notify::STATUS_ACKNOWLEDGED;
+            $notify->save();
+            return;
+        }
+
 
 
         $endpointsQuery = Endpoint::whereIn("_id", $endpointIds);

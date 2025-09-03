@@ -219,6 +219,9 @@ class PrometheusService
 
             $check->save();
             $alertRule->save();
+            if($alertRule->state == AlertRule::RESOlVED) {
+                $alertRule->removeAcknowledge();
+            }
             $check->createHistory();
 
 //            $updatedAlertsArray->isNotEmpty() ? AlertRule::

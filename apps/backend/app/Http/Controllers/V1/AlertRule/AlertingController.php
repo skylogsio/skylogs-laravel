@@ -107,7 +107,7 @@ class AlertingController extends Controller
 
         foreach ($paginatedData as &$alert) {
 //            $alert =new AlertRule($alert);
-            /** @var $alert AlertRule*/
+            /** @var $alert AlertRule */
             $alert->hasAdminAccess = $this->alertRuleService->hasAdminAccessAlert($currentUser, $alert);
             $alert->has_admin_access = $alert->hasAdminAccess;
             [$alertStatus, $alertStatusCount] = $alert->getStatus();
@@ -149,6 +149,20 @@ class AlertingController extends Controller
         }
 
         return ['status' => true, "isPin" => $alert->isPin()];
+    }
+
+    public function Acknowledge($id)
+    {
+        $alert = AlertRule::where("_id", $id)->first();
+        $user = Auth::user();
+
+        if (!$this->alertRuleService->hasUserAccessAlert($user, $alert)) {
+            abort(403);
+        }
+
+        $alert->acknowledge($user);
+
+        return response()->json(['status' => true]);
     }
 
 
@@ -567,7 +581,7 @@ class AlertingController extends Controller
                 break;
             case AlertRuleType::PMM:
             case AlertRuleType::GRAFANA:
-                if($alert->state == AlertRule::CRITICAL){
+                if ($alert->state == AlertRule::CRITICAL) {
                     $sendResolve = true;
                     $alert->state = AlertRule::RESOlVED;
                     $alert->save();

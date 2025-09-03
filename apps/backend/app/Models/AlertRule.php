@@ -99,6 +99,29 @@ class AlertRule extends BaseModel implements Messageable
 
     }
 
+    public function isAcknowledged(): bool
+    {
+        return !empty($this->acknowledgedBy);
+    }
+
+    public function acknowledge($user)
+    {
+        list($alertState, $alertCount) = $this->getStatus();
+
+        if ($alertState == AlertRule::CRITICAL || $alertState == AlertRule::WARNING) {
+            $this->acknowledgedBy = $user->id;
+            $this->save();
+        }
+    }
+
+    public function removeAcknowledge()
+    {
+        if (!empty($this->acknowledgedBy)) {
+            $this->acknowledgedBy = null;
+            $this->save();
+        }
+    }
+
     public function isPin(): bool
     {
         return !empty($this->pinUserIds) && in_array(\Auth::user()->_id, $this->pinUserIds);
@@ -218,6 +241,7 @@ class AlertRule extends BaseModel implements Messageable
     {
         return $this->defaultMessage();
     }
+
     public function matterMostMessage()
     {
         return $this->defaultMessage();
