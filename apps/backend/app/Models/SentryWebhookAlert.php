@@ -66,6 +66,9 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                     $alertRule->state = $this->action;
                     $alertRule->notifyAt = time();
                     $alertRule->save();
+                    if($alertRule->state == AlertRule::RESOlVED){
+                        $alertRule->removeAcknowledge();
+                    }
                 }
             }
 

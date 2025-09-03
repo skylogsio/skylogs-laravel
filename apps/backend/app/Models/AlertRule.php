@@ -39,6 +39,11 @@ class AlertRule extends BaseModel implements Messageable
         return $this->belongsTo(User::class, "userId");
     }
 
+    public function acknowledgeUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, "acknowledgedBy");
+    }
+
     public function dataSource(): ?BelongsTo
     {
         if ($this->type == AlertRuleType::ELASTIC)
@@ -97,6 +102,29 @@ class AlertRule extends BaseModel implements Messageable
         }
         return null;
 
+    }
+
+    public function isAcknowledged(): bool
+    {
+        return !empty($this->acknowledgedBy);
+    }
+
+    public function acknowledge($user)
+    {
+        list($alertState, $alertCount) = $this->getStatus();
+
+        if ($alertState == AlertRule::CRITICAL || $alertState == AlertRule::WARNING) {
+            $this->acknowledgedBy = $user->id;
+            $this->save();
+        }
+    }
+
+    public function removeAcknowledge()
+    {
+        if (!empty($this->acknowledgedBy)) {
+            $this->acknowledgedBy = null;
+            $this->save();
+        }
     }
 
     public function isPin(): bool
@@ -218,6 +246,7 @@ class AlertRule extends BaseModel implements Messageable
     {
         return $this->defaultMessage();
     }
+
     public function matterMostMessage()
     {
         return $this->defaultMessage();
@@ -246,6 +275,19 @@ class AlertRule extends BaseModel implements Messageable
     public function testMessage()
     {
         $text = "Testing ";
+        $text .= $this->name;
+        $text .= " Alert.";
+        return $text;
+    }
+    public function acknowledgedMessage()
+    {
+
+        if (empty($this->acknowledgedBy)){
+            return null;
+        }
+
+        $text = $this->acknowledgeUser->name;
+        $text .= " Acknowledged ";
         $text .= $this->name;
         $text .= " Alert.";
         return $text;

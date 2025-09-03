@@ -89,6 +89,7 @@ class CheckElasticJob implements ShouldQueue, ShouldBeUnique
                 $alertRule->notifyAt = time();
                 $alertRule->state = AlertRule::RESOlVED;
                 $alertRule->save();
+                $alertRule->removeAcknowledge();
 
                 $check->save();
 

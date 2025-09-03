@@ -25,6 +25,7 @@ class Notify extends BaseModel implements Messageable
     public const STATUS_DONE = 3;
     public const STATUS_FAIL = 4;
     public const STATUS_SILENT = 5;
+    public const STATUS_ACKNOWLEDGED = 6;
 
 
     public function alertRule(): BelongsTo

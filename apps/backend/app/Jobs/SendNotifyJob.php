@@ -31,6 +31,7 @@ class SendNotifyJob implements ShouldQueue
     public const API_NOTIFICATION = "user-notification";
     public const USER_TEST = "user-test";
     public const ALERT_RULE_TEST = "alert-rule-test";
+    public const ALERT_RULE_ACKNOWLEDGED = "alert-rule-acknowledged";
     public const SENTRY_WEBHOOK = "sentry-webhook";
     public const METABASE_WEBHOOK = "metabase-webhook";
     public const ZABBIX_WEBHOOK = "zabbix-webhook";
@@ -69,15 +70,15 @@ class SendNotifyJob implements ShouldQueue
             case self::SENTRY_WEBHOOK:
             case self::METABASE_WEBHOOK:
             case self::ZABBIX_WEBHOOK:
-                SendNotifyService::SendMessage($this->notify);
-                break;
             case self::PROMETHEUS_RESOLVE:
             case self::PROMETHEUS_FIRE:
                 SendNotifyService::SendMessage($this->notify);
-//                $this->appendToChain(new RefreshPrometheusCheckJob);
                 break;
             case self::ALERT_RULE_TEST:
-                SendNotifyService::SendMessage($this->notify, true);
+                SendNotifyService::SendMessage($this->notify, isTest:true);
+                break;
+            case self::ALERT_RULE_ACKNOWLEDGED:
+                SendNotifyService::SendMessage($this->notify, isAcknowledged:true);
                 break;
         }
         $this->notify->status = Notify::STATUS_DONE;

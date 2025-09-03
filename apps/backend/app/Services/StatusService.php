@@ -31,6 +31,9 @@ class StatusService
             $numberWarning = 0;
             $isCritical = false;
             $isWarning = false;
+
+            $alertTags = collect();
+
             foreach ($alerts as $alert) {
                 list($alertState, $alertCount) = $alert->getStatus();
                 if ($alertState == AlertRule::RESOlVED || $alertState == AlertRule::UNKNOWN) {
@@ -41,6 +44,7 @@ class StatusService
                 } elseif ($alertState == AlertRule::CRITICAL) {
                     $isCritical = true;
                     $numberCritical++;
+                    $alertTags = $alertTags->merge($alert->tags ?? []);
                 } elseif ($alertState > 0) {
                     $isCritical = true;
                     $numberCritical++;
@@ -55,7 +59,10 @@ class StatusService
                 $statusState = AlertRule::RESOlVED;
             }
 
-
+            $alertTags = $alertTags->unique()->reject(function ($alertTag) use ($tags) {
+                return in_array($alertTag, $tags);
+            })->values();
+            $status->alertsTags = $alertTags->toArray();
             $status->state = $statusState;
             $status->criticalCount = $numberCritical;
             $status->warningCount = $numberWarning;
@@ -66,6 +73,7 @@ class StatusService
                     "statusId" => $status->id,
                     "alertRuleIds" => $alerts->pluck("id")->toArray(),
                     "criticalCount" => $status->criticalCount,
+                    "alertsTags" => $status->alertsTags ?? [],
                     "warningCount" => $status->warningCount
                 ]);
             }
