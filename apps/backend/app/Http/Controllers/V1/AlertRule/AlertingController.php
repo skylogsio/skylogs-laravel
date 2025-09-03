@@ -595,6 +595,7 @@ class AlertingController extends Controller
 
 
         }
+        $alert->removeAcknowledge();
         if ($sendResolve) {
             SendNotifyService::CreateNotify(SendNotifyJob::RESOLVED_MANUALLY, $alert, $alert->_id);
         }
