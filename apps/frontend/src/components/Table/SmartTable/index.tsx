@@ -65,13 +65,12 @@ function Table<T>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Initialize pagination from URL params (only once on mount)
   const getInitialPagination = (): PaginationState => {
     const pageFromUrl = searchParams.get("page");
     const pageSizeFromUrl = searchParams.get("perPage");
 
     return {
-      pageIndex: pageFromUrl ? parseInt(pageFromUrl) - 1 : defaultPage, // Convert to 0-based index
+      pageIndex: pageFromUrl ? parseInt(pageFromUrl) - 1 : defaultPage,
       pageSize: pageSizeFromUrl ? parseInt(pageSizeFromUrl) : (defaultPageSize ?? 10)
     };
   };
@@ -163,10 +162,9 @@ function Table<T>(
     return columns;
   }, [columns, hasCheckbox]);
 
-  // Helper function to update URL with pagination
   const updateUrlWithPagination = (newPageIndex: number, newPageSize: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(newPageIndex + 1)); // Convert to 1-based for URL
+    params.set("page", String(newPageIndex + 1));
     params.set("perPage", String(newPageSize));
     router.push(`${pathname}?${params.toString()}`);
   };
@@ -287,7 +285,7 @@ function Table<T>(
                 openFilterBox || hasActiveFilters
                   ? palette.secondary.dark
                   : palette.background.paper,
-              borderColor: hasActiveFilters ? palette.primary.main : palette.secondary.light,
+              borderColor: hasActiveFilters ? palette.secondary.dark : palette.secondary.light,
               paddingY: "0.19rem",
               color:
                 openFilterBox || hasActiveFilters
@@ -456,7 +454,7 @@ function Table<T>(
         onRowsPerPageChange={(e) => {
           const newPageSize = Number(e.target.value);
           table.setPageSize(newPageSize);
-          updateUrlWithPagination(0, newPageSize); // Reset to first page when changing page size
+          updateUrlWithPagination(0, newPageSize);
         }}
         labelRowsPerPage={t("row.perPage")}
         rowsPerPageOptions={rowsPerPageOptions}
