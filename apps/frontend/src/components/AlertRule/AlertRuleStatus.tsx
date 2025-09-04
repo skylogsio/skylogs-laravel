@@ -15,7 +15,7 @@ import { FaHandsHelping, FaTools } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 import { type AlertRuleStatus, IAlertRule } from "@/@types/alertRule";
-import { resolveFiredAlertRule } from "@/api/alertRule";
+import { acknowledgeFiredAlertRule, resolveFiredAlertRule } from "@/api/alertRule";
 
 interface AlertRuleStatusProps extends Pick<ChipProps, "size"> {
   status: AlertRuleStatus;
@@ -33,7 +33,7 @@ export default function AlertRuleStatus({
 }: AlertRuleStatusProps) {
   const { palette } = useTheme();
 
-  const { mutate: resolveAlertRule, isPending } = useMutation({
+  const { mutate: resolveAlertRule, isPending: isPendingResolve } = useMutation({
     mutationFn: () => resolveFiredAlertRule(id!),
     onSuccess: (data) => {
       if (data.status) {
@@ -42,6 +42,18 @@ export default function AlertRuleStatus({
       }
     }
   });
+
+  const { mutate: acknowledgeAlertRule, isPending: isPendingAcknowledge } = useMutation({
+    mutationFn: () => acknowledgeFiredAlertRule(id!),
+    onSuccess: (data) => {
+      if (data.status) {
+        onAfterResolve?.();
+        toast.success("Alert Rule Acknowledged Successfully.");
+      }
+    }
+  });
+
+  const isPending = isPendingAcknowledge || isPendingResolve;
 
   const color: Record<Exclude<AlertRuleStatus, "unknown">, string> = useMemo(
     () => ({
@@ -93,7 +105,7 @@ export default function AlertRuleStatus({
                 color: color[status],
                 backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
               }}
-              onClick={() => resolveAlertRule()}
+              onClick={() => acknowledgeAlertRule()}
             >
               {isPending ? <CircularProgress size={17} color="inherit" /> : <FaHandsHelping />}
             </IconButton>
