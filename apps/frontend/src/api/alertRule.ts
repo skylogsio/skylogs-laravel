@@ -119,6 +119,19 @@ export async function resolveFiredAlertRule(
   }
 }
 
+export async function acknowledgeFiredAlertRule(
+  alertRuleId: IAlertRule["id"]
+): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.post<ServerResponse<unknown>>(
+      `${ALERT_RULE_URL}/acknowledge/${alertRuleId}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getAlertRuleEndpointsList(
   alertRuleId: IAlertRule["id"]
 ): Promise<IAlertRuleEndpoints> {
@@ -316,7 +329,8 @@ export async function addUserAndNotifyToAlertRules(
   const urlSearchParams = searchParams.toString();
   try {
     const response = await axios.post<ServerResponse<unknown>>(
-      `${ALERT_RULE_GROUP_ACTION}/add-user-notify?${urlSearchParams}`,body
+      `${ALERT_RULE_GROUP_ACTION}/add-user-notify?${urlSearchParams}`,
+      body
     );
     return response.data;
   } catch (error) {
