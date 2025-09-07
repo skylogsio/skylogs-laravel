@@ -1,7 +1,24 @@
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { Card, CardContent, Typography, Box, Chip, LinearProgress } from "@mui/material";
-import { styled, keyframes } from "@mui/material/styles";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  LinearProgress,
+  IconButton,
+  Stack,
+  Collapse,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Menu
+} from "@mui/material";
+import { styled, keyframes, useTheme } from "@mui/material/styles";
+import { BsThreeDots } from "react-icons/bs";
+import { HiPencil, HiTrash } from "react-icons/hi";
 import { TbCircleCheck, TbAlertTriangle, TbExclamationCircle } from "react-icons/tb";
 
 import type { IStatusCard, StateType } from "@/@types/status";
@@ -34,12 +51,16 @@ const StateCard = styled(Card)<{ state: StateType }>(({ theme, state }) => ({
   width: 340,
   background:
     state === "resolved"
-      ? "linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)"
+      ? "linear-gradient(135deg, #e8f5e8 0%, #cfead0 100%)"
       : state === "warning"
         ? "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)"
         : "linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)",
   border: `2px solid ${
-    state === "resolved" ? "#4caf50" : state === "warning" ? "#ff9800" : "#f44336"
+    state === "resolved"
+      ? theme.palette.success.main
+      : state === "warning"
+        ? theme.palette.warning.main
+        : theme.palette.error.main
   }`,
   borderRadius: 16,
   position: "relative",
@@ -68,35 +89,45 @@ const StateCard = styled(Card)<{ state: StateType }>(({ theme, state }) => ({
   }
 }));
 
-const StateIcon = styled(Box)<{ state: StateType }>(({ state }) => ({
+const StateIcon = styled(Box)<{ state: StateType }>(({ theme, state }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   width: 40,
   height: 40,
   borderRadius: "50%",
-  backgroundColor: state === "resolved" ? "#4caf50" : state === "warning" ? "#ff9800" : "#f44336",
+  backgroundColor:
+    state === "resolved"
+      ? theme.palette.success.main
+      : state === "warning"
+        ? theme.palette.warning.main
+        : theme.palette.error.main,
   color: "white",
   animation: state !== "resolved" ? `${pulse} 2s infinite ease-in-out` : "none"
 }));
 
-const CounterChip = styled(Chip)<{ severity: "warning" | "critical" }>(({ severity }) => ({
+const CounterChip = styled(Chip)<{ severity: "warning" | "critical" }>(({ theme, severity }) => ({
   height: 24,
   fontSize: "0.75rem",
   fontWeight: 600,
-  backgroundColor: severity === "critical" ? "#f44336" : "#ff9800",
+  backgroundColor: severity === "critical" ? theme.palette.error.main : theme.palette.warning.main,
   color: "white",
   "& .MuiChip-label": {
     padding: "0 8px"
   }
 }));
 
-const HealthBar = styled(LinearProgress)<{ state: StateType }>(({ state }) => ({
+const HealthBar = styled(LinearProgress)<{ state: StateType }>(({ theme, state }) => ({
   height: 6,
   borderRadius: 3,
   backgroundColor: "rgba(255,255,255,0.3)",
   "& .MuiLinearProgress-bar": {
-    backgroundColor: state === "resolved" ? "#4caf50" : state === "warning" ? "#ff9800" : "#f44336",
+    backgroundColor:
+      state === "resolved"
+        ? theme.palette.success.main
+        : state === "warning"
+          ? theme.palette.warning.main
+          : theme.palette.error.main,
     borderRadius: 3
   }
 }));
@@ -123,38 +154,58 @@ const getHealthPercentage = (state: StateType, criticalCount: number, warningCou
 
 interface StatusMonitoringCardsProps {
   info: IStatusCard;
-  alertRulePagePath?: string; // Optional prop to customize the path
+  alertRulePagePath?: string;
+  onEdit?: (statusCard: IStatusCard) => void;
+  onDelete?: (statusCard: IStatusCard) => void;
 }
 
 const StatusMonitoringCards = ({
   info,
-  alertRulePagePath = "/alert-rule" // Default path, can be customized
+  alertRulePagePath = "/alert-rule",
+  onDelete,
+  onEdit
 }: StatusMonitoringCardsProps) => {
+  const { palette } = useTheme();
   const router = useRouter();
+  const [showThreeDots, setShowThreeDots] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(null);
+  };
+
+  const handleEdit = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    handleMenuClose(event);
+    onEdit?.(info);
+  };
+
+  const handleDelete = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    handleMenuClose(event);
+    onDelete?.(info);
+  };
 
   const handleCardClick = () => {
-    // Create filters object based on the status card info
     const filters: Record<string, unknown> = {};
 
-    // Add tags filter if the status card has tags
     if (info.tags && info.tags.length > 0) {
       filters.tags = info.tags;
     }
 
-    // Add status filter based on the card state
     if (info.state === "critical") {
       filters.status = "critical";
     } else if (info.state === "warning") {
       filters.status = "warning";
     }
 
-    // You can add more filters based on your requirements
-    // For example, if you have endpoint information:
-    // if (info.endpointId) {
-    //   filters.endpointId = info.endpointId;
-    // }
-
-    // Create URL with filters
     const searchParams = new URLSearchParams();
     if (Object.keys(filters).length > 0) {
       searchParams.set("filters", encodeURIComponent(JSON.stringify(filters)));
@@ -162,29 +213,28 @@ const StatusMonitoringCards = ({
 
     const url = `${alertRulePagePath}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
 
-    // Navigate to alert rule page with filters
     router.push(url);
   };
 
   return (
-    <StateCard key={info.id} state={info.state} onClick={handleCardClick}>
+    <StateCard
+      key={info.id}
+      state={info.state}
+      onClick={handleCardClick}
+      onMouseEnter={() => setShowThreeDots(true)}
+      onMouseLeave={() => setShowThreeDots(false)}
+    >
       <CardContent
         sx={{ padding: "16px !important", height: "100%", position: "relative", zIndex: 1 }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 1
-          }}
-        >
+        <Stack width="100%" direction="row" justifyContent="space-between" alignItems="center">
           <Typography
             variant="h6"
             sx={{
+              mr: "auto !important",
               fontWeight: 700,
               fontSize: "1.1rem",
-              color: "#333",
+              color: palette.grey[800],
               lineHeight: 1.2,
               maxWidth: "160px"
             }}
@@ -192,7 +242,24 @@ const StatusMonitoringCards = ({
             {info.name}
           </Typography>
           <StateIcon state={info.state}>{getStatusIcon(info.state)}</StateIcon>
-        </Box>
+          <Collapse orientation="horizontal" in={showThreeDots}>
+            <IconButton
+              sx={{
+                ml: ({ spacing }) => `${spacing(2)}!important`,
+                backgroundColor: "rgba(255, 255, 255, 0.4)",
+                padding: 1.1,
+                transition: "all 300ms ease",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.7)"
+                }
+              }}
+              onClick={handleMenuClick}
+              size="large"
+            >
+              <BsThreeDots size="1.3rem" />
+            </IconButton>
+          </Collapse>
+        </Stack>
         <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
           {info.criticalCount > 0 && (
             <CounterChip
@@ -209,7 +276,7 @@ const StatusMonitoringCards = ({
               label="All Systems OK"
               size="small"
               sx={{
-                backgroundColor: "#4caf50",
+                backgroundColor: palette.success.main,
                 color: "white",
                 fontWeight: 600
               }}
@@ -217,12 +284,11 @@ const StatusMonitoringCards = ({
           )}
         </Box>
 
-        {/* Display tags if available */}
         {info.tags && info.tags.length > 0 && (
           <Box sx={{ mb: 1.5 }}>
             <Typography
               variant="caption"
-              sx={{ color: "#666", fontWeight: 500, mb: 0.5, display: "block" }}
+              sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
             >
               Tags
             </Typography>
@@ -236,8 +302,8 @@ const StatusMonitoringCards = ({
                   sx={{
                     height: 20,
                     fontSize: "0.65rem",
-                    borderColor: "#ccc",
-                    color: "#666"
+                    borderColor: palette.grey[400],
+                    color: palette.grey[600]
                   }}
                 />
               ))}
@@ -249,8 +315,8 @@ const StatusMonitoringCards = ({
                   sx={{
                     height: 20,
                     fontSize: "0.65rem",
-                    borderColor: "#ccc",
-                    color: "#666"
+                    borderColor: palette.grey[400],
+                    color: palette.grey[600]
                   }}
                 />
               )}
@@ -261,7 +327,7 @@ const StatusMonitoringCards = ({
         <Box sx={{ mb: 1.5 }}>
           <Typography
             variant="caption"
-            sx={{ color: "#666", fontWeight: 500, mb: 0.5, display: "block" }}
+            sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
           >
             System Health
           </Typography>
@@ -272,7 +338,7 @@ const StatusMonitoringCards = ({
           />
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="caption" sx={{ color: "#666", fontWeight: 500 }}>
+          <Typography variant="caption" sx={{ color: palette.grey[600], fontWeight: 500 }}>
             Updated {formatTimeAgo(info.updatedAt)}
           </Typography>
           <Box
@@ -282,15 +348,48 @@ const StatusMonitoringCards = ({
               borderRadius: "50%",
               backgroundColor:
                 info.state === "resolved"
-                  ? "#4caf50"
+                  ? palette.success.main
                   : info.state === "warning"
-                    ? "#ff9800"
-                    : "#f44336",
+                    ? palette.warning.main
+                    : palette.error.main,
               animation: info.state !== "resolved" ? `${pulse} 1s infinite ease-in-out` : "none"
             }}
           />
         </Box>
       </CardContent>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleMenuClose}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          elevation: 8,
+          sx: {
+            minWidth: 140,
+            borderRadius: 2,
+            "& .MuiMenuItem-root": {
+              fontSize: "0.875rem",
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)"
+              }
+            }
+          }
+        }}
+      >
+        <MenuItem onClick={handleEdit}>
+          <ListItemIcon>
+            <HiPencil size="1.4rem" />
+          </ListItemIcon>
+          <ListItemText>Edit</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+          <ListItemIcon sx={{ color: "error.main" }}>
+            <HiTrash size="1.4rem" />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+        </MenuItem>
+      </Menu>
     </StateCard>
   );
 };

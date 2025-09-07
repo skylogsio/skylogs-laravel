@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Autocomplete, Button, Chip, Grid2 as Grid, TextField } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -39,6 +41,7 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors }
   } = useForm<StatusCardType>({
     resolver: zodResolver(schema),
@@ -57,8 +60,9 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
         toast.success("Status Card Created Successfully.");
         onSubmit();
         onClose?.();
+        reset();
       }
-    },
+    }
   });
 
   const { mutate: updateStatusCardMutation, isPending: isUpdating } = useMutation({
@@ -66,12 +70,22 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
       udpateStatusCard(id, body),
     onSuccess: (data) => {
       if (data.status) {
-        toast.success("Status Card Created Successfully.");
+        toast.success("Status Card Updated Successfully.");
         onSubmit();
         onClose?.();
+        reset();
       }
     }
   });
+
+  useEffect(() => {
+    if (data && data !== "NEW") {
+      setValue("name", data.name);
+      setValue("tags", data.tags || []);
+    } else {
+      reset(defaultValues);
+    }
+  }, [data, setValue, reset]);
 
   function handleSubmitForm(values: StatusCardType) {
     if (data === "NEW") {
@@ -81,11 +95,16 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
     }
   }
 
+  const handleClose = () => {
+    reset(defaultValues);
+    onClose?.();
+  };
+
   return (
     <ModalContainer
       title={`${data === "NEW" ? "Create New" : "Update"} Status`}
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       disableEscapeKeyDown
     >
       <Grid
@@ -101,6 +120,7 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
           <TextField
             label="Name"
             variant="filled"
+            fullWidth
             error={!!errors.name}
             helperText={errors.name?.message}
             {...register("name")}
@@ -112,6 +132,7 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
             id="api-alert-tags"
             options={tagsList ?? []}
             freeSolo
+            fullWidth
             value={watch("tags")}
             onChange={(_, value) => setValue("tags", value)}
             renderTags={(value: readonly string[], getItemProps) =>
@@ -130,6 +151,8 @@ export default function StatusCardModal({ data, open, onSubmit, onClose }: Statu
                 }}
                 variant="filled"
                 label="Tags"
+                error={!!errors.tags}
+                helperText={errors.tags?.message}
               />
             )}
           />
