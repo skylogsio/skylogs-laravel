@@ -1,4 +1,4 @@
-import { Typography, Box, Chip, Stack, useTheme } from "@mui/material";
+import { Typography, Chip, Stack, useTheme } from "@mui/material";
 
 import { IStatusCard } from "@/@types/status";
 import DeleteModalContainer from "@/components/DeleteModal/DeleteModalContainer";
@@ -44,31 +44,38 @@ export default function StatusDeleteConfirmationDialog({
           <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
             Status:
           </Typography>
-          {(statusCard.criticalCount > 0 || statusCard.warningCount > 0) && (
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
-              {statusCard.criticalCount > 0 && (
-                <Chip
-                  label={`${statusCard.criticalCount} Critical`}
-                  size="small"
-                  sx={{
-                    backgroundColor: palette.error.main,
-                    color: "white",
-                    fontSize: "0.7rem"
-                  }}
-                />
-              )}
-              {statusCard.warningCount > 0 && (
-                <Chip
-                  label={`${statusCard.warningCount} Warning`}
-                  size="small"
-                  sx={{
-                    backgroundColor: palette.warning.main,
-                    color: "white",
-                    fontSize: "0.7rem"
-                  }}
-                />
-              )}
-            </Box>
+          {statusCard.criticalCount === 0 && statusCard.warningCount === 0 && (
+            <Chip
+              label="All Systems OK"
+              size="small"
+              sx={{
+                backgroundColor: palette.success.main,
+                color: "white",
+                fontSize: "0.7rem"
+              }}
+            />
+          )}
+          {statusCard.criticalCount > 0 && (
+            <Chip
+              label={`${statusCard.criticalCount} Critical`}
+              size="small"
+              sx={{
+                backgroundColor: palette.error.main,
+                color: "white",
+                fontSize: "0.7rem"
+              }}
+            />
+          )}
+          {statusCard.warningCount > 0 && (
+            <Chip
+              label={`${statusCard.warningCount} Warning`}
+              size="small"
+              sx={{
+                backgroundColor: palette.warning.main,
+                color: "white",
+                fontSize: "0.7rem"
+              }}
+            />
           )}
         </Stack>
 
