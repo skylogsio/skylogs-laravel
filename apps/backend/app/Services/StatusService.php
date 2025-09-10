@@ -26,7 +26,7 @@ class StatusService
             }
 
             $alerts = $query->get();
-
+            $totalAlertsCount = $alerts->count();
             $numberCritical = 0;
             $numberWarning = 0;
             $isCritical = false;
@@ -66,6 +66,7 @@ class StatusService
             $status->state = $statusState;
             $status->criticalCount = $numberCritical;
             $status->warningCount = $numberWarning;
+            $status->totalAlertsCount = $totalAlertsCount;
             if ($status->isDirty()) {
 
                 $status->save();

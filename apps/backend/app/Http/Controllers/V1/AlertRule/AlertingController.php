@@ -384,9 +384,6 @@ class AlertingController extends Controller
         }
         $model = $model->firstOrFail();
 
-
-        $model->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
-
         switch ($model->type) {
             case AlertRuleType::GRAFANA:
             case AlertRuleType::PMM:
@@ -416,8 +413,11 @@ class AlertingController extends Controller
                 $model->dataSourceAlertName = $dataSourceAlertname ?? "";
                 $model->queryText = $queryText;
 
-                $model->state = null;
-                $model->save();
+                if ($model->isDirty()) {
+                    $model->state = null;
+                    $model->save();
+                }
+
                 break;
             case AlertRuleType::METABASE:
             case AlertRuleType::ZABBIX:
@@ -426,8 +426,13 @@ class AlertingController extends Controller
                 $model->name = $request->name;
                 $model->dataSourceIds = array_unique($request->dataSourceIds ?? []);
                 $model->dataSourceAlertName = $request->dataSourceAlertName;
-                $model->state = null;
-                $model->save();
+
+
+                if ($model->isDirty()) {
+                    $model->state = null;
+                    $model->save();
+                }
+
                 break;
             case AlertRuleType::ELASTIC:
                 $model->name = $request->name;
@@ -494,6 +499,10 @@ class AlertingController extends Controller
             $model->push("userIds", $userId, true);
         }
 
+        $model->tags = collect($request->tags ?? [])->map(fn($item) => trim($item))->unique()->toArray();
+
+        if ($model->isDirty(['tags']))
+            $model->save();
 
         return response()->json(['status' => true]);
 
