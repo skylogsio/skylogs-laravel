@@ -1,4 +1,4 @@
-import { alpha, Chip, CircularProgress, useTheme } from "@mui/material";
+import { alpha, Chip, ChipProps, CircularProgress, useTheme } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 
 import type { ICluster } from "@/@types/cluster";
@@ -6,12 +6,12 @@ import type { IDataSource } from "@/@types/dataSource";
 import { getClusterStatus } from "@/api/cluster";
 import { getDataSourceStatus } from "@/api/dataSource";
 
-interface ConnectionStatusProps {
+interface ConnectionStatusProps extends Pick<ChipProps, "size"> {
   dataSourceId?: IDataSource["id"];
   clusterId?: ICluster["id"];
 }
 
-export default function ConnectionStatus({ dataSourceId, clusterId }: ConnectionStatusProps) {
+export default function ConnectionStatus({ dataSourceId, clusterId, size }: ConnectionStatusProps) {
   const { palette } = useTheme();
 
   const { data: dataSourceStatus } = useQuery({
@@ -47,6 +47,7 @@ export default function ConnectionStatus({ dataSourceId, clusterId }: Connection
   return (
     <Chip
       label={label}
+      size={size}
       sx={{
         textTransform: "capitalize",
         color: color,
