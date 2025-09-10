@@ -111,9 +111,6 @@ export default function ZabbixAlertRuleForm({
         onSubmit();
         onClose?.();
       }
-    },
-    onError: (error) => {
-      console.log(error);
     }
   });
 
@@ -163,7 +160,7 @@ export default function ZabbixAlertRuleForm({
     <Stack
       component="form"
       height="100%"
-      onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
+      onSubmit={handleSubmit(handleSubmitForm)}
       padding={2}
       flex={1}
     >
