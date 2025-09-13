@@ -87,6 +87,7 @@ export default function StatusPage() {
             gap: 3,
             paddingY: 4,
             justifyContent: "center",
+            alignItems: "flex-start",
             margin: "0 auto",
             borderRadius: 3,
             backgroundColor: ({ palette }) => palette.background.paper

@@ -7,7 +7,6 @@ import {
   Typography,
   Box,
   Chip,
-  LinearProgress,
   IconButton,
   Stack,
   Collapse,
@@ -16,7 +15,7 @@ import {
   ListItemText,
   Menu
 } from "@mui/material";
-import { styled, keyframes, useTheme } from "@mui/material/styles";
+import { styled, keyframes, useTheme, alpha } from "@mui/material/styles";
 import { BsThreeDots } from "react-icons/bs";
 import { HiPencil, HiTrash } from "react-icons/hi";
 import { TbCircleCheck, TbAlertTriangle, TbExclamationCircle } from "react-icons/tb";
@@ -117,22 +116,7 @@ const CounterChip = styled(Chip)<{ severity: "warning" | "critical" }>(({ theme,
   }
 }));
 
-const HealthBar = styled(LinearProgress)<{ state: StateType }>(({ theme, state }) => ({
-  height: 6,
-  borderRadius: 3,
-  backgroundColor: "rgba(255,255,255,0.3)",
-  "& .MuiLinearProgress-bar": {
-    backgroundColor:
-      state === "resolved"
-        ? theme.palette.success.main
-        : state === "warning"
-          ? theme.palette.warning.main
-          : theme.palette.error.main,
-    borderRadius: 3
-  }
-}));
-
-const getStatusIcon = (state: StateType) => {
+function getStatusIcon(state: StateType) {
   switch (state) {
     case "resolved":
       return <TbCircleCheck size={20} />;
@@ -143,14 +127,7 @@ const getStatusIcon = (state: StateType) => {
     default:
       return <TbCircleCheck size={20} />;
   }
-};
-
-const getHealthPercentage = (state: StateType, criticalCount: number, warningCount: number) => {
-  if (state === "resolved" && criticalCount === 0 && warningCount === 0) return 100;
-  if (state === "resolved") return 85;
-  if (state === "warning") return 60;
-  return 25;
-};
+}
 
 interface StatusMonitoringCardsProps {
   info: IStatusCard;
@@ -171,38 +148,38 @@ const StatusMonitoringCards = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+  function handleMenuClick(event: React.MouseEvent<HTMLElement>) {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
-  };
+  }
 
-  const handleMenuClose = (event: React.MouseEvent<HTMLElement>) => {
+  function handleMenuClose(event: React.MouseEvent<HTMLElement>) {
     event.stopPropagation();
     setAnchorEl(null);
-  };
+  }
 
-  const handleEdit = (event: React.MouseEvent<HTMLElement>) => {
+  function handleEdit(event: React.MouseEvent<HTMLElement>) {
     event.stopPropagation();
     handleMenuClose(event);
     onEdit?.(info);
-  };
+  }
 
-  const handleDelete = (event: React.MouseEvent<HTMLElement>) => {
+  function handleDelete(event: React.MouseEvent<HTMLElement>) {
     event.stopPropagation();
     handleMenuClose(event);
     onDelete?.(info);
-  };
+  }
 
-  const handleCardClick = () => {
+  function handleCardClick(tags: IStatusCard["tags"], state: IStatusCard["state"]) {
     const filters: Record<string, unknown> = {};
 
-    if (info.tags && info.tags.length > 0) {
-      filters.tags = info.tags;
+    if (tags && tags.length > 0) {
+      filters.tags = tags;
     }
 
-    if (info.state === "critical") {
+    if (state === "critical") {
       filters.status = "critical";
-    } else if (info.state === "warning") {
+    } else if (state === "warning") {
       filters.status = "warning";
     }
 
@@ -214,183 +191,204 @@ const StatusMonitoringCards = ({
     const url = `${alertRulePagePath}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
 
     router.push(url);
-  };
+  }
+
+  function handleAlertTagClick(
+    event: React.MouseEvent<HTMLElement>,
+    tags: IStatusCard["tags"],
+    state: IStatusCard["state"],
+    alertsTag: string
+  ) {
+    event.stopPropagation();
+    const allTags = [...tags, alertsTag];
+    handleCardClick(allTags, state);
+  }
 
   return (
-    <StateCard
-      key={info.id}
-      state={info.state}
-      onClick={handleCardClick}
-      onMouseEnter={() => setShowThreeDots(true)}
-      onMouseLeave={() => setShowThreeDots(false)}
-    >
-      <CardContent
-        sx={{ padding: "16px !important", height: "100%", position: "relative", zIndex: 1 }}
+    <Box position="relative" maxHeight="136px" zIndex={showThreeDots ? 999 : "none"}>
+      <StateCard
+        key={info.id}
+        state={info.state}
+        onClick={() => handleCardClick(info.tags, info.state)}
+        onMouseEnter={() => setShowThreeDots(true)}
+        onMouseLeave={() => setShowThreeDots(false)}
       >
-        <Stack width="100%" direction="row" justifyContent="space-between" alignItems="center">
-          <Typography
-            variant="h6"
-            sx={{
-              mr: "auto !important",
-              fontWeight: 700,
-              fontSize: "1.1rem",
-              color: palette.grey[800],
-              lineHeight: 1.2,
-              maxWidth: "160px"
-            }}
-          >
-            {info.name}
-          </Typography>
-          <StateIcon state={info.state}>{getStatusIcon(info.state)}</StateIcon>
-          <Collapse orientation="horizontal" in={showThreeDots}>
-            <IconButton
-              sx={{
-                ml: ({ spacing }) => `${spacing(2)}!important`,
-                backgroundColor: "rgba(255, 255, 255, 0.4)",
-                padding: 1.1,
-                transition: "all 300ms ease",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.7)"
-                }
-              }}
-              onClick={handleMenuClick}
-              size="large"
-            >
-              <BsThreeDots size="1.3rem" />
-            </IconButton>
-          </Collapse>
-        </Stack>
-        <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
-          {info.criticalCount > 0 && (
-            <CounterChip
-              label={`${info.criticalCount} Critical`}
-              severity="critical"
-              size="small"
-            />
-          )}
-          {info.warningCount > 0 && (
-            <CounterChip label={`${info.warningCount} Warning`} severity="warning" size="small" />
-          )}
-          {info.criticalCount === 0 && info.warningCount === 0 && (
-            <Chip
-              label="All Systems OK"
-              size="small"
-              sx={{
-                backgroundColor: palette.success.main,
-                color: "white",
-                fontWeight: 600
-              }}
-            />
-          )}
-        </Box>
-
-        {info.tags && info.tags.length > 0 && (
-          <Box sx={{ mb: 1.5 }}>
+        <CardContent
+          sx={{ padding: "16px !important", height: "100%", position: "relative", zIndex: 1 }}
+        >
+          <Stack width="100%" direction="row" justifyContent="space-between" alignItems="center">
             <Typography
-              variant="caption"
-              sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
+              variant="h6"
+              sx={{
+                mr: "auto !important",
+                fontWeight: 700,
+                fontSize: "1.1rem",
+                color: palette.grey[800],
+                lineHeight: 1.2,
+                maxWidth: "160px"
+              }}
             >
-              Tags
+              {info.name}
             </Typography>
-            <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-              {info.tags.slice(0, 3).map((tag, index) => (
-                <Chip
-                  key={index}
-                  label={tag}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 20,
-                    fontSize: "0.65rem",
-                    borderColor: palette.grey[400],
-                    color: palette.grey[600]
-                  }}
-                />
-              ))}
-              {info.tags.length > 3 && (
-                <Chip
-                  label={`+${info.tags.length - 3}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 20,
-                    fontSize: "0.65rem",
-                    borderColor: palette.grey[400],
-                    color: palette.grey[600]
-                  }}
-                />
-              )}
-            </Box>
+            <StateIcon state={info.state}>{getStatusIcon(info.state)}</StateIcon>
+            <Collapse orientation="horizontal" in={showThreeDots}>
+              <IconButton
+                sx={{
+                  ml: ({ spacing }) => `${spacing(2)}!important`,
+                  backgroundColor: "rgba(255, 255, 255, 0.4)",
+                  padding: 1.1,
+                  transition: "all 300ms ease",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.7)"
+                  }
+                }}
+                onClick={handleMenuClick}
+                size="large"
+              >
+                <BsThreeDots size="1.3rem" />
+              </IconButton>
+            </Collapse>
+          </Stack>
+          <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
+            {info.criticalCount > 0 && (
+              <CounterChip
+                label={`${info.criticalCount} Critical`}
+                severity="critical"
+                size="small"
+              />
+            )}
+            {info.warningCount > 0 && (
+              <CounterChip label={`${info.warningCount} Warning`} severity="warning" size="small" />
+            )}
+            {info.criticalCount === 0 && info.warningCount === 0 && (
+              <Chip
+                label="All Systems OK"
+                size="small"
+                sx={{
+                  backgroundColor: palette.success.main,
+                  color: "white",
+                  fontWeight: 600
+                }}
+              />
+            )}
           </Box>
-        )}
 
-        <Box sx={{ mb: 1.5 }}>
-          <Typography
-            variant="caption"
-            sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
-          >
-            System Health
-          </Typography>
-          <HealthBar
-            variant="determinate"
-            value={getHealthPercentage(info.state, info.criticalCount, info.warningCount)}
-            state={info.state}
-          />
-        </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="caption" sx={{ color: palette.grey[600], fontWeight: 500 }}>
-            Updated {formatTimeAgo(info.updatedAt)}
-          </Typography>
-          <Box
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              backgroundColor:
-                info.state === "resolved"
-                  ? palette.success.main
-                  : info.state === "warning"
-                    ? palette.warning.main
-                    : palette.error.main,
-              animation: info.state !== "resolved" ? `${pulse} 1s infinite ease-in-out` : "none"
-            }}
-          />
-        </Box>
-      </CardContent>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleMenuClose}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        PaperProps={{
-          elevation: 8,
-          sx: {
-            minWidth: 140,
-            borderRadius: 2,
-            "& .MuiMenuItem-root": {
-              fontSize: "0.875rem",
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)"
+          <Collapse in={showThreeDots}>
+            <Box sx={{ mb: 1.5 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
+              >
+                Tags
+              </Typography>
+              <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                {info.tags.map((tag, index) => (
+                  <Chip
+                    key={index}
+                    label={tag}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      height: 20,
+                      fontSize: "0.65rem",
+                      borderColor: palette.grey[400],
+                      color: palette.grey[600]
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+            {info.alertsTags?.length > 0 && (
+              <Box sx={{ mb: 1.5 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: palette.grey[600], fontWeight: 500, mb: 0.5, display: "block" }}
+                >
+                  Alerts Tags
+                </Typography>
+                <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                  {info.alertsTags.map((tag, index) => (
+                    <Chip
+                      key={index}
+                      label={tag}
+                      size="small"
+                      variant="outlined"
+                      onClick={(event) => handleAlertTagClick(event, info.tags, info.state, tag)}
+                      sx={{
+                        height: 20,
+                        fontSize: "0.65rem",
+                        borderColor: palette.error.main,
+                        color: palette.error.main,
+                        fontWeight: "bold",
+                        backgroundColor: alpha(palette.error.main, 0.1),
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          transform: "scale(1.15)"
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+          </Collapse>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Typography variant="caption" sx={{ color: palette.grey[600], fontWeight: 500 }}>
+              Updated {formatTimeAgo(info.updatedAt)}
+            </Typography>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor:
+                  info.state === "resolved"
+                    ? palette.success.main
+                    : info.state === "warning"
+                      ? palette.warning.main
+                      : palette.error.main,
+                animation: info.state !== "resolved" ? `${pulse} 1s infinite ease-in-out` : "none"
+              }}
+            />
+          </Box>
+        </CardContent>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          slotProps={{
+            paper: {
+              elevation: 8,
+              sx: {
+                minWidth: 140,
+                borderRadius: 2,
+                "& .MuiMenuItem-root": {
+                  fontSize: "0.875rem",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)"
+                  }
+                }
               }
             }
-          }
-        }}
-      >
-        <MenuItem onClick={handleEdit}>
-          <ListItemIcon>
-            <HiPencil size="1.4rem" />
-          </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
-          <ListItemIcon sx={{ color: "error.main" }}>
-            <HiTrash size="1.4rem" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
-      </Menu>
-    </StateCard>
+          }}
+        >
+          <MenuItem onClick={handleEdit}>
+            <ListItemIcon>
+              <HiPencil size="1.4rem" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+            <ListItemIcon sx={{ color: "error.main" }}>
+              <HiTrash size="1.4rem" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        </Menu>
+      </StateCard>
+    </Box>
   );
 };
 
