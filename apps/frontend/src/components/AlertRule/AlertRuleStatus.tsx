@@ -22,6 +22,7 @@ interface AlertRuleStatusProps extends Pick<ChipProps, "size"> {
   id?: IAlertRule["id"];
   onAfterResolve?: () => void;
   statusTitle?: string;
+  showAcknowledge?: boolean;
 }
 
 export default function AlertRuleStatus({
@@ -29,7 +30,8 @@ export default function AlertRuleStatus({
   onAfterResolve,
   id,
   statusTitle,
-  size = "medium"
+  size = "medium",
+  showAcknowledge
 }: AlertRuleStatusProps) {
   const { palette } = useTheme();
 
@@ -96,20 +98,22 @@ export default function AlertRuleStatus({
               {isPending ? <CircularProgress size={17} color="inherit" /> : <FaTools />}
             </IconButton>
           </Tooltip>
-          <Tooltip title="Acknowledge" placement="top" arrow>
-            <IconButton
-              disabled={isPending}
-              size="small"
-              sx={{
-                paddingX: 1,
-                color: color[status],
-                backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
-              }}
-              onClick={() => acknowledgeAlertRule()}
-            >
-              {isPending ? <CircularProgress size={17} color="inherit" /> : <FaHandsHelping />}
-            </IconButton>
-          </Tooltip>
+          {showAcknowledge && (
+            <Tooltip title="Acknowledge" placement="top" arrow>
+              <IconButton
+                disabled={isPending}
+                size="small"
+                sx={{
+                  paddingX: 1,
+                  color: color[status],
+                  backgroundColor: `${alpha(isPending ? palette.grey[700] : color[status], 0.07)}!important`
+                }}
+                onClick={() => acknowledgeAlertRule()}
+              >
+                {isPending ? <CircularProgress size={17} color="inherit" /> : <FaHandsHelping />}
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
       )}
     </Stack>

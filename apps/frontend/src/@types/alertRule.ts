@@ -14,6 +14,7 @@ export interface IAlertRule {
   name: string;
   type: AlertRuleType;
   user_id: string;
+  acknowledgedBy: string | null;
   enableAutoResolve: boolean;
   autoResolveMinutes: number;
   updated_at: Date;
