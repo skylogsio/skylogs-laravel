@@ -9,11 +9,16 @@ use App\Models\EndpointOTP;
 use App\Models\User;
 use App\Services\EndpointService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 
 class EndpointController extends Controller
 {
 
+
+    public function __construct(protected EndpointService $endpointService)
+    {
+    }
 
     public function Index(Request $request)
     {
@@ -66,36 +71,22 @@ class EndpointController extends Controller
             $request->all(),
             [
                 'name' => "required",
-                'type' => "required",
+                'type' => [
+                    "required",
+                    Rule::in([
+                        'telegram',
+                        'email',
+                        "sms",
+                        "call",
+                        "teams",
+                        "matter-most",
+                    ])
+                ],
             ],
         );
         if ($va->passes()) {
-            $value = trim($request->value);
-            $isPublic = $request->boolean('isPublic', false);
+            $model = $this->endpointService->create($request);
 
-            if ($request->type == "telegram") {
-
-                $model = Endpoint::create([
-                    'user_id' => \Auth::id(),
-                    'userId' => \Auth::id(),
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'chatId' => $value,
-                    'threadId' => $request->threadId,
-                    "botToken" => $request->botToken,
-                    'isPublic' => $isPublic,
-                ]);
-            } else {
-                $model = Endpoint::create([
-                    'user_id' => \Auth::id(),
-                    'userId' => \Auth::id(),
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'value' => $value,
-                    'isPublic' => $isPublic,
-                ]);
-
-            }
 
             return response()->json([
                 'status' => true,
