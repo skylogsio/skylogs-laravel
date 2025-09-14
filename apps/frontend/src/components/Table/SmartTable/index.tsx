@@ -101,7 +101,7 @@ function Table<T>(
         Object.entries(parsedFilters).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== "") {
             if (Array.isArray(value)) {
-              value.forEach((item) => params.append(key, String(item)));
+              params.append(key, value.join(","));
             } else {
               params.append(key, String(value));
             }
