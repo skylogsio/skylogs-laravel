@@ -1,4 +1,4 @@
-import { Grid2 as Grid, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -26,36 +26,32 @@ export default function DeleteDataSourceModal({
 
   return (
     <DeleteModalContainer {...props} onAfterDelete={deleteDataSourceMutation} isLoading={isPending}>
-      <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
-        <Typography variant="body1" fontWeight="bold">
-          Name:
-        </Typography>
-      </Grid>
-      <Grid size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}>
-        <Typography variant="body1" fontWeight="normal">
-          {name}
-        </Typography>
-      </Grid>
-      <Grid size={{ xs: 4, sm: 4, md: 3, lg: 2, xl: 2 }}>
-        <Typography variant="body1" fontWeight="bold">
-          Type:
-        </Typography>
-      </Grid>
-      <Grid
-        display="flex"
-        justifyContent="flex-start"
-        size={{ xs: 8, sm: 8, md: 9, lg: 10, xl: 10 }}
-      >
-        <DataSourceType type={type} />
-      </Grid>
-      <Grid size={{ xs: 4, sm: 4, md: 3, lg: 3, xl: 3 }}>
-        <Typography variant="body1" fontWeight="bold">
-          Status:
-        </Typography>
-      </Grid>
-      <Grid size={{ xs: 8, sm: 8, md: 9, lg: 9, xl: 9 }}>
-        <ConnectionStatus dataSourceId={id} />
-      </Grid>
+      <Stack spacing={1}>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Name:
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            {name}
+          </Typography>
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Type:
+          </Typography>
+          <DataSourceType
+            type={type}
+            iconSize="1.3rem"
+            typographyProps={{ variant: "subtitle2", color: "text.secondary" }}
+          />
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Status:
+          </Typography>
+          <ConnectionStatus dataSourceId={id} size="small" />
+        </Stack>
+      </Stack>
     </DeleteModalContainer>
   );
 }

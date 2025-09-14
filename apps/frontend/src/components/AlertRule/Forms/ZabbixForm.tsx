@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
+  Box,
   Button,
   Chip,
   Grid2 as Grid,
@@ -40,12 +41,12 @@ const zabbixAlertRuleSchema = z.object({
   endpointIds: z.array(z.string()).optional().default([]),
   userIds: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
-  dataSourceId: z
+  dataSourceIds: z.array(z.string()).min(1, "This field is Required."),
+  dataSourceAlertName: z
     .string({ required_error: "This field is Required." })
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
-    }),
-  dataSourceAlertName: z.optional(z.string()).nullable()
+    })
 });
 
 type ZabbixFromType = z.infer<typeof zabbixAlertRuleSchema>;
@@ -60,7 +61,7 @@ const defaultValues: ZabbixFromType = {
   userIds: [],
   endpointIds: [],
   tags: [],
-  dataSourceId: "",
+  dataSourceIds: [],
   dataSourceAlertName: ""
 };
 
@@ -77,6 +78,8 @@ export default function ZabbixAlertRuleForm({
     reset,
     control,
     getValues,
+    clearErrors,
+    trigger,
     formState: { errors }
   } = useForm<ZabbixFromType>({
     resolver: zodResolver(zabbixAlertRuleSchema),
@@ -108,9 +111,6 @@ export default function ZabbixAlertRuleForm({
         onSubmit();
         onClose?.();
       }
-    },
-    onError: (error) => {
-      console.log(error);
     }
   });
 
@@ -134,6 +134,20 @@ export default function ZabbixAlertRuleForm({
     }
   }
 
+  function renderDataSourceChip(selectedDataSourceIds: unknown): ReactNode {
+    const selectedDataSources = dataSourceList?.filter((dataSource) =>
+      (selectedDataSourceIds as string[]).includes(dataSource.id)
+    );
+    const selectedDataSourceNames = selectedDataSources?.map((dataSource) => dataSource.name) ?? [];
+    return (
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        {selectedDataSourceNames.map((value, index) => (
+          <Chip size="small" key={index} label={value} />
+        ))}
+      </Box>
+    );
+  }
+
   useEffect(() => {
     if (data === "NEW") {
       reset(defaultValues);
@@ -146,7 +160,7 @@ export default function ZabbixAlertRuleForm({
     <Stack
       component="form"
       height="100%"
-      onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
+      onSubmit={handleSubmit(handleSubmitForm)}
       padding={2}
       flex={1}
     >
@@ -177,11 +191,12 @@ export default function ZabbixAlertRuleForm({
           <TextField
             label="Data Source"
             variant="filled"
-            error={!!errors.dataSourceId}
-            helperText={errors.dataSourceId?.message}
-            {...register("dataSourceId")}
-            value={watch("dataSourceId") ?? ""}
+            error={!!errors.dataSourceIds}
+            helperText={errors.dataSourceIds?.message}
+            {...register("dataSourceIds")}
+            value={watch("dataSourceIds") ?? ""}
             select
+            slotProps={{ select: { multiple: true, renderValue: renderDataSourceChip } }}
           >
             {dataSourceList?.map((dataSource) => (
               <MenuItem key={dataSource.id} value={dataSource.id}>
@@ -196,14 +211,11 @@ export default function ZabbixAlertRuleForm({
             options={alertRuleNameList ?? []}
             freeSolo
             value={watch("dataSourceAlertName")}
-            onChange={(_, value) => setValue("dataSourceAlertName", value ?? "")}
+            onChange={(_, value) => {
+              setValue("dataSourceAlertName", value ?? "");
+              trigger("dataSourceAlertName");
+            }}
             autoSelect
-            renderTags={(value: readonly string[], getItemProps) =>
-              value.map((option: string, index: number) => {
-                const { key, ...itemProps } = getItemProps({ index });
-                return <Chip variant="filled" label={option} key={key} {...itemProps} />;
-              })
-            }
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -212,6 +224,7 @@ export default function ZabbixAlertRuleForm({
                   inputLabel: params.InputLabelProps,
                   htmlInput: params.inputProps
                 }}
+                onChange={() => clearErrors("dataSourceAlertName")}
                 error={!!errors.dataSourceAlertName}
                 helperText={errors.dataSourceAlertName?.message}
                 variant="filled"

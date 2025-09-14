@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
+  Box,
   Button,
   Chip,
   Grid2 as Grid,
@@ -38,12 +39,12 @@ const sentryAlertRuleSchema = z.object({
   endpointIds: z.array(z.string()).optional().default([]),
   userIds: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()).optional().default([]),
-  dataSourceId: z
+  dataSourceIds: z.array(z.string()).min(1, "This field is Required."),
+  dataSourceAlertName: z
     .string({ required_error: "This field is Required." })
     .refine((data) => data.trim() !== "", {
       message: "This field is Required."
-    }),
-  dataSourceAlertName: z.optional(z.string()).nullable()
+    })
 });
 
 type SentryFromType = z.infer<typeof sentryAlertRuleSchema>;
@@ -58,7 +59,7 @@ const defaultValues: SentryFromType = {
   userIds: [],
   endpointIds: [],
   tags: [],
-  dataSourceId: "",
+  dataSourceIds: [],
   dataSourceAlertName: ""
 };
 
@@ -75,6 +76,8 @@ export default function SentryAlertRuleForm({
     reset,
     control,
     getValues,
+    clearErrors,
+    trigger,
     formState: { errors }
   } = useForm<SentryFromType>({
     resolver: zodResolver(sentryAlertRuleSchema),
@@ -106,9 +109,6 @@ export default function SentryAlertRuleForm({
         onSubmit();
         onClose?.();
       }
-    },
-    onError: (error) => {
-      console.log(error);
     }
   });
 
@@ -132,6 +132,20 @@ export default function SentryAlertRuleForm({
     }
   }
 
+  function renderDataSourceChip(selectedDataSourceIds: unknown): ReactNode {
+    const selectedDataSources = dataSourceList?.filter((dataSource) =>
+      (selectedDataSourceIds as string[]).includes(dataSource.id)
+    );
+    const selectedDataSourceNames = selectedDataSources?.map((dataSource) => dataSource.name) ?? [];
+    return (
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        {selectedDataSourceNames.map((value, index) => (
+          <Chip size="small" key={index} label={value} />
+        ))}
+      </Box>
+    );
+  }
+
   useEffect(() => {
     if (data === "NEW") {
       reset(defaultValues);
@@ -144,7 +158,7 @@ export default function SentryAlertRuleForm({
     <Stack
       component="form"
       height="100%"
-      onSubmit={handleSubmit(handleSubmitForm, (error) => console.log(error))}
+      onSubmit={handleSubmit(handleSubmitForm)}
       padding={2}
       flex={1}
     >
@@ -175,11 +189,12 @@ export default function SentryAlertRuleForm({
           <TextField
             label="Data Source"
             variant="filled"
-            error={!!errors.dataSourceId}
-            helperText={errors.dataSourceId?.message}
-            {...register("dataSourceId")}
-            value={watch("dataSourceId") ?? []}
+            error={!!errors.dataSourceIds}
+            helperText={errors.dataSourceIds?.message}
+            {...register("dataSourceIds")}
+            value={watch("dataSourceIds") ?? []}
             select
+            slotProps={{ select: { multiple: true, renderValue: renderDataSourceChip } }}
           >
             {dataSourceList?.map((dataSource) => (
               <MenuItem key={dataSource.id} value={dataSource.id}>
@@ -194,14 +209,11 @@ export default function SentryAlertRuleForm({
             options={alertRuleNameList ?? []}
             freeSolo
             value={watch("dataSourceAlertName")}
-            onChange={(_, value) => setValue("dataSourceAlertName", value ?? "")}
+            onChange={(_, value) => {
+              setValue("dataSourceAlertName", value ?? "");
+              trigger("dataSourceAlertName");
+            }}
             autoSelect
-            renderTags={(value: readonly string[], getItemProps) =>
-              value.map((option: string, index: number) => {
-                const { key, ...itemProps } = getItemProps({ index });
-                return <Chip variant="filled" label={option} key={key} {...itemProps} />;
-              })
-            }
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -210,6 +222,7 @@ export default function SentryAlertRuleForm({
                   inputLabel: params.InputLabelProps,
                   htmlInput: params.inputProps
                 }}
+                onChange={() => clearErrors("dataSourceAlertName")}
                 error={!!errors.dataSourceAlertName}
                 helperText={errors.dataSourceAlertName?.message}
                 variant="filled"

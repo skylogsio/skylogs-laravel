@@ -115,6 +115,7 @@ export default function AlertRule() {
                 id={row.original.id}
                 status={row.original.status_label}
                 onAfterResolve={handleRefreshData}
+                showAcknowledge={!row.original.acknowledgedBy}
               />
             )
           },

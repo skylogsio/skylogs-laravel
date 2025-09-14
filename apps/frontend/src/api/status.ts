@@ -28,7 +28,16 @@ export async function udpateStatusCard(
   body: unknown
 ): Promise<ServerResponse<unknown>> {
   try {
-    const response = await axios.post<ServerResponse<unknown>>(STATUS_URL, body);
+    const response = await axios.put<ServerResponse<unknown>>(`${STATUS_URL}/${id}`, body);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deleteStatusCard(id: IStatusCard["id"]): Promise<ServerResponse<unknown>> {
+  try {
+    const response = await axios.delete<ServerResponse<unknown>>(`${STATUS_URL}/${id}`);
     return response.data;
   } catch (error) {
     throw error;
