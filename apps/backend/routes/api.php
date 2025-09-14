@@ -4,25 +4,22 @@ use App\Enums\Constants;
 use App\Http\Controllers\Cluster\SyncController;
 use App\Http\Controllers\V1\AlertRule\AccessUserController;
 use App\Http\Controllers\V1\AlertRule\AlertingController;
+use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\GroupActionController;
 use App\Http\Controllers\V1\AlertRule\NotifyController;
-use App\Http\Controllers\V1\AlertRule\CreateDataController;
 use App\Http\Controllers\V1\AlertRule\PrometheusController;
 use App\Http\Controllers\V1\AlertRule\TagsController;
+use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\Config\SkylogsController;
 use App\Http\Controllers\V1\Config\TelegramController;
-use App\Http\Controllers\V1\Profile\AssetController;
-use App\Http\Controllers\V1\Profile\EnvironmentController;
-use App\Http\Controllers\V1\Profile\ServiceController;
-use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\DataSourceController;
 use App\Http\Controllers\V1\EndpointController;
+use App\Http\Controllers\V1\Profile\AssetController;
 use App\Http\Controllers\V1\SkylogsInstanceController;
 use App\Http\Controllers\V1\StatusController;
 use App\Http\Controllers\V1\UserController;
 use App\Http\Controllers\V1\Webhooks\ApiAlertController;
 use App\Http\Controllers\V1\Webhooks\WebhookAlertsController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
