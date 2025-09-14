@@ -122,6 +122,7 @@ return [
          App\Jobs\AddChecksJob::class,
          App\Jobs\CheckPrometheusJob::class,
          App\Jobs\AutoResolveApiAlertsJob::class,
+         App\Jobs\RefreshStatusHistoryJob::class,
     ],
 
     /*
