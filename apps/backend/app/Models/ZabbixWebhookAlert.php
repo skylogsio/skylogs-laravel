@@ -20,58 +20,31 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
         return AlertRule::where("id", $this->alertRuleId)->first();
     }
 
-    public function CustomSave($dataSource, $alertRules,$jsonWebhook)
-    {
-        try {
-
-            foreach ($jsonWebhook as $key => $value) {
-                $this->$key = $value;
-
-            }
-            $this->dataSourceAlertName = $this->action_name;
-            $this->dataSourceId = $dataSource->id;
-            $this->dataSourceName = $dataSource->name;
-
-            $alert = $alertRules->where('dataSourceAlertName', $this->dataSourceAlertName)->first();
-            if ($alert) {
-                $this->alertRuleId = $alert->_id;
-                $this->alertRuleName = $alert->name;
-
-//                $alert->state = $this->action;
-                $alert->notifyAt = time();
-                $alert->save();
-            }
-        } catch (\Exception $e) {
-        }
-        return $this->save();
-    }
-
     public function defaultMessage(): string
     {
         $text = $this->alertRuleName;
 
-
-        $needArray = ["event_source", "event_update_status", "event_value", "Message", "Subject", "tags"];
-
         $text .= "\nDataSource: ".$this->dataSourceName;
 
-        $text .= "\nDataSource AlertName: ".$this->dataSourceAlertName;
+        $text .= match ($this->event_value) {
+            "1" => "\nState: Fire 🔥",
+            "0" => "\nState: Resolve ✅",
+            default => "\nState: Notification 📢",
+        };
 
-        $text .= "\nSubject: " . $this->alert_subject;
+        $text .= "\n\nSeverity: ";
+        $text .= match ($this->event_nseverity){
+            "0" => "Not classified",
+            "1" => "Information ℹ️",
+            "2" => "Warning ⚠️",
+            "3" => "Average 🟠",
+            "4" => "High ⚡",
+            "5" => "Disaster 🔥"
+        };
+        $text .= "\n" . $this->alert_subject;
         $text .= "\nMessage: " . $this->alert_message;
-        if (!empty($this->event_name))
-            $text .= "\nEvent Name: " . $this->event_name;
-        if (!empty($this->event_severity))
-            $text .= "\nEvent Severity: " . $this->event_severity;
-        if (!empty($this->host_ip))
-            $text .= "\nHost ip: " . $this->host_ip;
-        if (!empty($this->host_name))
-            $text .= "\nHost name: " . $this->host_name;
-
-
 
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
-//        $text .= $this->description;
 
         return $text;
     }

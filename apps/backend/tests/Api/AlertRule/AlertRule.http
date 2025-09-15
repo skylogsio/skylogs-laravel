@@ -43,6 +43,13 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+GET {{domain}}/alert-rule/create-data/zabbix
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
 GET {{domain}}/alert-rule/684989606c8712ca9400aa78
 Content-Type: application/json
 Accept: application/json

@@ -68,6 +68,25 @@ Authorization: Bearer {{authToken}}
     "tags": []
 }
 
+
+### Create Zabbix Alert Rule -> severity can be (empty|null) or from 0 to 5
+POST {{domain}}/alert-rule/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "TestZabbix",
+    "type": "zabbix",
+    "dataSourceIds": ["682777ead8edb934b17c5fe5"],
+    "actions" : ["Action1"],
+    "hosts" : ["Host1"],
+    "severity" : "5",
+    "endpoints": [],
+    "accessUsers": [],
+    "tags": []
+}
+
 ### Create API Alert Rule
 POST {{domain}}/alert-rule/
 Content-Type: application/json

@@ -10,11 +10,16 @@ use App\Models\SentryWebhookAlert;
 use App\Models\ZabbixWebhookAlert;
 use App\Services\GrafanaService;
 use App\Services\SendNotifyService;
+use App\Services\ZabbixService;
 use Illuminate\Http\Request;
 
 
 class WebhookAlertsController extends Controller
 {
+
+    public function __construct(protected ZabbixService $zabbixService)
+    {
+    }
 
     public function GrafanaWebhook(Request $request, $token)
     {
@@ -91,24 +96,15 @@ class WebhookAlertsController extends Controller
         $alertRules = $request->alertRules;
         $dataSource = $request->dataSource;
 
-        $post = $request->post();
+        $post = $request->except(["dataSource", "alertRules"]);
 
-        $model = new ZabbixWebhookAlert();
+        $this->zabbixService->checkAlertRules($dataSource, $alertRules, $post);
 
-        if ($model->CustomSave($dataSource, $alertRules, $post)) {
-            if (!empty($model->alertRuleId))
-                SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $model->alertRuleId);
-            return response()->json([
-                "status" => true,
-            ]);
+        return response()->json([
+            "status" => true,
+        ]);
 
-        } else {
 
-            return [
-                "status" => false,
-            ];
-
-        }
     }
 
     public function SplunkWebhook(Request $request)

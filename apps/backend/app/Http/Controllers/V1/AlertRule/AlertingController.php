@@ -261,7 +261,6 @@ class AlertingController extends Controller
 
                     break;
                 case AlertRuleType::METABASE:
-                case AlertRuleType::ZABBIX:
                 case AlertRuleType::SENTRY:
                 case AlertRuleType::SPLUNK:
 
@@ -269,6 +268,15 @@ class AlertingController extends Controller
                         ...$commonFields,
                         "dataSourceIds" => array_unique($request->dataSourceIds ?? []),
                         "dataSourceAlertName" => $request->dataSourceAlertName,
+                    ]);
+                    break;
+                case AlertRuleType::ZABBIX:
+                    $alert = AlertRule::create([
+                        ...$commonFields,
+                        "dataSourceIds" => array_unique($request->dataSourceIds ?? []),
+                        "hosts" => $request->hosts ?? [],
+                        "actions" => $request->actions ?? [],
+                        "severity" => $request->severity ?? "",
                     ]);
                     break;
                 case AlertRuleType::NOTIFICATION:
