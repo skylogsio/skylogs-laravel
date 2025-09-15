@@ -40,10 +40,9 @@ enum AlertRuleType: string
 //            self::PROMETHEUS,
 //            self::GRAFANA,
 //            self::PMM,
-            self::SPLUNK,
-            self::SENTRY,
-            self::METABASE,
-            self::ZABBIX,
+            self::SPLUNK->value,
+            self::SENTRY->value,
+            self::METABASE->value,
         ]);
     }
 }

@@ -11,6 +11,7 @@ use App\Models\Endpoint;
 use App\Models\User;
 use App\Services\GrafanaInstanceService;
 use App\Services\PrometheusInstanceService;
+use App\Services\ZabbixService;
 use Illuminate\Http\Request;
 
 class CreateDataController extends Controller
@@ -19,6 +20,7 @@ class CreateDataController extends Controller
     public function __construct(
         protected PrometheusInstanceService $prometheusInstanceService,
         protected GrafanaInstanceService $grafanaInstanceService,
+        protected ZabbixService $zabbixService,
     ) {}
 
 
@@ -80,5 +82,39 @@ class CreateDataController extends Controller
         return response()->json($this->prometheusInstanceService->getLabelValues($label));
     }
 
+    public function ZabbixData()
+    {
+        $hosts = $this->zabbixService->getHosts();
+        $actions = $this->zabbixService->getActions();
+
+        $severity = [
+            [
+                "key" => "0",
+                "value" => "Not classified",
+            ],
+            [
+                "key" => "1",
+                "value" => "Information",
+            ],
+            [
+                "key" => "2",
+                "value" => "Warning",
+            ],
+            [
+                "key" => "3",
+                "value" => "Average",
+            ],
+            [
+                "key" => "4",
+                "value" => "High",
+            ],
+            [
+                "key" => "5",
+                "value" => "Disaster",
+            ],
+        ];
+
+        return response()->json(compact("hosts", "actions", "severity"));
+    }
 
 }

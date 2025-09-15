@@ -92,4 +92,9 @@ class DataSource extends BaseModel
     public function prometheusGetQueryUrl($metric){
         return $this->url . "/api/v1/query?query=$metric";
     }
+
+    public function zabbixApiUrl()
+    {
+        return $this->url . "/api_jsonrpc.php";
+    }
 }

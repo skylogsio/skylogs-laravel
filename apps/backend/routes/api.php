@@ -142,6 +142,7 @@ Route::prefix('v1')->group(function () {
                     ->group(function () {
                         Route::get('/', 'CreateData');
                         Route::get('/data-source/{type}', 'DataSources');
+                        Route::get('/zabbix', 'ZabbixData');
                         Route::get('/rules', 'Rules');
                         Route::get('/labels', 'Labels');
                         Route::get('/label-values/{label}', 'LabelValues');

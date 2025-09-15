@@ -599,7 +599,7 @@ class AlertRuleService
             if (is_array($type)) {
                 foreach ($type as $alertType) {
                     $tagsArray[] = $alertType->value;
-                    $keyName .= ':' . $type->value;
+                    $keyName .= ':' . $alertType->value;
                 }
             } else {
                 $tagsArray[] = $type->value;

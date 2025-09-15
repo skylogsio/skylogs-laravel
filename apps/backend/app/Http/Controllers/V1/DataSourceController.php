@@ -71,6 +71,7 @@ class DataSourceController extends Controller
                 "webhookToken" => $webhookToken,
             ];
             $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["apiToken"] = $request->api_token ?? "";
             $modelArray["username"] = $request->username ?? "";
             $modelArray['password'] = $request->password ?? "";
             $model = DataSource::create($modelArray);
@@ -108,6 +109,7 @@ class DataSourceController extends Controller
                 "url" => $url,
             ];
             $modelArray["api_token"] = $request->api_token ?? "";
+            $modelArray["apiToken"] = $request->api_token ?? "";
             $modelArray["username"] = $request->username ?? "";
             $modelArray['password'] = $request->password ?? "";
 
