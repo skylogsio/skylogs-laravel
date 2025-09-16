@@ -42,20 +42,12 @@ class PrometheusCheck extends BaseModel implements Messageable
         $countResolve = 0;
         $countFire = 0;
 
-        foreach ($this->alerts as $alert) {
-            if ($alert['state'] == self::RESOLVED) {
-                $countResolve++;
-            } elseif ($alert['state'] == self::FIRE) {
-                $countFire++;
-            }
-        }
+
         PrometheusHistory::create(
             [
                 "alertRuleId" => $this->alertRuleId,
                 "alert" => $this->alert,
                 "state" => $this->state,
-                "countResolve" => $countResolve,
-                "countFire" => $countFire,
             ]
         );
     }
@@ -71,6 +63,8 @@ class PrometheusCheck extends BaseModel implements Messageable
             PrometheusHistory::create(
                 [
                     "alertRuleId" => $this->alertRuleId,
+                    "dataSourceId" => $this->dataSourceId,
+                    "dataSourceName" => $this->dataSourceName,
                     "alerts" => $this->alerts,
                     "state" => $this->state,
                 ]
