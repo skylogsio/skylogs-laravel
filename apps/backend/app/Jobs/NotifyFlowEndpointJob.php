@@ -25,6 +25,7 @@ class NotifyFlowEndpointJob implements ShouldQueue
         $this->notify = $notify;
         $this->endpointId = $endpointId;
         $this->currentStepIndex = $currentStepIndex;
+        $this->onQueue('sendNotifies');
     }
 
     /**
@@ -34,9 +35,6 @@ class NotifyFlowEndpointJob implements ShouldQueue
      */
     public function handle()
     {
-
-
-
         app(SendNotifyService::class)->processStep($this->notify, $this->endpointId, $this->currentStepIndex);
     }
 

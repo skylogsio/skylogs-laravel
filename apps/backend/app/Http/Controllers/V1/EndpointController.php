@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 
+use App\Enums\EndpointType;
 use App\Http\Controllers\Controller;
 use App\Models\Endpoint;
 use App\Models\EndpointOTP;
@@ -18,6 +19,13 @@ class EndpointController extends Controller
 
     public function __construct(protected EndpointService $endpointService)
     {
+    }
+
+    public function EndpointsToCreateFlow()
+    {
+        $endpoints = $this->endpointService->selectableUserEndpoint(\Auth::user());
+        $endpoints = $endpoints->where("type", "!=", EndpointType::FLOW->value);
+        return response()->json($endpoints);
     }
 
     public function Index(Request $request)
@@ -129,30 +137,21 @@ class EndpointController extends Controller
             $request->all(),
             [
                 'name' => "required",
-                'type' => "required",
+                'type' => [
+                    "required",
+                    Rule::in([
+                        'telegram',
+                        'email',
+                        "sms",
+                        "call",
+                        "teams",
+                        "matter-most",
+                    ])
+                ],
             ],
         );
         if ($va->passes()) {
-            $value = trim($request->value);
-            $isPublic = $request->boolean('isPublic', false);
-
-            if ($request->type == "telegram") {
-                $model->update([
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'chatId' => $value,
-                    'threadId' => $request->threadId,
-                    "botToken" => $request->botToken,
-                    "isPublic" => $isPublic,
-                ]);
-            } else {
-                $model->update([
-                    'name' => $request->name,
-                    'type' => $request->type,
-                    'value' => $value,
-                    'isPublic' => $isPublic,
-                ]);
-            }
+            $this->endpointService->update($model, $request);
 
             return response()->json([
                 'status' => true,

@@ -126,7 +126,48 @@ class EndpointService
         return $model;
     }
 
-    public function validateFlowEndpointData($request) : void
+    public function update($endpoint, $request)
+    {
+        $value = trim($request->value);
+        $isPublic = $request->boolean('isPublic', false);
+
+        switch ($request->type) {
+            case EndpointType::TELEGRAM->value:
+
+                $model = $endpoint->update([
+                    'name' => $request->name,
+                    'type' => $request->type,
+                    'chatId' => $value,
+                    'threadId' => $request->threadId,
+                    "botToken" => $request->botToken,
+                    'isPublic' => $isPublic,
+                ]);
+                break;
+
+            case EndpointType::FLOW->value:
+                $this->validateFlowEndpointData($request);
+
+                $model = $endpoint->update([
+                    'name' => $request->name,
+                    'type' => $request->type,
+                    'steps' => $request->steps,
+                    'isPublic' => $isPublic,
+                ]);
+                break;
+            default:
+                $model = $endpoint->update([
+                    'name' => $request->name,
+                    'type' => $request->type,
+                    'value' => $value,
+                    'isPublic' => $isPublic,
+                ]);
+                break;
+        }
+
+        return $model;
+    }
+
+    public function validateFlowEndpointData($request): void
     {
 
         $steps = $request->steps;

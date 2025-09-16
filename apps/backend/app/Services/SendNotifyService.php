@@ -245,6 +245,7 @@ class SendNotifyService
     public function processStep(Notify $notify, $endpointId, int $currentStepIndex = 0)
     {
         $notify->refresh();
+        $endpoint = Endpoint::where("_id", $endpointId)->first();
 
         $silentUserIds = $notify->alertRule->silentUserIds ?? [];
 
@@ -252,17 +253,48 @@ class SendNotifyService
             in_array($notify->alertRule->userId, $silentUserIds) ||
             in_array(app(UserService::class)->admin()->id, $silentUserIds)
         ) {
-            $notify->status = Notify::STATUS_SILENT;
+            $resultFlows = $notify->resultFlows ?? [];
+            if (empty($resultFlows[$endpointId])) {
+                $resultFlows[$endpointId] = [];
+            }
+            $resultFlows[$endpointId][] = [
+                "status" => Notify::STATUS_SILENT,
+                "label" => "silent"
+            ];
+
+            $notify->resultFlows = $resultFlows;
             $notify->save();
             return;
         }
 
         if ($notify->alertRule->isAcknowledged()) {
-            $notify->status = Notify::STATUS_ACKNOWLEDGED;
+            $resultFlows = $notify->resultFlows ?? [];
+            if (empty($resultFlows[$endpointId])) {
+                $resultFlows[$endpointId] = [];
+            }
+            $resultFlows[$endpointId][] = [
+                "status" => Notify::STATUS_ACKNOWLEDGED,
+                "label" => "acknowledged"
+            ];
+            $notify->resultFlows = $resultFlows;
             $notify->save();
             return;
         }
-        $endpoint = Endpoint::where("_id", $endpointId)->first();
+
+        if ($notify->alertRule->state == AlertRule::RESOlVED) {
+
+            $resultFlows = $notify->resultFlows ?? [];
+            if (empty($resultFlows[$endpointId])) {
+                $resultFlows[$endpointId] = [];
+            }
+            $resultFlows[$endpointId][] = [
+                "status" => -1,
+                "label" => "resolved alert"
+            ];
+            $notify->resultFlows = $resultFlows;
+            $notify->save();
+            return;
+        }
         $steps = $endpoint->steps;
 
         if ($currentStepIndex >= count($steps)) {
