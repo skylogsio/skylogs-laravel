@@ -52,6 +52,7 @@ class SentryWebhookAlert extends BaseModel implements Messageable
                 $this->action = $jsonWebhook['action'];
 
                 $this->message = $jsonWebhook['data']['event']['message'] ?? "";
+                $this->title = $jsonWebhook['data']['event']['title'] ?? "";
                 $this->description = $jsonWebhook['data']['event']['message'] ?? "";
                 $this->url = $jsonWebhook['data']['event']['web_url'] ?? "";
                 $this->dataSourceAlertName = $jsonWebhook['data']['triggered_rule'] ?? "";
@@ -104,7 +105,9 @@ class SentryWebhookAlert extends BaseModel implements Messageable
 
         $text .= "\n";
         $text .= "\nDataSource: ".$this->dataSourceName;
-
+        if (!empty($this->title)){
+            $text .= "\nTitle: ".$this->title;
+        }
         $text .= "\nDescription: " . $this->description;
         $text .= "\nUrl: " . $this->url;
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
