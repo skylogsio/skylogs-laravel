@@ -36,18 +36,13 @@ class StatusService
 
             foreach ($alerts as $alert) {
                 list($alertState, $alertCount) = $alert->getStatus();
-                if ($alertState == AlertRule::RESOlVED || $alertState == AlertRule::UNKNOWN) {
-                    continue;
-                } elseif ($alertState == AlertRule::WARNING) {
+                if ($alertState == AlertRule::WARNING) {
                     $isWarning = true;
                     $numberWarning++;
                 } elseif ($alertState == AlertRule::CRITICAL) {
                     $isCritical = true;
                     $numberCritical++;
                     $alertTags = $alertTags->merge($alert->tags ?? []);
-                } elseif ($alertState > 0) {
-                    $isCritical = true;
-                    $numberCritical++;
                 }
             }
 
