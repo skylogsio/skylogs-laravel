@@ -1,4 +1,4 @@
-import { Chip, Grid2 as Grid, Stack, Typography } from "@mui/material";
+import { Chip, Stack, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -34,44 +34,42 @@ export default function DeleteProfileServiceModal({
       onAfterDelete={deletesProfileServiceMutation}
       isLoading={isPending}
     >
-      <Grid size={12}>
-        <Stack width="100%" spacing={2}>
-          <Stack direction="row" justifyContent="flex-start" spacing={2}>
-            <Typography variant="body1" fontWeight="bold">
-              Name:
-            </Typography>
-            <Typography variant="body1" fontWeight="normal">
-              {name}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="flex-start" spacing={2}>
-            <Typography variant="body1" fontWeight="bold">
-              Username:
-            </Typography>
-            <Typography variant="body1" fontWeight="normal">
-              {username}
-            </Typography>
-          </Stack>
-          <Stack direction="row" justifyContent="flex-start" spacing={2}>
-            <Typography variant="body1" fontWeight="bold">
-              envs:
-            </Typography>
-            <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap">
-              {envs.map((env) => (
-                <Chip key={env} label={env} size="small" />
-              ))}
-            </Stack>
-          </Stack>
-          <Stack direction="row" justifyContent="flex-start" spacing={2}>
-            <Typography variant="body1" fontWeight="bold">
-              Alert Rules Count:
-            </Typography>
-            <Typography variant="body1" fontWeight="normal">
-              {createdAlertRuleIds?.length ?? 0}
-            </Typography>
+      <Stack spacing={1}>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Name:
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            {name}
+          </Typography>
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Username:
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            {username}
+          </Typography>
+        </Stack>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            envs:
+          </Typography>
+          <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap">
+            {envs.map((env) => (
+              <Chip key={env} label={env} size="small" />
+            ))}
           </Stack>
         </Stack>
-      </Grid>
+        <Stack direction="row" spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+            Alert Rules Count:
+          </Typography>
+          <Typography variant="subtitle2" color="text.secondary">
+            {createdAlertRuleIds?.length ?? 0}
+          </Typography>
+        </Stack>
+      </Stack>
     </DeleteModalContainer>
   );
 }
