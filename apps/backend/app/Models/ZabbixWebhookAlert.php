@@ -25,12 +25,9 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
         $text = $this->alertRuleName;
 
         $text .= "\nDataSource: ".$this->dataSourceName;
+        $text .= "\n\n" . $this->alert_subject;
 
-        $text .= match ($this->event_value) {
-            "1" => "\nState: Fire 🔥",
-            "0" => "\nState: Resolve ✅",
-            default => "\nState: Notification 📢",
-        };
+        $text .= "\n\n" . $this->alert_message;
 
         $text .= "\n\nSeverity: ";
         $text .= match ($this->event_nseverity){
@@ -41,9 +38,6 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
             "4" => "High ⚡",
             "5" => "Disaster 🔥"
         };
-        $text .= "\n" . $this->alert_subject;
-        $text .= "\nMessage: " . $this->alert_message;
-
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
 
         return $text;

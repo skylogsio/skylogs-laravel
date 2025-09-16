@@ -157,18 +157,6 @@ class ZabbixService
                     $model->save();
                     SendNotifyService::CreateNotify(SendNotifyJob::ZABBIX_WEBHOOK, $model, $includedAlert->id);
 
-                    switch ($data['event_value']) {
-                        case "0":
-                            $includedAlert->state = AlertRule::RESOlVED;
-                            break;
-                        case "1":
-                            $includedAlert->state = AlertRule::CRITICAL;
-                            break;
-                        default:
-                            $includedAlert->state = AlertRule::TRIGGERED;
-                            break;
-                    }
-
                     $includedAlert->notifyAt = time();
                     $includedAlert->save();
 

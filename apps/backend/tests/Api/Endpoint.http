@@ -5,6 +5,13 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+GET {{domain}}/endpoint/createFlowEndpoints
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
 GET {{domain}}/endpoint/680d668e20f7ecb5bc026722
 Content-Type: application/json
 Accept: application/json
@@ -12,7 +19,7 @@ Authorization: Bearer {{authToken}}
 
 
 ###
-// type can be sms , call , teams , telegram  , email
+// type can be sms , call , teams , telegram  , email , flow
 POST {{domain}}/endpoint/
 Content-Type: application/json
 Accept: application/json
@@ -38,6 +45,50 @@ Authorization: Bearer {{authToken}}
     "value" : "-100",
     "threadId" : "11",
     "botToken" : "",
+    "isPublic" : false
+}
+
+###
+// for flow type body should be like this ,  timeUnit can be s ,m ,h
+POST {{domain}}/endpoint/
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "name": "test3",
+    "type" : "flow",
+    "steps" : [
+        {
+            "type" : "wait",
+            "duration" : 15,
+            "timeUnit" : "s"
+        },
+        {
+            "type": "endpoint",
+            "endpointIds" : [
+                "67ab9d887ad723b5b807db12",
+                "67ab9d887ad723b5b807db12"
+            ]
+        },
+        {
+            "type" : "wait",
+            "duration" : 15,
+            "timeUnit" : "m"
+        },
+        {
+            "type" : "wait",
+            "duration" : 15,
+            "timeUnit" : "m"
+        },
+        {
+            "type": "endpoint",
+            "endpointIds" : [
+                "67ab9d887ad723b5b807db12",
+                "67ab9d887ad723b5b807db12"
+            ]
+        }
+    ],
     "isPublic" : false
 }
 
