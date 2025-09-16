@@ -39,9 +39,9 @@ class AlertRuleService
                 return $firedInstances;
 
             case AlertRuleType::PROMETHEUS:
-                $check = PrometheusCheck::where("alertRuleId", $alertRuleId)->first();
+                $alerts = PrometheusCheck::where("alertRuleId", $alertRuleId)->get();
 
-                return $check ? ($check->alerts ?? []) : [];
+                return $alerts;
         }
 
 
