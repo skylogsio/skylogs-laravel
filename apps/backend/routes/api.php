@@ -87,6 +87,7 @@ Route::prefix('v1')->group(function () {
             ->controller(EndpointController::class)
             ->group(function () {
                 Route::get('/', 'Index');
+                Route::get('/indexFlow', 'IndexFlow');
                 Route::get('/createFlowEndpoints', 'EndpointsToCreateFlow');
                 Route::get('/{id}', 'Show');
                 Route::post('/', 'Create');
