@@ -32,7 +32,25 @@ class EndpointController extends Controller
     {
         $perPage = $request->perPage ?? 25;
 
-        $data = Endpoint::query();
+        $data = Endpoint::query()->whereNot("type", EndpointType::FLOW->value);
+        $isAdmin = auth()->user()->isAdmin();
+        if (!$isAdmin) {
+            $data = $data->where("userId", auth()->id());
+        }
+        if ($request->filled('name')) {
+            $data->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        $data = $data->paginate($perPage);
+
+        return response()->json($data);
+    }
+
+    public function IndexFlow(Request $request)
+    {
+        $perPage = $request->perPage ?? 25;
+
+        $data = Endpoint::query()->where("type", EndpointType::FLOW->value);
         $isAdmin = auth()->user()->isAdmin();
         if (!$isAdmin) {
             $data = $data->where("userId", auth()->id());
@@ -85,6 +103,7 @@ class EndpointController extends Controller
                         'telegram',
                         'email',
                         "sms",
+                        "flow",
                         "call",
                         "teams",
                         "matter-most",

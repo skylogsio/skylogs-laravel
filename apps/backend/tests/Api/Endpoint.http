@@ -5,6 +5,13 @@ Authorization: Bearer {{authToken}}
 
 
 ###
+GET {{domain}}/endpoint/indexFlow
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
 GET {{domain}}/endpoint/createFlowEndpoints
 Content-Type: application/json
 Accept: application/json
