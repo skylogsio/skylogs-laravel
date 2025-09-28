@@ -29,15 +29,18 @@ class ZabbixWebhookAlert extends BaseModel implements Messageable
 
         $text .= "\n\n" . $this->alert_message;
 
-        $text .= "\n\nSeverity: ";
-        $text .= match ($this->event_nseverity){
-            "0" => "Not classified",
-            "1" => "Information ℹ️",
-            "2" => "Warning ⚠️",
-            "3" => "Average 🟠",
-            "4" => "High ⚡",
-            "5" => "Disaster 🔥"
-        };
+        if (!empty($this->event_nseverity) && in_array($this->event_nseverity, ["0", "1", "2", "3", "4", "5",])) {
+
+            $text .= "\n\nSeverity: ";
+            $text .= match ($this->event_nseverity) {
+                "0" => "Not classified",
+                "1" => "Information ℹ️",
+                "2" => "Warning ⚠️",
+                "3" => "Average 🟠",
+                "4" => "High ⚡",
+                "5" => "Disaster 🔥"
+            };
+        }
         $text .= "\nDate: " . Jalalian::now()->format("Y/m/d");
 
         return $text;
