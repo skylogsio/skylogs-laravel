@@ -123,7 +123,7 @@ class SendNotifyService
         if ($flows->isNotEmpty()) {
             if ($notify->alertRule->state == AlertRule::CRITICAL)
                 foreach ($flows as $flow) {
-                    NotifyFlowEndpointJob::dispatch($notify, $flow);
+                    NotifyFlowEndpointJob::dispatch($notify, $flow->id);
                 }
         }
 
@@ -323,13 +323,12 @@ class SendNotifyService
             $delay = intval($delay);
             NotifyFlowEndpointJob::dispatch($notify, $endpoint->_id, $currentStepIndex + 1)
                 ->delay(now()->addSeconds($delay));
-        } elseif ($step['action'] === FlowEndpointStepType::ENDPOINT->value) {
+        } elseif ($step['type'] === FlowEndpointStepType::ENDPOINT->value) {
 
             $subEndpointIds = $step['endpointIds'] ?? [];
             if (!empty($subEndpointIds)) {
-                $subEndpoints = Endpoint::whereIn('_id', $subEndpointIds)->get();
 
-                $this->SendFlowEndpointsNotify($notify, $endpoint->id, $subEndpoints);
+                $this->SendFlowEndpointsNotify($notify, $endpoint->id, $subEndpointIds);
 
                 NotifyFlowEndpointJob::dispatch($notify, $endpoint->_id, $currentStepIndex + 1);
             }

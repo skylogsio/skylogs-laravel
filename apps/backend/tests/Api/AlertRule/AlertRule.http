@@ -242,7 +242,15 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-POST {{domain}}/alert-rule/acknowledge/67cf5e9d60f5ce9d5f003b52
+POST {{domain}}/alert-rule/acknowledge/68d6a0bb1eabdb77b30b8d52
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{authToken}}
+
+
+###
+
+POST {{domain}}/alert-rule/acknowledgeL/68d6a0bb1eabdb77b30b8d52
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

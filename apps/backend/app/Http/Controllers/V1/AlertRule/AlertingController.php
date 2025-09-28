@@ -171,7 +171,9 @@ class AlertingController extends Controller
     {
         $alert = AlertRule::where("_id", $id)->first();
         $user = app(UserService::class)->admin();
-
+        if($alert->isAcknowledged()){
+            return response()->json(['status' => false,"message" => "Alert rule Already Acknowledged."]);
+        }
         $alert->acknowledge($user);
         SendNotifyService::CreateNotify(SendNotifyJob::ALERT_RULE_ACKNOWLEDGED, $alert, $alert->_id);
 
