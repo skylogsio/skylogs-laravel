@@ -78,9 +78,8 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                 if (!empty($alert['labels']))
                     foreach ($alert['labels'] as $label => $labelValue) {
                         $text .= "$label : $labelValue\n";
-
-
                     }
+
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
                         if (!empty($alert['annotations'][$label])) {
@@ -97,7 +96,7 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage()
+    public function telegram()
     {
         return $this->defaultMessage();
     }

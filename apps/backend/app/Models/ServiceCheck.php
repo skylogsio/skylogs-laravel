@@ -54,7 +54,7 @@ class ServiceCheck extends BaseModel implements Messageable
 
         return $text;
     }
-    public function telegramMessage(): string
+    public function telegram(): string
     {
         return $this->defaultMessage();
     }

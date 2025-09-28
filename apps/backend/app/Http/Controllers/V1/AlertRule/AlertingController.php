@@ -23,6 +23,7 @@ use App\Services\AlertRuleService;
 use App\Services\ApiService;
 use App\Services\EndpointService;
 use App\Services\SendNotifyService;
+use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -159,6 +160,17 @@ class AlertingController extends Controller
         if (!$this->alertRuleService->hasUserAccessAlert($user, $alert)) {
             abort(403);
         }
+
+        $alert->acknowledge($user);
+        SendNotifyService::CreateNotify(SendNotifyJob::ALERT_RULE_ACKNOWLEDGED, $alert, $alert->_id);
+
+        return response()->json(['status' => true]);
+    }
+
+    public function AcknowledgeLoginLink($id)
+    {
+        $alert = AlertRule::where("_id", $id)->first();
+        $user = app(UserService::class)->admin();
 
         $alert->acknowledge($user);
         SendNotifyService::CreateNotify(SendNotifyJob::ALERT_RULE_ACKNOWLEDGED, $alert, $alert->_id);

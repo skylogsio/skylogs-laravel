@@ -242,7 +242,7 @@ class AlertRule extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage()
+    public function telegram()
     {
         return $this->defaultMessage();
     }

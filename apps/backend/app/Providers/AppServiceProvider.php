@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Enums\ClusterType;
 use Illuminate\Support\ServiceProvider;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {

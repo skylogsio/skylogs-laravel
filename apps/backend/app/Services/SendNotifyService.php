@@ -33,7 +33,7 @@ class SendNotifyService
         if ($type == SendNotifyJob::ALERT_RULE_TEST) {
             $messages = [
                 "matterMostMessage" => $notify->alertRule->testMessage(),
-                "telegramMessage" => $notify->alertRule->testMessage(),
+                "telegram" => $notify->alertRule->testMessage(),
                 "teamsMessage" => $notify->alertRule->testMessage(),
                 "emailMessage" => $notify->alertRule->testMessage(),
                 "smsMessage" => $notify->alertRule->testMessage(),
@@ -44,7 +44,7 @@ class SendNotifyService
         } elseif ($type == SendNotifyJob::ALERT_RULE_ACKNOWLEDGED) {
             $messages = [
                 "matterMostMessage" => $notify->alertRule->acknowledgedMessage(),
-                "telegramMessage" => $notify->alertRule->acknowledgedMessage(),
+                "telegram" => $notify->alertRule->acknowledgedMessage(),
                 "teamsMessage" => $notify->alertRule->acknowledgedMessage(),
                 "emailMessage" => $notify->alertRule->acknowledgedMessage(),
                 "smsMessage" => $notify->alertRule->acknowledgedMessage(),
@@ -57,7 +57,7 @@ class SendNotifyService
 
             $messages = [
                 "matterMostMessage" => $alert->matterMostMessage(),
-                "telegramMessage" => $alert->telegramMessage(),
+                "telegram" => $alert->telegram(),
                 "teamsMessage" => $alert->teamsMessage(),
                 "emailMessage" => $alert->emailMessage(),
                 "smsMessage" => $alert->smsMessage(),
