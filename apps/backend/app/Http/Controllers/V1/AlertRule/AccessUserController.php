@@ -69,6 +69,9 @@ class AccessUserController extends Controller
         }
 
         $alert->pull("userIds", $userId);
+        if (!empty($alert->user_ids)) {
+            $alert->pull("user_ids", $userId);
+        }
         $alert->save();
 
         return response()->json(['status' => true]);

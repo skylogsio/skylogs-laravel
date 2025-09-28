@@ -37,7 +37,7 @@ class Telegram
                     $pool->acceptJson()->post(self::Url($configTelegram), [
                         'apiToken' => $chat['botToken'] ?? self::token(),
                         'chatID' => $chat['chatId'],
-                        'message' => $alert->telegramMessage(),
+                        'message' => $alert->telegram(),
                         "thread_id" => $chat['threadId']
                     ]);
 
@@ -49,14 +49,31 @@ class Telegram
             $result = Http::pool(function (Pool $pool) use ($chatIds, $alert,$configTelegram) {
                 foreach ($chatIds as $chat) {
                     $botToken = $chat['botToken'] ?? self::token();
+                    $sendData = $alert->telegram();
+
+                    if(is_string($sendData)){
+                        $message = $sendData;
+                        $meta = [];
+                    }else{
+                        $message = $sendData['message'];
+                        $meta = $sendData['meta'] ?? [];
+                    }
+
                     $body = [
                         'chat_id' => $chat['chatId'],
-                        'text' => $alert->telegramMessage(),
+                        'text' => $message,
                     ];
 
                     if(!empty($chat['threadId'])){
                         $body['message_thread_id'] = $chat['threadId'];
                     }
+
+                    if(!empty($meta)){
+                        $body['reply_markup'] = [
+                            "inline_keyboard" => [$meta] ,
+                        ];
+                    }
+
 
                     $pool->acceptJson()->post("https://api.telegram.org/bot{$botToken}/sendMessage", $body);
                 }

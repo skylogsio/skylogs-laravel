@@ -134,9 +134,22 @@ class PrometheusCheck extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage()
+    public function telegram()
     {
-        return $this->defaultMessage();
+
+        $result = [
+            "message" => $this->defaultMessage(),
+        ];
+        if ($this->alertRule->enableAcknowledgeBtnInMessage() && $this->state == self::FIRE) {
+            $result["meta"] = [
+                [
+                    "text" => "Acknowledge",
+                    "url" => route("acknowledgeLink",['id' => $this->alertRuleId])
+                ]
+            ];
+        }
+
+        return $result;
     }
 
     public function matterMostMessage()

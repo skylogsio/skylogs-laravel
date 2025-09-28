@@ -104,6 +104,10 @@ class AlertRule extends BaseModel implements Messageable
 
     }
 
+    public function enableAcknowledgeBtnInMessage(): bool
+    {
+        return !empty($this->showAcknowledgeBtn) && $this->showAcknowledgeBtn;
+    }
     public function isAcknowledged(): bool
     {
         return !empty($this->acknowledgedBy);
@@ -242,7 +246,7 @@ class AlertRule extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage()
+    public function telegram()
     {
         return $this->defaultMessage();
     }
