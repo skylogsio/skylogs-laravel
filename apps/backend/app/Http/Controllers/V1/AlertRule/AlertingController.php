@@ -23,6 +23,7 @@ use App\Services\AlertRuleService;
 use App\Services\ApiService;
 use App\Services\EndpointService;
 use App\Services\SendNotifyService;
+use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -166,6 +167,17 @@ class AlertingController extends Controller
         return response()->json(['status' => true]);
     }
 
+    public function AcknowledgeLoginLink($id)
+    {
+        $alert = AlertRule::where("_id", $id)->first();
+        $user = app(UserService::class)->admin();
+
+        $alert->acknowledge($user);
+        SendNotifyService::CreateNotify(SendNotifyJob::ALERT_RULE_ACKNOWLEDGED, $alert, $alert->_id);
+
+        return response()->json(['status' => true]);
+    }
+
 
     public function FilterEndpoints()
     {
@@ -215,6 +227,7 @@ class AlertingController extends Controller
             $commonFields = [
                 'name' => $request->name,
                 'type' => $request->type,
+                'showAcknowledgeBtn' => $request->boolean('showAcknowledgeBtn'),
                 'tags' => $request->tags ?? [],
 //                "userId" => $request->userId,
 //                "instances" => $request->instance ?? [],
@@ -391,6 +404,7 @@ class AlertingController extends Controller
             $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
+        $model->showAcknowledgeBtn= $request->boolean('showAcknowledgeBtn');
 
         switch ($model->type) {
             case AlertRuleType::GRAFANA:

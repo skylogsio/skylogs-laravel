@@ -172,7 +172,7 @@ class EndpointService
 
         $steps = $request->steps;
 
-        if (empty($steps)) abort(422, "wrong format for flow endpoints");
+        if (empty($steps)) abort(422, "wrong format for flow endpoints. emtp");
         foreach ($steps as $step) {
             switch ($step['type']) {
                 case FlowEndpointStepType::WAIT->value:

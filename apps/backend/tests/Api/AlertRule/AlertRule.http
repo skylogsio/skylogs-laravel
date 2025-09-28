@@ -1,5 +1,5 @@
 // status_label can be 1. resolved 2.unknown 3. critical 4.warning
-GET {{domain}}/alert-rule?alertname=&types=prometheus&endpointId=&perPage=500
+GET {{domain}}/alert-rule?alertname=&types=&endpointId=&perPage=500
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer {{authToken}}

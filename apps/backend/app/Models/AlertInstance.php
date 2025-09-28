@@ -129,9 +129,21 @@ class AlertInstance extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage(): string
+    public function telegram()
     {
-        return $this->defaultMessage();
+        $result = [
+            "message" => $this->defaultMessage(),
+        ];
+        if ($this->alertRule->enableAcknowledgeBtnInMessage() && $this->state == self::FIRE) {
+            $result["meta"] = [
+                [
+                    "text" => "Acknowledge",
+                    "url" => config("app.url").route("acknowledgeLink", ['id' => $this->alertRuleId],false)
+                ]
+            ];
+        }
+
+        return $result;
     }
 
     public function matterMostMessage(): string

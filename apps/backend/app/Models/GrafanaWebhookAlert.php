@@ -78,9 +78,8 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
                 if (!empty($alert['labels']))
                     foreach ($alert['labels'] as $label => $labelValue) {
                         $text .= "$label : $labelValue\n";
-
-
                     }
+
                 if (!empty($alert['annotations']))
                     foreach ($needLabelAnotArray as $label) {
                         if (!empty($alert['annotations'][$label])) {
@@ -97,9 +96,21 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
         return $text;
     }
 
-    public function telegramMessage()
+    public function telegram()
     {
-        return $this->defaultMessage();
+        $result = [
+            "message" => $this->defaultMessage(),
+        ];
+        if ($this->alertRule->enableAcknowledgeBtnInMessage() && $this->status == self::FIRING) {
+            $result["meta"] = [
+                [
+                    "text" => "Acknowledge",
+                    "url" => config("app.url").route("acknowledgeLink", ['id' => $this->alertRuleId],false)
+                ]
+            ];
+        }
+
+        return $result;
     }
 
     public function matterMostMessage()

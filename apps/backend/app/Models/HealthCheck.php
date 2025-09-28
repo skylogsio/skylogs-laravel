@@ -50,7 +50,7 @@ class HealthCheck extends BaseModel implements Messageable
     }
 
 
-    public function telegramMessage(): string
+    public function telegram(): string
     {
 
         return $this->defaultMessage();
