@@ -104,6 +104,10 @@ class AlertRule extends BaseModel implements Messageable
 
     }
 
+    public function enableAcknowledgeBtnInMessage(): bool
+    {
+        return !empty($this->showAcknowledgeBtn) && $this->showAcknowledgeBtn;
+    }
     public function isAcknowledged(): bool
     {
         return !empty($this->acknowledgedBy);

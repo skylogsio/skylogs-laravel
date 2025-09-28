@@ -98,7 +98,19 @@ class GrafanaWebhookAlert extends BaseModel implements Messageable
 
     public function telegram()
     {
-        return $this->defaultMessage();
+        $result = [
+            "message" => $this->defaultMessage(),
+        ];
+        if ($this->alertRule->enableAcknowledgeBtnInMessage() && $this->status == self::FIRING) {
+            $result["meta"] = [
+                [
+                    "text" => "Acknowledge",
+                    "url" => config("app.url").route("acknowledgeLink", ['id' => $this->alertRuleId],false)
+                ]
+            ];
+        }
+
+        return $result;
     }
 
     public function matterMostMessage()

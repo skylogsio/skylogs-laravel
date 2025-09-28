@@ -134,7 +134,7 @@ class AlertInstance extends BaseModel implements Messageable
         $result = [
             "message" => $this->defaultMessage(),
         ];
-        if ($this->state == self::FIRE) {
+        if ($this->alertRule->enableAcknowledgeBtnInMessage() && $this->state == self::FIRE) {
             $result["meta"] = [
                 [
                     "text" => "Acknowledge",

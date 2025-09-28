@@ -120,10 +120,12 @@ class SendNotifyService
         $telegrams = $endpoints->where("type", EndpointType::TELEGRAM->value)->toArray();
         $flows = $endpoints->where("type", EndpointType::FLOW->value);
 
-        if ($flows->isNotEmpty())
-            foreach ($flows as $flow) {
-                NotifyFlowEndpointJob::dispatch($notify, $flow);
-            }
+        if ($flows->isNotEmpty()) {
+            if ($notify->alertRule->state == AlertRule::CRITICAL)
+                foreach ($flows as $flow) {
+                    NotifyFlowEndpointJob::dispatch($notify, $flow);
+                }
+        }
 
         if ($phones->isNotEmpty()) {
             $result = SMS::sendAlert($phones,
@@ -281,7 +283,7 @@ class SendNotifyService
             return;
         }
 
-        if ($notify->alertRule->state == AlertRule::RESOlVED) {
+        if ($notify->alertRule->state != AlertRule::CRITICAL) {
 
             $resultFlows = $notify->resultFlows ?? [];
             if (empty($resultFlows[$endpointId])) {
@@ -289,7 +291,8 @@ class SendNotifyService
             }
             $resultFlows[$endpointId][] = [
                 "status" => -1,
-                "label" => "resolved alert"
+                "label" => "not critical alert",
+                "description" => "AlertRule state is ".$notify->alertRule->state,
             ];
             $notify->resultFlows = $resultFlows;
             $notify->save();

@@ -227,6 +227,7 @@ class AlertingController extends Controller
             $commonFields = [
                 'name' => $request->name,
                 'type' => $request->type,
+                'showAcknowledgeBtn' => $request->boolean('showAcknowledgeBtn'),
                 'tags' => $request->tags ?? [],
 //                "userId" => $request->userId,
 //                "instances" => $request->instance ?? [],
@@ -403,6 +404,7 @@ class AlertingController extends Controller
             $model = $model->where("userId", auth()->id());
         }
         $model = $model->firstOrFail();
+        $model->showAcknowledgeBtn= $request->boolean('showAcknowledgeBtn');
 
         switch ($model->type) {
             case AlertRuleType::GRAFANA:
