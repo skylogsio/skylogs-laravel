@@ -14,8 +14,8 @@ export interface IFlow {
   type: "flow";
   steps: IFlowStep[];
   isPublic: boolean;
-  updated_at: Date;
-  created_at: Date;
+  updatedAt: Date;
+  createdAt: Date;
 }
 
 export interface ICreateFlowRequest {

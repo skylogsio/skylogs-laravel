@@ -71,7 +71,7 @@ export default function Flows() {
           },
           {
             header: "Created At",
-            cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString()
+            cell: ({ row }) => row.original.createdAt
           },
           {
             header: "Actions",
