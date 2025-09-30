@@ -71,29 +71,45 @@ export default function EndPoints() {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          aria-label="endpoint tabs"
-          sx={{
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontSize: "1rem",
-              fontWeight: 600,
-              minWidth: 120,
-              px: 3,
-              py: 2
-            },
-            "& .Mui-selected": {
-              color: "primary.main"
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        aria-label="endpoint tabs"
+        centered
+        sx={{
+          "& .MuiTabs-fixed": {
+            display: "inline-block",
+            flex: "none",
+            marginX: "auto",
+            width: "auto",
+            boxSizing: "border-box",
+            border: "1px solid",
+            borderColor: ({ palette }) => palette.grey[300],
+            borderRadius: 2,
+            overflow: "hidden"
+          },
+          "& .MuiTab-root": {
+            textTransform: "none",
+            fontSize: "1rem",
+            fontWeight: 600,
+            position: "relative",
+            zIndex: 3,
+            transition: "all 300ms ease-out",
+            "&.Mui-selected": {
+              transition: "all 300ms ease-out",
+              color: ({ palette }) => `${palette.common.white}!important`
             }
-          }}
-        >
-          <Tab label="EndPoint List" {...a11yProps(0)} />
-          <Tab label="Endpoint Flows" {...a11yProps(1)} />
-        </Tabs>
-      </Box>
+          },
+          "& .MuiTabs-indicator": {
+            height: "100%",
+            zIndex: 2,
+            ...(tabValue === 0 ? { left: `${0} !important` } : {})
+          }
+        }}
+      >
+        <Tab label="EndPoint List" {...a11yProps(0)} />
+        <Tab label="Endpoint Flows" {...a11yProps(1)} />
+      </Tabs>
 
       <CustomTabPanel value={tabValue} index={0}>
         <Table<IEndpoint>
