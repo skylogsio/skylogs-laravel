@@ -19,7 +19,7 @@ import { MdAccessTime, MdDelete, MdFlashOn } from "react-icons/md";
 import { toast } from "react-toastify";
 import { z } from "zod";
 
-import type { IFlow, TimeUnit } from "@/@types/flow";
+import type { IFlow } from "@/@types/flow";
 import { type CreateUpdateModal } from "@/@types/global";
 import { createFlow, updateFlow, getAllEndpoints } from "@/api/flow";
 import ModalContainer from "@/components/Modal";
