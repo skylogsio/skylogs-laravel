@@ -54,7 +54,6 @@ class SendNotifyService
 
         } else {
 
-
             $messages = [
                 "matterMostMessage" => $alert->matterMostMessage(),
                 "telegram" => $alert->telegram(),
