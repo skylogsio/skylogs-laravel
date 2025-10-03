@@ -22,7 +22,8 @@ import { z } from "zod";
 
 import type { IFlow } from "@/@types/flow";
 import { type CreateUpdateModal } from "@/@types/global";
-import { createFlow, updateFlow, getAllEndpoints } from "@/api/flow";
+import { createEndpoint, updateEndpoint } from "@/api/endpoint";
+import { getAllEndpoints } from "@/api/flow";
 import ModalContainer from "@/components/Modal";
 import type { ModalContainerProps } from "@/components/Modal/types";
 
@@ -98,7 +99,7 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
         ...body,
         type: "flow"
       };
-      return createFlow(payload);
+      return createEndpoint(payload);
     },
     onSuccess: () => {
       toast.success("Flow Created Successfully.");
@@ -113,7 +114,7 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
         ...body,
         type: "flow"
       };
-      return updateFlow(id, payload);
+      return updateEndpoint(id, payload);
     },
     onSuccess: () => {
       toast.success("Flow Updated Successfully.");
@@ -123,7 +124,6 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
   });
 
   function handleSubmitForm(body: FlowFormType) {
-    console.log(body);
     if (data === "NEW") {
       createFlowMutation(body);
     } else if (data) {
@@ -187,7 +187,7 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
 
   return (
     <ModalContainer
-      title="Create New Flow"
+      title={data === "NEW" ? "Create New Flow" : "Update Flow"}
       open={open}
       onClose={onClose}
       disableEscapeKeyDown
@@ -274,7 +274,7 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
                 </>
               )}
               <IconButton onClick={() => remove(index)}>
-                <MdDelete size={16} />
+                <MdDelete />
               </IconButton>
             </Stack>
           ))}
@@ -331,7 +331,7 @@ export default function FlowModal({ open, onClose, data, onSubmit }: FlowModalPr
           size="large"
           fullWidth
         >
-          CREATE
+          {data === "NEW" ? "Create" : "Update"}
         </Button>
       </Box>
     </ModalContainer>
